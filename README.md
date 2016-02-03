@@ -46,11 +46,11 @@ The purpose of the enclosures is threefold:
 
 [1]: https://learn.adafruit.com/adafruit-neopixel-uberguide
 
-Because the 
-
 ### Printing Enclosures
 
-Before you jump in to printing and assembling the enclosures, you should make at least a thumbnail sketch of the installation, so that you know how how many of which components to make, and how they will be assembled. 
+First, download the files in the `STLs` directory. 
+
+Next, before you jump in to printing and assembling the enclosures, you should make a thumbnail sketch of the installation, so that you know how how many of which components to make, and how they will be assembled. 
 
 For example, here is a diagram of the simplest possible installation, with two PIR sensors and one NeoPixel strip:
 
@@ -58,7 +58,7 @@ For example, here is a diagram of the simplest possible installation, with two P
 
 This configuration uses the PIR enclosures to connect the neopixels to power and data. 
 
-I don't recommend you use this configuration, though, because the PIR sensors have a very, very long range, and so you won't get reliable results. As you approach one end of the strip, the other sensor may trip, and that ruins the illusion of the lights. 
+I *do not* recommend you use this configuration, because the PIR sensors have a very, very long range, and so you won't get reliable results. As you approach one end of the strip, the other sensor may trip, and that ruins the illusion of the lights. 
 
 Instead, I recommend a slightly more complex configuration: 
 
@@ -69,13 +69,15 @@ Instead, I recommend a slightly more complex configuration:
 
 To make this configuration, you will need two PIR enclosures, and two "nopir" enclosures. This will space out the sensors and make it so that they trigger at the right times, making the lights chase back and forth between the sensors. 
 
-If you want to lengthen the lights, just add another "nopir" enclosure to connect another strip, like so: 
+Please see the second video in the Overview section if you want to see what this configuration looks like in the wild. 
+
+If you want to lengthen the lights, just add another "nopir" enclosure to connect another NeoPixel strip, like so: 
 
     A-------P------N======================N=====================N------------P
 
 (TODO: scan actual drawing of the configurations)
 
-Basically, for each installation you build, you will want two PIR sensor enclosures, and one more "nopir" enclosure than the number of NeoPixel strips you want to use. 
+Basically, for each installation you build, you will want two PIR sensor enclosures, and one more "nopir" enclosure than the number of NeoPixel strips. 
 
 If you want to make things a bit more complex (why not?), you can space out the neopixel strips with areas of blank conduit, which will lengthen the area you can cover with the lights, like so: 
 
