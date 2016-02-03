@@ -30,12 +30,80 @@ This is an advanced project. It involves building a weather resistant wire rig w
 
 Even though the rig is designed to be weather resistant, it has not yet been tested in heavy rain or other wet conditions! Please take care and consider that this project uses electricity outdoors. Proceed at your own risk. 
 
-## Wiring and Soldering
+
+
 
 
 ## 3D Printing
 
-The housings are designed to be easily printable on any commercial 3D printer; they were printed on a first-generation Makerbot Replicator in PLA and ABS plastic, and have been successfully tested on Cura, Printrbot, and Lulzbot printers.
+The enclosures are designed to be easily printable on any commercial 3D printer; they were printed on a first-generation Makerbot Replicator in PLA and ABS plastic, and have been successfully tested on Cura, Printrbot, and Lulzbot printers.
+
+The purpose of the enclosures is threefold: 
+
+1. house passive infrared (PIR) motion sensors and connect their data lines to a ribbon cable reaching back to the arduino enclosure
+2. connect neopixel strips to their data lines on the same ribbon cable, or to each other (if using multiple strips)
+3. connect neopixel strips to the power and ground lines at both their origin and terminus, as recommended in the [Adafruit NeoPixel Uberguide][1], so that the lights don't dim and turn yellow as they extend far away from the arduino enclosure
+
+[1]: https://learn.adafruit.com/adafruit-neopixel-uberguide
+
+Because the 
+
+### Printing Enclosures
+
+Before you jump in to printing and assembling the enclosures, you should make at least a thumbnail sketch of the installation, so that you know how how many of which components to make, and how they will be assembled. 
+
+For example, here is a diagram of the simplest possible installation, with two PIR sensors and one NeoPixel strip:
+
+    A------P========================================P
+
+This configuration uses the PIR enclosures to connect the neopixels to power and data. 
+
+I don't recommend you use this configuration, though, because the PIR sensors have a very, very long range, and so you won't get reliable results. As you approach one end of the strip, the other sensor may trip, and that ruins the illusion of the lights. 
+
+Instead, I recommend a slightly more complex configuration: 
+
+
+    A-------P------N====================================N------------P
+
+(TODO: scan actual drawing of the configurations)
+
+To make this configuration, you will need two PIR enclosures, and two "nopir" enclosures. This will space out the sensors and make it so that they trigger at the right times, making the lights chase back and forth between the sensors. 
+
+If you want to lengthen the lights, just add another "nopir" enclosure to connect another strip, like so: 
+
+    A-------P------N======================N=====================N------------P
+
+(TODO: scan actual drawing of the configurations)
+
+Basically, for each installation you build, you will want two PIR sensor enclosures, and one more "nopir" enclosure than the number of NeoPixel strips you want to use. 
+
+If you want to make things a bit more complex (why not?), you can space out the neopixel strips with areas of blank conduit, which will lengthen the area you can cover with the lights, like so: 
+
+    A-------P------N==================N----------------N==================N------------P
+
+(TODO: scan actual drawing of the configurations)
+
+In the end, I recommend sketching your intended installation and then counting the number of each enclosure you will want. Once you do that, start printing your enclosures; they take an average of 5-6 hours each, so while they print you can start figuring out which lids you want to print. 
+
+### Printing Lids
+
+Complexity is the price you pay for a modular system. And this system is very modular, so of course there's an extra step: you have to determine which lids to print. 
+
+Take a look at your sketch from earlier. Let's say you're making a two-strip installation, like so: 
+
+    A-------P------N======================N=====================N------------P
+
+(TODO: scan actual drawing of the configurations)
+
+There are three possible lids to print, with zero, one, or two cutouts for waterproof cable glands. 
+
+## Wiring and Soldering
+
+### Arduino Enclosure
+
+### Terminal Boards
+
+### Pulling Cable
 
 ## Software
 
@@ -44,3 +112,5 @@ The current iteration of the software is in the directory marked `witch-lights-c
 It does _not_ allow for the triggering of more than one sprite at a time, and does not respond to sensor trigger events while a sprite is being animated. 
 
 ## Final Assembly and Use
+
+### 
