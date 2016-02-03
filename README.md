@@ -6,13 +6,16 @@ The documentation and code are currently under construction, so they may change 
 
 ## Overview
 
-This project creates a set of ghostly lights, which come out of the woods when you approach them and jump from tree to tree. 
+This project creates a set of [ghostly lights][vid0], which come out of the woods when you approach them and jump from tree to tree. 
 
 Imagine: as you walk through the unlit path, a tiny purple faerie jumps out of the underbrush, coiling about trees and floating overhead. It zips ahead of you, but pauses, flickering, while you catch up. It then takes off again, remaining always just out of reach, until you reach the end of their territory, where they vanish back into the woods. As you pass by where they disappeared, the lights jump out again, heading back the other way, daring you to chase them.
 
 <iframe src="https://player.vimeo.com/video/153011114" width="500" height="889" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe> 
 
-Here is a video of an installation of the lights using a single five-meter LED strip (taken at twilight so that the hardware is visible):
+[Here is a video][vid1] of an installation of the lights using a single five-meter LED strip (taken at twilight so that the hardware is visible):
+
+[vid0]: https://vimeo.com/153011114#t=2s
+[vid1]: https://vimeo.com/153011829
 
 <iframe src="https://player.vimeo.com/video/153011829" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe> 
 
@@ -29,10 +32,6 @@ This is an advanced project. It involves building a weather resistant wire rig w
 ### Important Caveat
 
 Even though the rig is designed to be weather resistant, it has not yet been tested in heavy rain or other wet conditions! Please take care and consider that this project uses electricity outdoors. Proceed at your own risk. 
-
-
-
-
 
 ## 3D Printing
 
@@ -99,13 +98,21 @@ Take a look at your sketch from earlier. Let's say you're making a two-strip ins
 
 There are three possible lids to print, with zero, one, or two cutouts for waterproof cable glands. That's where the waterproof cables will come out of the enclosures and connect to the NeoPixel strips. 
 
+For each enclosure, look at the diagram. Is there a NeoPixel strip touching the enclosure? If not, print a lid with 0 holes. 
 
+If there's one NeoPixel strip touching the enclosure, print a lid with 1 holes. And if there are two strips touching (like the middle enclosure in the above diagram), print a lid with 2 holes. 
+
+The rule of thumb is, print a lid with the same number of holes as the number of NeoPixels this enclosure needs to interface with. 
 
 ## Wiring and Soldering
 
 ### Arduino Enclosure
 
 Make a circuit board for the arduino due so it can talk to the neopixels and hook up to the ribbon cable. 
+
+### Power
+
+Wire up the 5V power supply from the battery board to the 2.1mm connector on the arduino circuit board. Optional power switch installed in the side would go between the power line from the battery board and the arduino circuit board. 
 
 ### Terminal Boards
 
@@ -172,3 +179,21 @@ Check all the ground and power lines to make sure they aren't shorted anywhere d
 ### Connect NeoPixels
 
 Hook up the NeoPixels to their appropriate 4-pin cables. If you've done continuity checks at each terminal board, you should have an unbroken data line running from beginning to end. Turn on the power and wave your hand at a PIR sensor; you should see a purple sprite animate along the length of the NeoPixel strips. 
+
+This is where you should snap the lids tightly down on the enclosures, and screw the cable glands tight on the 4-pin NeoPixel cables. 
+
+### Install 
+
+Disconnect the neopixels temporarily, and loop the conduit through branches, around trees, along the ground, overhead… whatever path you want the lights to take. Then reconnect the NeoPixel cables at each end, and use velcro loops to bind the neopixel strips to the conduit so that there's no bunching or sagging. 
+
+## Troubleshooting
+
+Most problems with this installation are caused by wiring problems. If you're getting weird behavior, or no pixel illumination, check:
+
+* are there any short circuits? 
+* is the white data line connected all the way to the first NeoPixel input? 
+* Are the 4-pin connectors connected right on the inside? 
+* Are the NeoPixel strips oriented correctly? (Check the arrow on the strip; it should be pointed *away* from the Arduino enclosure)
+* Is the Arduino power light on? Does the indicator LED come on when the PIR sensor is tripped? 
+
+TODO: more better troubleshooting 
