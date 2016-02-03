@@ -67,7 +67,7 @@ Instead, I recommend a slightly more complex configuration:
 
 (TODO: scan actual drawing of the configurations)
 
-To make this configuration, you will need two PIR enclosures, and two "nopir" enclosures. This will space out the sensors and make it so that they trigger at the right times, making the lights chase back and forth between the sensors. 
+To make this configuration, you will need two PIR enclosures, one "nopir" enclosure, and one "nopir terminal" connector. This will space out the sensors and make it so that they trigger at the right times, making the lights chase back and forth between the sensors. 
 
 Please see the second video in the Overview section if you want to see what this configuration looks like in the wild. 
 
@@ -97,15 +97,27 @@ Take a look at your sketch from earlier. Let's say you're making a two-strip ins
 
 (TODO: scan actual drawing of the configurations)
 
-There are three possible lids to print, with zero, one, or two cutouts for waterproof cable glands. 
+There are three possible lids to print, with zero, one, or two cutouts for waterproof cable glands. That's where the waterproof cables will come out of the enclosures and connect to the NeoPixel strips. 
+
+
 
 ## Wiring and Soldering
 
 ### Arduino Enclosure
 
+Make a circuit board for the arduino due so it can talk to the neopixels and hook up to the ribbon cable. 
+
 ### Terminal Boards
 
+make one each per enclosure
+
+### NeoPixel Cables
+
+You'll have to solder and heat-shrink one end of a waterproof 4-pin cable to each side of the strip. Make sure you always use the same cable gender for input and output, or else it'll get really confusing. 
+
 ### Pulling Cable
+
+Use a cable snake to pull ribbon cable through the heyco conduit. Oh yeah, cut the conduit to length first. 
 
 ## Software
 
@@ -113,6 +125,50 @@ The current iteration of the software is in the directory marked `witch-lights-c
 
 It does _not_ allow for the triggering of more than one sprite at a time, and does not respond to sensor trigger events while a sprite is being animated. 
 
+The animation is currently unfinished, but was good enough for the initial proof of concept. More work needs to be done on it. 
+
 ## Final Assembly and Use
 
-### 
+### Arduino Enclosure and Power
+
+Cut a hole in the enclosure for the heyco conduit thingy, and optionally a hole for the power button, unless you want to just unplug the battery when you want to turn it off. 
+
+### PIR sensors 
+
+Press-fit the PIR sensor into the provided slot. You may want to then pop the circuit board off, leaving the lens in place, and use hot glue to weatherproof the opening, as well as keep the PIR sensor from popping free, which it will tend to do unless you glue it in. 
+
+### Terminal boards
+
+Use 8mm M3 machine screws to attach the terminal boards to the bosses in the enclosures. Depending on your 3D printer, the screws *should* bite into the provided holes. If your printer's dimensional accuracy isn't 100% you might end up inserting helicoils. 
+
+### Conduit to Connectors
+
+Swedge the conduit onto connectors and put them into the enclosures; pull the ribbon cable through the waterproof washer and screw the conduit onto the enclosure at both ends, leaving the ribbon loose inside the connectors. 
+
+### Wiring
+
+Start at the arduino enclosure and screw all the matching colored ribbon cable ends to their appropriate terminal. Leave any extras un-stripped, so that in the future you have the option of additional sensors or branching LED strips. 
+
+At each terminal board, hook power and ground into the provided terminals. 
+
+At the first PIR sensor, connect the green ribbon wire to the PIR sensor terminal, and connect the 3 wires from the PIR sensor to the other end of the terminal board. If there is no NeoPixel strip being connected to this enclosure, connect the white wire to the terminals on each side so that the data passes through. 
+
+Connect the yellow wire to the "passthrough" terminal on the side of the terminal board. In all subsequent terminal boards, use the PIR sensor terminals to pass the yellow wire through; this is the wire for the final PIR sensor and it needs an unbroken chain all the way through. 
+
+Once you finish with each terminal board, use your multimeter to check continuity from the terminals in the arduino enclosure. I find it best to coil the conduit into a big loop as I connect terminal boards, so that the terminal board is a meter or so from the arduino enclosure at maximum. 
+
+When you reach a terminal board where a neopixel strip is being attached, thread an "output" 4-wire cable through the waterproof cable gland, and connect the red, white, and black cables to the output terminal, so that the data line passes from the white wire on the ribbon cable into the white wire on the 4-wire cable. 
+
+When connecting neopixel strips to each other, use a two-cable configuration on the terminal board, so that the neopixels get connected to power and ground at each enclosure they touch. (TODO: clarify this)
+
+TODO: instructional photos are probably good here. 
+
+At the last terminal board, connect the yellow wire to the PIR sensor. Do a continuity check between the yellow pin on the arduino to the PIR sensor to make sure there are no breaks in the chain. 
+
+Final checks: 
+
+Check all the ground and power lines to make sure they aren't shorted anywhere down the line. Test the final terminal board against the arduino enclosure. If there are no shorts, turn on the power. Check the power terminals on the final board; it should show 5 volts. 
+
+### Connect NeoPixels
+
+Hook up the NeoPixels to their appropriate 4-pin cables. If you've done continuity checks at each terminal board, you should have an unbroken data line running from beginning to end. Turn on the power and wave your hand at a PIR sensor; you should see a purple sprite animate along the length of the NeoPixel strips. 
