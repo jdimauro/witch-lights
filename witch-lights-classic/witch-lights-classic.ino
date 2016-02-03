@@ -51,7 +51,6 @@ void setup()                    // special function, runs on boot
  
 void loop()                      // special function
 {
-	// unsigned long currentMillis = millis();
 	
   loc0val = digitalRead(loc0Pin);  	// read input loc0value
   
