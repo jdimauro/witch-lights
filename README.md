@@ -138,7 +138,7 @@ For each 3D-printed enclosure you make, you're going to need a terminal board. T
 
 You'll probably want to strip and install the wires first, like so:
 
-![PIR Terminal Board Detail 1](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-pir-board1.jpg)
+![PIR Terminal Board Detail 1](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-pir-board1.png)
 
 Once those are soldered, use masking tape to hold the terminals on to the board, and solder them on, like so: 
 
@@ -148,7 +148,11 @@ Use the continuity tester feature of your multi-meter to test for short circuits
 
 ### NeoPixel Cables
 
-You'll have to solder and heat-shrink one end of a waterproof 4-pin cable to each side of the strip. Make sure you always use the same cable gender for input and output, or else it'll get really confusing. 
+You'll have to solder and heat-shrink one end of a waterproof 4-pin cable to each side of the NeoPixel strip, so that we can hook 
+
+Make sure you always use the same cable gender for input and output, or else it'll get really confusing. I used a label printer to make 
+
+
 
 ### Pulling Cable
 
