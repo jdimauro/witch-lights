@@ -18,7 +18,7 @@ int loc1val = 1;
 int hoverTime;				          // how long the sprite hovers for
 int hoverLowerTime = 5;         // shortest possible hoverTime
 int hoverUpperTime = 30;        // longest possible hoverTime
-int hoverLowerDistance = 60;   // shortest possible pause distance
+int hoverLowerDistance = 40;   // shortest possible pause distance
 int hoverUpperDistance = hoverLowerDistance + 80;   // longest possible pause distance
                                 // TODO: make hover distance adjustable via a knob
 
@@ -118,6 +118,17 @@ void chase(uint32_t c)
           }
         moveFromToLocation(locPos, destPixel, c);
         locPos = destPixel;
+  
+        // experiment begins
+        
+        // dir = (dir==1) ? -1 : 1;  // reverse direction
+        //
+        // moveFromToLocation(locPos, locPos-10, c);
+        // locPos = locPos - 10;
+        //
+        // dir = (dir==1) ? -1 : 1; // reverse direction again
+
+        // experiment ends
  
   	    hoverRandom = random(hoverLowerDistance,hoverUpperDistance);
   	    destPixel = locPos + hoverRandom * dir;
