@@ -116,16 +116,35 @@ And since we're using ribbon cable to send the power and data signals down the l
 
 Therefore, you're going to need to make a circuit board for the arduino due so it can talk to the neopixels and hook up to the ribbon cable. 
 
+![Witch Light Arduino Perma-Proto Board](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-ard-proto.png)
 
+Use an Adafruit Perma-Proto Half-Size board and solder a pair of 10-pin screw terminals to it, and wire it up as shown in the photograph above. 
 
+The 74AHCT125 chip is installed so that the little "U" cutout faces to the right of the board, matching the little "U" cutout in the socket. 
+
+Be certain to wire the data line from pin 6 to the indicated terminal in the photo, and connect the white data line cable to the other indicated terminal on the other side; if you hook them up incorrectly, the NeoPixels will light up erratically or not at all. 
 
 ### Power
+
+Once the Perma-Proto board is wired up like in the photo above, it's time to attach the 4700uF capacitor, and the 2.1mm power connector. 
+
+(TODO: Get current photo of capacitor and power connector on perma-proto board)
 
 Wire up the 5V power supply from the battery board to the 2.1mm connector on the arduino circuit board. Optional power switch installed in the side would go between the power line from the battery board and the arduino circuit board. 
 
 ### Terminal Boards
 
-make one each per enclosure
+For each 3D-printed enclosure you make, you're going to need a terminal board. These are made using Adafruit Perma Proto 1/4 size boards, 3-pin terminals, and 2-pin terminals.
+
+You'll probably want to strip and install the wires first, like so:
+
+![PIR Terminal Board Detail 1](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-pir-board1.jpg)
+
+Once those are soldered, use masking tape to hold the terminals on to the board, and solder them on, like so: 
+
+(TODO: close-up diagram shot of perma-proto boards)
+
+Use the continuity tester feature of your multi-meter to test for short circuits and to ensure that the power, data, and ground lines pass properly through from one side of the board to the other. 
 
 ### NeoPixel Cables
 
@@ -156,6 +175,9 @@ Press-fit the PIR sensor into the provided slot. You may want to then pop the ci
 ### Terminal boards
 
 Use 8mm M3 machine screws to attach the terminal boards to the bosses in the enclosures. Depending on your 3D printer, the screws *should* bite into the provided holes. If your printer's dimensional accuracy isn't 100% you might end up inserting helicoils. 
+
+![Enclosure](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-pir-enclosure1.png)
+
 
 ### Conduit to Connectors
 
