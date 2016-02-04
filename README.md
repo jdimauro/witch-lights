@@ -106,9 +106,18 @@ The rule of thumb is, print a lid with the same number of holes as the number of
 
 ## Wiring and Soldering
 
+The physical layer of this project is composed of the Arduino Due, a power circuit, ribbon cable running through conduit, terminal circuit boards in the enclosures, and waterproof cabling for the NeoPixel strips. 
+
 ### Arduino Enclosure
 
-Make a circuit board for the arduino due so it can talk to the neopixels and hook up to the ribbon cable. 
+The Arduino Due is a 3.3v microcontroller, but the NeoPixels need 5v on the data line. So we'll need to use a logic level shifter, which will take the data signals sent by pin 6 of the arduino and amp them up to 5 volts. 
+
+And since we're using ribbon cable to send the power and data signals down the length of the installation, we probably want to use screw terminals to connect those wires to the arduino. 
+
+Therefore, you're going to need to make a circuit board for the arduino due so it can talk to the neopixels and hook up to the ribbon cable. 
+
+
+
 
 ### Power
 
