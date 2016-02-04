@@ -102,7 +102,7 @@ void loop()                      // special function
 void chase(uint32_t c) 
 {
     if (debug) { Serial.println("Starting the chase!"); }
-    int locPos = (dir==1) ? 0 : N_LEDS;
+    uint16_t locPos = (dir==1) ? 0 : N_LEDS;
 	  int destPixel = locPos + (random(hoverLowerDistance,hoverUpperDistance) + 3) * dir;
     uint16_t locEnd = (dir==1) ? N_LEDS : 0;
         
