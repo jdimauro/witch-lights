@@ -25,7 +25,7 @@ int hoverUpperDistance = hoverLowerDistance + 80;   // longest possible pause di
 int hoverRandom;
 int dir = 1;					          // +1 to move forwards, -1 to move backwards
 
-long interval = 35;             // delay between pixel draws -- 45 is slower than you can walk away from
+long interval = 30;             // delay between pixel draws -- 45 is slower than you can walk away from
 long minInterval = 0;           // 
       
 boolean debug = false;
@@ -108,7 +108,8 @@ void chase(uint32_t c)
         
 	  strip.show();
 	
-	  while (locPos != locEnd) {              // WARNING: comparison between signed and unsigned integer expressions 
+	  while (locPos != locEnd) 
+    { 
           if (debug) {
             Serial.print("locPos ");
             Serial.print(locPos);
@@ -159,7 +160,7 @@ void chase(uint32_t c)
          Serial.print(" moving to ");
          Serial.println(locEnd);
        }
-	}  
+    }  
 }
 
 
