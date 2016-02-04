@@ -18,8 +18,8 @@ int loc1val = 1;
 int hoverTime;				          // how long the sprite hovers for
 int hoverLowerTime = 5;         // shortest possible hoverTime
 int hoverUpperTime = 30;        // longest possible hoverTime
-int hoverLowerDistance = 120;   // shortest possible pause distance
-int hoverUpperDistance = 240;   // longest possible pause distance
+int hoverLowerDistance = 60;   // shortest possible pause distance
+int hoverUpperDistance = hoverLowerDistance + 80;   // longest possible pause distance
                                 // TODO: make hover distance adjustable via a knob
 
 int hoverRandom;
