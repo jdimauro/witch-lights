@@ -39,42 +39,48 @@ TODO: link to suppliers for items on the BOM
 
 Components: 
 
-* Heat-Shrink, various sizes
+* [Heat-Shrink, various sizes](https://www.adafruit.com/products/1649)
 * Heat-Shrink, 1/4"
 * Heat-Shring, 1/2" (optional)
 * Ribbon Cable, 100' spool
-* Hookup wire, 22AWG, various colors
+* [Hookup wire, 22AWG, various colors](https://www.adafruit.com/products/1311)
 * M3 socket-head machine screws, 8mm length (box 100)
 * Heyco 8452 3/4" conduit (100' spool)
-* PIR Motion Sensor (2)
+* [PIR Motion Sensor](https://www.adafruit.com/products/189) (2)
 
 Controller Board components:
 
 * 3D-Printed `wl-arduino-mount.STL` circuit board mount
 * M3 machine screw, 20mm (?)
 * ??mm plastic standoff
-* Adafruit Perma-Proto 1/2 board 
-* Screw Terminals, 10-pin (2)
-* Arduino Due
-* 74AHCT125 Logic Level Shifter IC
-* 16-pin IC socket
-* 4700uF capacitor
-* 2.1mm DC power plug (female)
-* 2.1mm DC power plug terminals (male)
-* 10k ohm resistors (2)
-* Adafruit PowerBoost 1000 board
-* 4400 MAh LiPo battery
-* Waterproof Panel-Mount on/off switch
-* Waterproof Enclosure (Large)
+* [Adafruit Perma-Proto 1/2 board](https://www.adafruit.com/products/1609) 
+* [Screw Terminals, 10-pin](https://www.adafruit.com/products/2234) (2)
+* [Arduino Due](https://www.adafruit.com/products/1076)
+* [74AHCT125 Logic Level Shifter IC](https://www.adafruit.com/products/1787)
+* [16-pin IC socket](https://www.adafruit.com/products/2203)
+* [4700uF capacitor](https://www.adafruit.com/products/1589)
+* [2.1mm breadboard-friendly DC power jack](https://www.adafruit.com/products/373)
+* [2.1mm male DC power adapter](https://www.adafruit.com/products/369)
+* [10k ohm resistors](https://www.adafruit.com/products/2784) (2)
+* [Adafruit PowerBoost 1000 board](https://www.adafruit.com/products/2465)
+* [4400 MAh LiPo battery](https://www.adafruit.com/products/354)
+* [Waterproof Panel-Mount on/off switch](https://www.adafruit.com/products/916)
+* [Waterproof Enclosure (Large)](https://www.adafruit.com/products/905)
 
 You will need one set of these parts per 3D-printed enclosure (see instructions):
 
 * Heyco 8404 3/4" conduit fittings (2)
 * Heyco ???? 3/4" waterproof washers (2)
 * Heyco ???? 3/4" conduit fitting screw-cap (2)
-* Adafruit Perma-Proto 1/4 board
-* Screw Terminals, 2-pin (3)
-* Screw Terminals, 3-pin (2)
+* [Adafruit Perma-Proto 1/4 board](https://www.adafruit.com/products/1608)
+* [Screw Terminals, 2-pin](https://www.adafruit.com/products/2234) (3)
+* [Screw Terminals, 3-pin](https://www.adafruit.com/products/2234) (2)
+
+You will need one set of these parts per NeoPixel strip (see instructions):
+
+* [NeoPixel 30 LED/meter strip, black](https://www.adafruit.com/products/1460), 5 meters
+* [4-pin waterproof cable](https://www.adafruit.com/products/744) (2)
+* [waterproof cable gland](https://www.adafruit.com/products/762) (2)
 
 Optional NeoPixel Reel Test rig:
 
@@ -84,12 +90,6 @@ Optional NeoPixel Reel Test rig:
 * Adafruit Perma-Proto 1/4 board
 * Screw Terminals, 3-pin (2)
 * 4-pin waterproof cable
-
-You will need one set of these parts per NeoPixel strip (see instructions):
-
-* NeoPixel 30 LED/meter strip, black, 5 meters
-* 4-pin waterproof cable (2)
-* waterproof cable gland (2)
 
 
 Tools:
@@ -112,9 +112,9 @@ Tools:
 
 ## 3D Printing
 
-The enclosures are designed to be easily printable on any commercial 3D printer; they were printed on a first-generation Makerbot Replicator in PLA and ABS plastic, and have been successfully tested on Cura, Printrbot, and Lulzbot printers.
+The enclosures are designed to be easily printable on any commercial 3D printer; they were printed on a first-generation Makerbot Replicator in PLA and ABS plastic, and have been successfully tested on Makerbot Replicator 2, Printrbot, and Lulzbot printers.
 
-![Printing an enclosure](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-pir-enclosure-printing.jpg)
+![Printing an enclosure on a Makerbot Replicator 2](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-pir-enclosure-printing.jpg)
 
 The purpose of the enclosures is threefold: 
 
@@ -207,7 +207,17 @@ The 74AHCT125 chip is installed so that the little "U" cutout faces to the right
 
 (TODO: detail shot of 74HCT125 chip)
 
+Use hookup wire to connect the arduino's headers to the top part of the circuit board as follows:
+
+* Connect the *red* terminal (power) to the "5V" pin
+* Connect the *rightmost white* terminal (NeoPixel data) to digital pin 6 (refer to the detail photo above)
+* Connect the *green* terminal (PIR sensor 0) to digital pin 3
+* Connect the *yellow* terminal (PIR sensor 1) to digital pin 4
+* Connect the *black* terminal (ground) to the "GND" pin
+
 **Be certain to wire the data line from pin 6 to the indicated terminal in the photo, and connect the white data line cable to the other indicated terminal on the other side; if you hook them up incorrectly, the NeoPixels will light up erratically or not at all.** 
+
+(TODO: detail shot of the Arduino hooked up to the circuit board)
 
 ### Power
 
