@@ -275,7 +275,11 @@ Cut a hole in the enclosure for the heyco conduit thingy, and optionally a hole 
 
 ### PIR sensors 
 
-Press-fit the PIR sensor into the provided slot. You may want to then pop the circuit board off, leaving the lens in place, and use hot glue to weatherproof the opening, as well as keep the PIR sensor from popping free, which it will tend to do unless you glue it in. 
+Press-fit the PIR sensor into the provided slot in the bottom of the 3D-printed "PIR" enclosure.
+
+![PIR Enclosure side view](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-pir-enclosure2.png)
+
+You may want to then pop the circuit board off, leaving the lens in place, and use hot glue to weatherproof the opening, as well as keep the PIR sensor from popping free, which it will tend to do unless you glue it in. 
 
 ### Terminal boards
 
