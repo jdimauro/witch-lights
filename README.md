@@ -255,6 +255,12 @@ Use a heat gun to shrink that down and reinforce the joint.
 
 Repeat this process on the other end of the NeoPixel strip with the other end of the waterproof cable. And repeat again for each NeoPixel strip you use. 
 
+#### Test NeoPixel Reels
+
+I used an Arduino Uno to create a dedicated test rig for NeoPixel reels after soldering them; you can either do this, or load the `NeoPixel_Reel_Test` sketch on the Arduino Due. Either way, borrow one of the enclosure terminal boards (or make an extra one), and connect the "out" end of a waterproof cable to it, and hook the power and NeoPixel data lines to the Arduino. 
+
+The `NeoPixel_Reel_Test` sketch runs alternating colors down the length of any NeoPixel 5-meter reel connected to it. 
+
 ### Pulling Cable
 
 Use a cable snake to pull ribbon cable through the heyco conduit. Oh yeah, cut the conduit to length first. 
@@ -331,9 +337,11 @@ Disconnect the NeoPixels temporarily, and loop the conduit through branches, aro
 Most problems with this installation are caused by wiring problems. If you're getting weird behavior, or no pixel illumination, check:
 
 * are there any short circuits? 
-* is the white data line connected all the way to the first NeoPixel input? 
-* Are the 4-pin connectors connected right on the inside? 
+* is the white data line connected all the way to the first NeoPixel input? Use the continuity check function of your multimeter to be certain. 
+* Is the yellow data line connected all the way to the farthest PIR sensor? Check continuity with your multimeter. 
+* Check any enclosures where the NeoPixels connect to 4-pin waterproof cables; it's possible that the terminals connecting the cables to the wiring harness have come loose as the cables flexed during installation. 
 * Are the NeoPixel strips oriented correctly? (Check the arrow on the strip; it should be pointed *away* from the Arduino enclosure)
 * Is the Arduino power light on? Does the indicator LED come on when the PIR sensor is tripped? 
+* Check the voltage at the positive and negative terminals in each enclosure while the assembly is powered on; you should have 5 volts at each terminal. If the voltage is less than 5V, you may have a short circuit in the power line. 
 
 TODO: more better troubleshooting 
