@@ -222,9 +222,11 @@ Use the continuity tester feature of your multi-meter to test for short circuits
 
 ### NeoPixel Cables
 
-You'll have to solder and heat-shrink one end of a waterproof 4-pin cable to each side of the NeoPixel strip, so that we have a weatherproof way to connect the strips to the 3D-printed enclosures. 
+You'll have to solder and heat-shrink one end of a waterproof 4-pin cable to each side of the NeoPixel strip, so that we have a weatherproof way to connect the strips to the 3D-printed enclosures. Once you do that, you'll need to test the strip to make certain there are no problems with your soldering job. 
 
 Make sure you always use the same cable gender for input and output, or else it'll get really confusing. I used a label printer to make an arrow pointing in the direction of the NeoPixel data flow (as indicated by arrows on the NeoPixel Strips), and labeled all the waterproof cables before starting assembly. 
+
+(TODO: Picture of labeled waterproof cables)
 
 Use a third-hand tool to hold the waterproof cable and the end of the NeoPixel strip. Use your wire strippers to take some more insulation off the red, black, and white wires coming out of the waterproof cable, and clip the yellow wire short; we won't be using it. 
 
@@ -259,7 +261,9 @@ Repeat this process on the other end of the NeoPixel strip with the other end of
 
 I used an Arduino Uno to create a dedicated test rig for NeoPixel reels after soldering them; you can either do this, or load the `NeoPixel_Reel_Test` sketch on the Arduino Due. Either way, borrow one of the enclosure terminal boards (or make an extra one), and connect the "out" end of a waterproof cable to it, and hook the power and NeoPixel data lines to the Arduino. 
 
-The `NeoPixel_Reel_Test` sketch runs alternating colors down the length of any NeoPixel 5-meter reel connected to it. 
+The `NeoPixel_Reel_Test` sketch runs alternating colors down the length of any NeoPixel 5-meter reel connected to it. The purpose of this test is to make certain there are no problems with the solders on the NeoPixel reel and 4-pin waterproof cables. 
+
+Use the reel tester after you solder cable to every NeoPixel strip, then roll up the NeoPixel strip onto its reel and put it away in its silver bag; mark "Tested" and the date on the bag. 
 
 ### Pulling Cable
 
