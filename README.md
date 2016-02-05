@@ -35,13 +35,11 @@ Even though the rig is designed to be weather resistant, it has not yet been tes
 
 ## Bill of Materials
 
-TODO: link to suppliers for items on the BOM
-
 Components: 
 
 * [Heat-Shrink, various sizes](https://www.adafruit.com/products/1649)
-* Heat-Shrink, 1/4"
-* Heat-Shrink, 1/2" (optional)
+* [Heat-Shrink, 1/4"](http://www.mouser.com/ProductDetail/3M-Electronic-Specialty/EPS300-1-4-48-Black-Bulk/)
+* [Heat-Shrink, 1/2" (optional)](http://www.mouser.com/ProductDetail/3M/FP301-1-2-48-Clear-Bulk/)
 * [Ribbon Cable, 100' spool](http://www.mouser.com/ProductDetail/Amphenol-Spectra-Strip/135-2801-010/)
 * [Hookup wire, 22AWG, various colors](https://www.adafruit.com/products/1311)
 * [M3 socket-head machine screws, 8mm length](http://www.mcmaster.com/#socket-head-cap-screws/=10zugcn "McMaster-Carr") (box 100)
