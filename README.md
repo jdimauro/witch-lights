@@ -96,11 +96,11 @@ Tools:
 
 * 3D Printer
 * Wire Strippers
+* Needle-Nose Pliers
+* Soldering Iron
 * Multimeter
 * Hex Wrenches
-* 1.5mm flathead screwdriver
-* Soldering Iron
-* Needle-Nose Pliers
+* 1.5mm or 1.3mm flathead screwdriver
 * Heat Gun
 * 16mm hole saw
 * 1" hole saw
@@ -282,11 +282,9 @@ Use a cable snake to pull ribbon cable through the heyco conduit. Oh yeah, cut t
 
 ## Software
 
-The current iteration of the software is in the directory marked `witch-lights-classic`. This code is inelegant but functional; it successfully handles two PIR sensors and will trigger a different sprite animation when one or the other sensor is tripped. 
+The current iteration of the software is in the directory marked `witch-lights-classic`. This code successfully handles two PIR sensors and will trigger a different sprite animation when one or the other sensor is tripped. 
 
-It does _not_ allow for the triggering of more than one sprite at a time, and does not respond to sensor trigger events while a sprite is being animated. 
-
-The animation is currently unfinished, but was good enough for the initial proof of concept. More work needs to be done on it. 
+Download `witch-lights-classic` and use the Arduino IDE to upload the code to your Arduino Due. 
 
 ## Final Assembly and Use
 
