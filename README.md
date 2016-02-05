@@ -38,26 +38,18 @@ Even though the rig is designed to be weather resistant, it has not yet been tes
 Components: 
 
 * Heat-Shrink, various sizes
+* Heat-Shrink, 1/4"
+* Heat-Shring, 1/2" (optional)
 * Ribbon Cable, 100' spool
 * Hookup wire, 22AWG, various colors
 * M3 socket-head machine screws, 8mm length (box 100)
-
-* Heyco 8452 3/4" conduit (100')
-* Heyco 8404 3/4" conduit fittings (quantity varies, see instructions)
-* Heyco ???? 3/4" waterproof washers (1 per conduit fitting)
-* Heyco ???? 3/4" conduit fitting screw-cap (1 per conduit fitting)
-
-* Adafruit Perma-Proto 1/4 board (quantity varies, see instructions)
-* Adafruit Perma-Proto 1/2 board 
-* Screw Terminals, 2-pin (2 per 1/4 proto board)
-* Screw Terminals, 3-pin (2 per 1/4 proto board)
-* Screw Terminals, 10-pin (2)
+* Heyco 8452 3/4" conduit (100' spool)
 * PIR Motion Sensor (2)
 
-* NeoPixel 30 LED/meter strip, black, 5 meters (quantity varies, see instructions)
-* 4-pin waterproof cable (2 per NeoPixel strip)
-* waterproof cable gland (1 per waterproof cable)
+Controller Board components:
 
+* Adafruit Perma-Proto 1/2 board 
+* Screw Terminals, 10-pin (2)
 * Arduino Due
 * Logic Level Shifter
 * 16-pin IC socket
@@ -65,11 +57,26 @@ Components:
 * 2.1mm DC power plug (female)
 * 2.1mm DC power plug terminals (male)
 * 10k ohm resistors (2)
-
 * PowerBoost 1000 board
 * 4400 MAh LiPo battery
 * Waterproof Panel-Mount on/off switch
 * Waterproof Enclosure
+
+You will need one set of these parts per 3D-printed enclosure (see instructions):
+
+* Heyco 8404 3/4" conduit fittings (2)
+* Heyco ???? 3/4" waterproof washers (2)
+* Heyco ???? 3/4" conduit fitting screw-cap (2)
+* Adafruit Perma-Proto 1/4 board (quantity varies, see instructions)
+* Screw Terminals, 2-pin (2 per 1/4 proto board)
+* Screw Terminals, 3-pin (2 per 1/4 proto board)
+
+You will need one set of these parts per NeoPixel strip (see instructions):
+
+* NeoPixel 30 LED/meter strip, black, 5 meters
+* 4-pin waterproof cable (2)
+* waterproof cable gland (2)
+
 
 Tools:
 
@@ -85,6 +92,7 @@ Tools:
 * 1" hole saw
 * Third-hand
 * panavise circuit board vise
+* label printer (optional)
 
 ## 3D Printing
 
@@ -94,11 +102,11 @@ The enclosures are designed to be easily printable on any commercial 3D printer;
 
 The purpose of the enclosures is threefold: 
 
-1. house passive infrared (PIR) motion sensors and connect their data lines to a ribbon cable reaching back to the arduino enclosure
-2. connect neopixel strips to their data lines on the same ribbon cable, or to each other (if using multiple strips)
-3. connect neopixel strips to the power and ground lines at both their origin and terminus, as recommended in the [Adafruit NeoPixel Uberguide][1], so that the lights don't dim and turn yellow as they extend far away from the arduino enclosure
+1. House passive infrared (PIR) motion sensors and connect their data lines to a ribbon cable reaching back to the arduino enclosure.
+2. Connect neopixel strips to their data lines on the same ribbon cable, or to each other (if using multiple strips).
+3. Connect neopixel strips to the power and ground lines at both their origin and terminus, as recommended in the [Adafruit NeoPixel Uberguide][uber], so that the lights don't dim and turn brown as they extend far away from the arduino enclosure.
 
-[1]: https://learn.adafruit.com/adafruit-neopixel-uberguide
+[uber]: https://learn.adafruit.com/adafruit-neopixel-uberguide
 
 ### Printing Enclosures
 
