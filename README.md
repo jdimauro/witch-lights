@@ -19,7 +19,7 @@ Imagine: as you walk through the unlit path, a tiny purple faerie jumps out of t
 
 <iframe src="https://player.vimeo.com/video/153011829" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe> 
 
-The design of the lighting system is modular, so it can be used with any length of neopixel strip. The current configuration of the project uses five 30 pixel-per-meter NeoPixel strips, each one five meters long, for a total of 750 pixels. 
+The design of the lighting system is modular, so it can be used with any length of NeoPixel strip. The current configuration of the project uses five 30 pixel-per-meter NeoPixel strips, each one five meters long, for a total of 750 pixels. 
 
 As you can see in the above video, the design uses waterproof conduit, connected to custom, modular connectors, which house the sensors and connect the NeoPixel strips to their power and data lines. 
 
@@ -35,6 +35,8 @@ Even though the rig is designed to be weather resistant, it has not yet been tes
 
 ## Bill of Materials
 
+TODO: link to suppliers for items on the BOM
+
 Components: 
 
 * Heat-Shrink, various sizes
@@ -48,28 +50,31 @@ Components:
 
 Controller Board components:
 
+* 3D-Printed `wl-arduino-mount.STL` circuit board mount
+* M3 machine screw, 20mm (?)
+* ??mm plastic standoff
 * Adafruit Perma-Proto 1/2 board 
 * Screw Terminals, 10-pin (2)
 * Arduino Due
-* Logic Level Shifter
+* 74AHCT125 Logic Level Shifter IC
 * 16-pin IC socket
 * 4700uF capacitor
 * 2.1mm DC power plug (female)
 * 2.1mm DC power plug terminals (male)
 * 10k ohm resistors (2)
-* PowerBoost 1000 board
+* Adafruit PowerBoost 1000 board
 * 4400 MAh LiPo battery
 * Waterproof Panel-Mount on/off switch
-* Waterproof Enclosure
+* Waterproof Enclosure (Large)
 
 You will need one set of these parts per 3D-printed enclosure (see instructions):
 
 * Heyco 8404 3/4" conduit fittings (2)
 * Heyco ???? 3/4" waterproof washers (2)
 * Heyco ???? 3/4" conduit fitting screw-cap (2)
-* Adafruit Perma-Proto 1/4 board (quantity varies, see instructions)
-* Screw Terminals, 2-pin (2 per 1/4 proto board)
-* Screw Terminals, 3-pin (2 per 1/4 proto board)
+* Adafruit Perma-Proto 1/4 board
+* Screw Terminals, 2-pin (2)
+* Screw Terminals, 3-pin (2)
 
 You will need one set of these parts per NeoPixel strip (see instructions):
 
@@ -103,10 +108,10 @@ The enclosures are designed to be easily printable on any commercial 3D printer;
 The purpose of the enclosures is threefold: 
 
 1. House passive infrared (PIR) motion sensors and connect their data lines to a ribbon cable reaching back to the arduino enclosure.
-2. Connect neopixel strips to their data lines on the same ribbon cable, or to each other (if using multiple strips).
-3. Connect neopixel strips to the power and ground lines at both their origin and terminus, as recommended in the [Adafruit NeoPixel Uberguide][uber], so that the lights don't dim and turn brown as they extend far away from the arduino enclosure.
+2. Connect NeoPixel strips to their data lines on the same ribbon cable, or to each other (if using multiple strips).
+3. Connect NeoPixel strips to the power and ground lines at both their origin and terminus, as recommended in the [Adafruit NeoPixel Uberguide][uber], so that the lights don't dim and turn brown as they extend far away from the arduino enclosure.
 
-[uber]: https://learn.adafruit.com/adafruit-neopixel-uberguide
+[uber]: https://learn.adafruit.com/adafruit-NeoPixel-uberguide
 
 ### Printing Enclosures
 
@@ -118,7 +123,7 @@ For example, here is a diagram of the simplest possible installation, with two P
 
     A------P========================================P
 
-This configuration uses the PIR enclosures to connect the neopixels to power and data. 
+This configuration uses the PIR enclosures to connect the NeoPixels to power and data. 
 
 I *do not* recommend you use this configuration, because the PIR sensors have a very, very long range, and so you won't get reliable results. As you approach one end of the strip, the other sensor may trip, and that ruins the illusion of the lights. 
 
@@ -141,7 +146,7 @@ If you want to lengthen the lights, just add another "nopir" enclosure to connec
 
 Basically, for each installation you build, you will want two PIR sensor enclosures, and one more "nopir" enclosure than the number of NeoPixel strips. 
 
-If you want to make things a bit more complex (why not?), you can space out the neopixel strips with areas of blank conduit, which will lengthen the area you can cover with the lights, like so: 
+If you want to make things a bit more complex (why not?), you can space out the NeoPixel strips with areas of blank conduit, which will lengthen the area you can cover with the lights, like so: 
 
     A-------P------N==================N----------------N==================N------------P
 
@@ -167,6 +172,10 @@ If there's one NeoPixel strip touching the enclosure, print a lid with 1 holes. 
 
 The rule of thumb is, print a lid with the same number of holes as the number of NeoPixels this enclosure needs to interface with. 
 
+### Printing Arduino Mount
+
+Print one of the `wl-arduino-mount.STL` file and place it with the components for the arduino enclosure. 
+
 ## Wiring and Soldering
 
 The physical layer of this project is composed of the Arduino Due, a power circuit, ribbon cable running through conduit, terminal circuit boards in the enclosures, and waterproof cabling for the NeoPixel strips. 
@@ -177,13 +186,15 @@ The Arduino Due is a 3.3v microcontroller, but the NeoPixels need 5v on the data
 
 And since we're using ribbon cable to send the power and data signals down the length of the installation, we probably want to use screw terminals to connect those wires to the arduino. 
 
-Therefore, you're going to need to make a circuit board for the arduino due so it can talk to the neopixels and hook up to the ribbon cable. 
+Therefore, you're going to need to make a circuit board for the Arduino Due so it can talk to the NeoPixels and hook up to the ribbon cable. 
 
 ![Witch Light Arduino Perma-Proto Board](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-ard-proto.png)
 
 Use an Adafruit Perma-Proto Half-Size board and solder a pair of 10-pin screw terminals to it, and wire it up as shown in the photograph above. 
 
 The 74AHCT125 chip is installed so that the little "U" cutout faces to the right of the board, matching the little "U" cutout in the socket. 
+
+(TODO: detail shot of 74HCT125 chip)
 
 **Be certain to wire the data line from pin 6 to the indicated terminal in the photo, and connect the white data line cable to the other indicated terminal on the other side; if you hook them up incorrectly, the NeoPixels will light up erratically or not at all.** 
 
@@ -217,27 +228,27 @@ Make sure you always use the same cable gender for input and output, or else it'
 
 Use a third-hand tool to hold the waterproof cable and the end of the NeoPixel strip. Use your wire strippers to take some more insulation off the red, black, and white wires coming out of the waterproof cable, and clip the yellow wire short; we won't be using it. 
 
-Put a length of 1/4" heat shrink tubing on the waterproof cable, and put some thin heat-shrink tubes on the red, white, and black wires coming from the NeoPixel strips. Optionally, slide some 1/2" heat-shrink tubing over the end of the neopixel strip itself. 
+Put a length of 1/4" heat shrink tubing on the waterproof cable, and put some thin heat-shrink tubes on the red, white, and black wires coming from the NeoPixel strips. Optionally, slide some 1/2" heat-shrink tubing over the end of the NeoPixel strip itself. 
 
 Tin the wires a little bit by heating them up with a soldering iron and brushing them with a bit of solder. Then twist the black wires together, and use the soldering iron and a bit more solder to splice them. Repeat the process with the red and white wires, like so: 
 
-![Soldering wires](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-neopixel-cables-1.jpg)
+![Soldering wires](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-NeoPixel-cables-1.jpg)
 
 Then slide the thin heat shrink tubing over the bare soldered wire. Use a heat gun to shrink the tubing over the wires. 
 
-![Heat shrink on the spliced wire](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-neopixel-cables-2.jpg)
+![Heat shrink on the spliced wire](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-NeoPixel-cables-2.jpg)
 
 Now, slide the 1/4" heat-shrink tubing over all the colored wires, up to the base of the silicone sheath of the NeoPixel strip.
 
-![Heat-shrink over the colored wire](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-neopixel-cables-3.jpg)
+![Heat-shrink over the colored wire](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-NeoPixel-cables-3.jpg)
 
 Use a heat gun to shrink the tubing and seal the wires.
 
-![Heat-shrunk wires](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-neopixel-cables-4.jpg)
+![Heat-shrunk wires](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-NeoPixel-cables-4.jpg)
 
 And now, if you have the 1/2" heat shrink over the NeoPixel strips, slide it over the point where the heat-shrink abuts the silicone sheath.
 
-![Optional final heat shrink](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-neopixel-cables-5.jpg)
+![Optional final heat shrink](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-NeoPixel-cables-5.jpg)
 
 Use a heat gun to shrink that down and reinforce the joint. 
 
@@ -288,9 +299,9 @@ Connect the yellow wire to the "passthrough" terminal on the side of the termina
 
 Once you finish with each terminal board, use your multimeter to check continuity from the terminals in the arduino enclosure. I find it best to coil the conduit into a big loop as I connect terminal boards, so that the terminal board is a meter or so from the arduino enclosure at maximum. 
 
-When you reach a terminal board where a neopixel strip is being attached, thread an "output" 4-wire cable through the waterproof cable gland, and connect the red, white, and black cables to the output terminal, so that the data line passes from the white wire on the ribbon cable into the white wire on the 4-wire cable. 
+When you reach a terminal board where a NeoPixel strip is being attached, thread an "output" 4-wire cable through the waterproof cable gland, and connect the red, white, and black cables to the output terminal, so that the data line passes from the white wire on the ribbon cable into the white wire on the 4-wire cable. 
 
-When connecting neopixel strips to each other, use a two-cable configuration on the terminal board, so that the neopixels get connected to power and ground at each enclosure they touch. (TODO: clarify this)
+When connecting NeoPixel strips to each other, use a two-cable configuration on the terminal board, so that the NeoPixels get connected to power and ground at each enclosure they touch. (TODO: clarify this)
 
 TODO: instructional photos are probably good here. 
 
@@ -308,7 +319,7 @@ This is where you should snap the lids tightly down on the enclosures, and screw
 
 ### Install 
 
-Disconnect the neopixels temporarily, and loop the conduit through branches, around trees, along the ground, overhead… whatever path you want the lights to take. Then reconnect the NeoPixel cables at each end, and use velcro loops to bind the neopixel strips to the conduit so that there's no bunching or sagging. 
+Disconnect the NeoPixels temporarily, and loop the conduit through branches, around trees, along the ground, overhead… whatever path you want the lights to take. Then reconnect the NeoPixel cables at each end, and use velcro loops to bind the NeoPixel strips to the conduit so that there's no bunching or sagging. 
 
 ## Troubleshooting
 
