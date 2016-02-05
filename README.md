@@ -203,11 +203,37 @@ Use the continuity tester feature of your multi-meter to test for short circuits
 
 ### NeoPixel Cables
 
-You'll have to solder and heat-shrink one end of a waterproof 4-pin cable to each side of the NeoPixel strip, so that we can hook 
+You'll have to solder and heat-shrink one end of a waterproof 4-pin cable to each side of the NeoPixel strip, so that we have a weatherproof way to connect the strips to the 3D-printed enclosures. 
 
-Make sure you always use the same cable gender for input and output, or else it'll get really confusing. I used a label printer to make 
+Make sure you always use the same cable gender for input and output, or else it'll get really confusing. I used a label printer to make an arrow pointing in the direction of the NeoPixel data flow (as indicated by arrows on the NeoPixel Strips), and labeled all the waterproof cables before starting assembly. 
 
+Use a third-hand tool to hold the waterproof cable and the end of the NeoPixel strip. Use your wire strippers to take some more insulation off the red, black, and white wires coming out of the waterproof cable, and clip the yellow wire short; we won't be using it. 
 
+Put a length of 1/4" heat shrink tubing on the waterproof cable, and put some thin heat-shrink tubes on the red, white, and black wires coming from the NeoPixel strips. Optionally, slide some 1/2" heat-shrink tubing over the end of the neopixel strip itself. 
+
+Tin the wires a little bit by heating them up with a soldering iron and brushing them with a bit of solder. Then twist the black wires together, and use the soldering iron and a bit more solder to splice them. Repeat the process with the red and white wires, like so: 
+
+![Soldering wires](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-neopixel-cables-1.jpg)
+
+Then slide the thin heat shrink tubing over the bare soldered wire. Use a heat gun to shrink the tubing over the wires. 
+
+![Heat shrink on the spliced wire](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-neopixel-cables-2.jpg)
+
+Now, slide the 1/4" heat-shrink tubing over all the colored wires, up to the base of the silicone sheath of the NeoPixel strip.
+
+![Heat-shrink over the colored wire](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-neopixel-cables-3.jpg)
+
+Use a heat gun to shrink the tubing and seal the wires.
+
+![Heat-shrunk wires](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-neopixel-cables-4.jpg)
+
+And now, if you have the 1/2" heat shrink over the NeoPixel strips, slide it over the point where the heat-shrink abuts the silicone sheath.
+
+![Optional final heat shrink](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-neopixel-cables-5.jpg)
+
+Use a heat gun to shrink that down and reinforce the joint. 
+
+Repeat this process on the other end of the NeoPixel strip with the other end of the waterproof cable. And repeat again for each NeoPixel strip you use. 
 
 ### Pulling Cable
 
