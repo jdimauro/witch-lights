@@ -33,9 +33,64 @@ This is an advanced project. It involves building a weather resistant wire rig w
 
 Even though the rig is designed to be weather resistant, it has not yet been tested in heavy rain or other wet conditions! Please take care and consider that this project uses electricity outdoors. Proceed at your own risk. 
 
+## Bill of Materials
+
+Components: 
+
+* Heat-Shrink, various sizes
+* Ribbon Cable, 100' spool
+* Hookup wire, 22AWG, various colors
+* M3 socket-head machine screws, 8mm length (box 100)
+
+* Heyco 8452 3/4" conduit (100')
+* Heyco 8404 3/4" conduit fittings (quantity varies, see instructions)
+* Heyco ???? 3/4" waterproof washers (1 per conduit fitting)
+* Heyco ???? 3/4" conduit fitting screw-cap (1 per conduit fitting)
+
+* Adafruit Perma-Proto 1/4 board (quantity varies, see instructions)
+* Adafruit Perma-Proto 1/2 board 
+* Screw Terminals, 2-pin (2 per 1/4 proto board)
+* Screw Terminals, 3-pin (2 per 1/4 proto board)
+* Screw Terminals, 10-pin (2)
+* PIR Motion Sensor (2)
+
+* NeoPixel 30 LED/meter strip, black, 5 meters (quantity varies, see instructions)
+* 4-pin waterproof cable (2 per NeoPixel strip)
+* waterproof cable gland (1 per waterproof cable)
+
+* Arduino Due
+* Logic Level Shifter
+* 16-pin IC socket
+* 4700uF capacitor
+* 2.1mm DC power plug (female)
+* 2.1mm DC power plug terminals (male)
+* 10k ohm resistors (2)
+
+* PowerBoost 1000 board
+* 4400 MAh LiPo battery
+* Waterproof Panel-Mount on/off switch
+* Waterproof Enclosure
+
+Tools:
+
+* 3D Printer
+* Wire Strippers
+* Multimeter
+* Hex Wrenches
+* 1.5mm flathead screwdriver
+* Soldering Iron
+* Needle-Nose Pliers
+* Heat Gun
+* 16mm hole saw
+* 1" hole saw
+* Third-hand
+* panavise circuit board vise
+
 ## 3D Printing
 
 The enclosures are designed to be easily printable on any commercial 3D printer; they were printed on a first-generation Makerbot Replicator in PLA and ABS plastic, and have been successfully tested on Cura, Printrbot, and Lulzbot printers.
+
+![Printing an enclosure](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-pir-enclosure-printing.jpg)
 
 The purpose of the enclosures is threefold: 
 
