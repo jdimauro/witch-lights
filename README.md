@@ -73,8 +73,17 @@ You will need one set of these parts per 3D-printed enclosure (see instructions)
 * Heyco ???? 3/4" waterproof washers (2)
 * Heyco ???? 3/4" conduit fitting screw-cap (2)
 * Adafruit Perma-Proto 1/4 board
-* Screw Terminals, 2-pin (2)
+* Screw Terminals, 2-pin (3)
 * Screw Terminals, 3-pin (2)
+
+Optional NeoPixel Reel Test rig:
+
+(You can optionally build a dedicated Arduino rig to test your NeoPixel strips and keep it handy for field testing, or you can borrow components from the rest of the installation.)
+
+* Arduino Uno
+* Adafruit Perma-Proto 1/4 board
+* Screw Terminals, 3-pin (2)
+* 4-pin waterproof cable
 
 You will need one set of these parts per NeoPixel strip (see instructions):
 
@@ -98,6 +107,8 @@ Tools:
 * Third-hand
 * panavise circuit board vise
 * label printer (optional)
+* cable snake
+* wooden dowel (for running cable)
 
 ## 3D Printing
 
