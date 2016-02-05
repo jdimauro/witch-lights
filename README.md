@@ -41,21 +41,22 @@ Components:
 
 * [Heat-Shrink, various sizes](https://www.adafruit.com/products/1649)
 * Heat-Shrink, 1/4"
-* Heat-Shring, 1/2" (optional)
-* Ribbon Cable, 100' spool
+* Heat-Shrink, 1/2" (optional)
+* [Ribbon Cable, 100' spool](http://www.mouser.com/ProductDetail/Amphenol-Spectra-Strip/135-2801-010/)
 * [Hookup wire, 22AWG, various colors](https://www.adafruit.com/products/1311)
-* M3 socket-head machine screws, 8mm length (box 100)
-* Heyco 8452 3/4" conduit (100' spool)
+* [M3 socket-head machine screws, 8mm length](http://www.mcmaster.com/#socket-head-cap-screws/=10zugcn "McMaster-Carr") (box 100)
+* [Heyco 8452 3/4" conduit](http://amazon.com/Heyco-8452-BLACK-LIQUID-TUBING/dp/B001BQ029G/ "Amazon.com: Heyco 8452 HF2 3/4-inch FLEX II BLACK LIQUID TIGHT TUBING (each): Industrial &amp; Scientific") (100' spool)
 * [PIR Motion Sensor](https://www.adafruit.com/products/189) (2)
 
-Controller Board components:
+Arduino Enclosure components:
 
+* [Arduino Due](https://www.adafruit.com/products/1076)
+* [Waterproof Enclosure (Large)](https://www.adafruit.com/products/905)
 * 3D-Printed `wl-arduino-mount.STL` circuit board mount
 * M3 machine screw, 20mm (?)
 * ??mm plastic standoff
 * [Adafruit Perma-Proto 1/2 board](https://www.adafruit.com/products/1609) 
 * [Screw Terminals, 10-pin](https://www.adafruit.com/products/2234) (2)
-* [Arduino Due](https://www.adafruit.com/products/1076)
 * [74AHCT125 Logic Level Shifter IC](https://www.adafruit.com/products/1787)
 * [16-pin IC socket](https://www.adafruit.com/products/2203)
 * [4700uF capacitor](https://www.adafruit.com/products/1589)
@@ -65,13 +66,11 @@ Controller Board components:
 * [Adafruit PowerBoost 1000 board](https://www.adafruit.com/products/2465)
 * [4400 MAh LiPo battery](https://www.adafruit.com/products/354)
 * [Waterproof Panel-Mount on/off switch](https://www.adafruit.com/products/916)
-* [Waterproof Enclosure (Large)](https://www.adafruit.com/products/905)
 
 You will need one set of these parts per 3D-printed enclosure (see instructions):
 
-* Heyco 8404 3/4" conduit fittings (2)
-* Heyco ???? 3/4" waterproof washers (2)
-* Heyco ???? 3/4" conduit fitting screw-cap (2)
+* [Heyco 8404 3/4" conduit fittings](http://smile.amazon.com/Heyco-BLACK-STRAIGHT-CONNECTOR-package/dp/B00LWLMX7O/ "Amazon.com: Heyco 8404 HFC 3/4 BLACK HI FLEX STRAIGHT CONNECTOR WITH NUT (package of 10): Industrial &amp; Scientific") (2)
+* [Heyco 3261 3/4" waterproof washers](https://amazon.com/Heyco-3261-SANTOPRENE-SEALING-package/dp/B00PKLGC8S/) (2)
 * [Adafruit Perma-Proto 1/4 board](https://www.adafruit.com/products/1608)
 * [Screw Terminals, 2-pin](https://www.adafruit.com/products/2234) (3)
 * [Screw Terminals, 3-pin](https://www.adafruit.com/products/2234) (2)
@@ -86,11 +85,10 @@ Optional NeoPixel Reel Test rig:
 
 (You can optionally build a dedicated Arduino rig to test your NeoPixel strips and keep it handy for field testing, or you can borrow components from the rest of the installation.)
 
-* Arduino Uno
-* Adafruit Perma-Proto 1/4 board
-* Screw Terminals, 3-pin (2)
-* 4-pin waterproof cable
-
+* [Arduino Uno](https://www.adafruit.com/products/50)
+* [Adafruit Perma-Proto 1/4 board](https://www.adafruit.com/products/1608)
+* [Screw Terminals, 3-pin](https://www.adafruit.com/products/2234) (2)
+* [4-pin waterproof cable](https://www.adafruit.com/products/744)
 
 Tools:
 
@@ -99,12 +97,12 @@ Tools:
 * Needle-Nose Pliers
 * Soldering Iron
 * Multimeter
-* Hex Wrenches
+* 2.5mm Hex Wrench
 * 1.5mm or 1.3mm flathead screwdriver
 * Heat Gun
 * 16mm hole saw
 * 1" hole saw
-* Third-hand
+* Third-hand tool
 * panavise circuit board vise
 * label printer (optional)
 * cable snake
