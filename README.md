@@ -232,23 +232,24 @@ Put a length of 1/4" heat shrink tubing on the waterproof cable, and put some th
 
 Tin the wires a little bit by heating them up with a soldering iron and brushing them with a bit of solder. Then twist the black wires together, and use the soldering iron and a bit more solder to splice them. Repeat the process with the red and white wires, like so: 
 
-![Soldering wires](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-NeoPixel-cables-1.jpg)
+![Soldering wires](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-neopixel-cables-1.jpg)
+
 
 Then slide the thin heat shrink tubing over the bare soldered wire. Use a heat gun to shrink the tubing over the wires. 
 
-![Heat shrink on the spliced wire](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-NeoPixel-cables-2.jpg)
+![Heat shrink on the spliced wire](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-neopixel-cables-2.jpg)
 
 Now, slide the 1/4" heat-shrink tubing over all the colored wires, up to the base of the silicone sheath of the NeoPixel strip.
 
-![Heat-shrink over the colored wire](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-NeoPixel-cables-3.jpg)
+![Heat-shrink over the colored wire](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-neopixel-cables-3.jpg)
 
 Use a heat gun to shrink the tubing and seal the wires.
 
-![Heat-shrunk wires](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-NeoPixel-cables-4.jpg)
+![Heat-shrunk wires](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-neopixel-cables-4.jpg)
 
 And now, if you have the 1/2" heat shrink over the NeoPixel strips, slide it over the point where the heat-shrink abuts the silicone sheath.
 
-![Optional final heat shrink](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-NeoPixel-cables-5.jpg)
+![Optional final heat shrink](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-neopixel-cables-5.jpg)
 
 Use a heat gun to shrink that down and reinforce the joint. 
 
