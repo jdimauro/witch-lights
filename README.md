@@ -93,6 +93,7 @@ Tools:
 
 * 3D Printer
 * Wire Strippers
+* Heavy-duty scissors or shears
 * Needle-Nose Pliers
 * Soldering Iron
 * Multimeter
@@ -321,6 +322,8 @@ Solder leads to the `GND` and `EN` pins on the PowerBoost 1000C, and solder lead
 
 Run the `+` and `-` pins to the (outer) LED terminals on the power switch. Make sure to connect them to the `+` and `-` terminals of the switch, respectively. Connect `GND` and `EN` to the terminals labeled `NC` and `C1`. ("Normaly closed" and "Common contact".) 
 
+What you are doing is, you're closing the circuit between `EN` and `GND` on the PowerBoost 1000C. That tells to PowerBoost to turn off. When the on/off switch is pressed, it _opens_ the circuit, and the PowerBoost gets the message to turn on, which supplies power to both the Arduino and the LED ring around the switch itself. 
+
 Connect a battery to the PowerBoost 1000C. When you press the on/off switch, the switch should light up, and the Arduino should power on. 
 
 Position the battery as shown in the photograph above, and carefully use stick-on velcro dots to attach it to the inside of the enclosure. 
@@ -328,6 +331,40 @@ Position the battery as shown in the photograph above, and carefully use stick-o
 At this point, you have a functional brain. You can charge the battery with the lid open by plugging it into a [micro-USB power adapter](https://www.adafruit.com/products/1995), and the system will continue to run. 
 
 You should still also have access to the programming port on the Arduino, in case you need to reprogram it for upgrades or bug fixes.  
+
+### Cut Conduit and Pull Cable
+
+This is where you refer back to your plan. How many NeoPixel strips are you going to use? How are they spaced? You should have a thumbnail sketch. 
+
+If you don't, refer back to the **Printing Enclosures** section above, sketch out your length of witch lights, and get started printing the enclosures you're going to need. 
+
+For each NeoPixel strip, you're going to need five meters of conduit. 
+
+If you plan to have a spacer between your NeoPixel strips, you're going to need conduit for that, as well. 
+
+No matter what kind of configuration you sketched out earlier, you're going to put a five meter conduit between the Arduino enclosure and the first PIR sensor. This gives you enough flexibility to find a safe place to install the Arduino and then position the PIR sensor strategically to sense motion at the right place. 
+
+Measure out five meters (16.4 feet) of conduit and cut it with your heavy-duty scissors or shears. Find two Heyco connectors. Unscrew the big dome-like component and slide it over the conduit, then swedge the conduit into the end of the connector. Screw the dome back on, tightly. This seals the conduit onto the connector. Repeat for the other end. 
+
+Congratulations, you've got your first length of conduit ready to go. 
+
+Once you've got your conduit set, it's time to pull ribbon cable through it. You're going to want a friend to help you with the next step. 
+
+Extend your cable snake into the conduit and keep unreeling it until it pokes through the far end of the conduit. Then your friend can pinch the cable and stuff it through the little hole on the end of the cable snake, or use gaffer's tape to attach it. Now have your friend put your wooden dowel through the hole in the ribbon cable spool, and stand with their arms out as you _slowly and carefully_ reel in the cable, until the cable pokes out of the conduit on your end. Pull about 4-5 inches of ribbon past the end of the cable, and then cut the ribbon cable on the other end, also with about 4-5 inches of extra. 
+
+Decide which way you plan to orient the conduit, and then use a label printer or tape and a marker to mark an arrow → pointing _away_ from the Arduino enclosure. 
+
+Since this is the first conduit, connect the PIR sensor housing to the far end. Slide the conduit and ribbon cable through one of the holes on the housing. Doesn't matter which one. Carefully thread the ribbon cable through the hole in one of the silicone washers and the screw-on cap, and use your fingers to tighten those down as hard as you can. You'll probably end up holding the connector in one hand and twisting the dome-like cap on the conduit connector in the other hand. 
+
+Mark an arrow → on the side of the PIR sensor housing, pointing _away_ from the Arduino enclosure. 
+
+For each piece of conduit you connect, repeat these steps, so that every single piece of conduit has a connector on both ends, ribbon cable threaded through it with 4-5" slack on both ends, and a 3D printed housing connected to the "far" end (from the Arduino enclosure). 
+
+The next conduit you want to assemble is the other PIR sensor. Give this one a good five meters as well; the exact length is up to you, but you want enough to give yourself flexibility in positioning and aiming the sensor. 
+
+Now you may see how this is a modular system; these conduit segments may be arranged in any configuration, so long as they form an unbroken chain from the Arduino to the final PIR sensor. 
+
+Next, we will install terminal boards in the 3D-printed enclosures, and we will strip and attach the ribbon cable to the terminals on those boards. 
 
 ### Terminal boards
 
@@ -358,10 +395,6 @@ Install a terminal board over the sensor. Screw the power, data, and ground wire
 For the PIR sensor closest to the Arduino, connect the green wire on the ribbon cable to the PIR sensor, and the yellow wire to the special "passthrough" terminal you soldered in the previous step. 
 
 TODO: picture of PIR sensor installed 
-
-### Conduit to Connectors
-
-Swedge the conduit onto connectors and put them into the enclosures; pull the ribbon cable through the waterproof washer and screw the conduit onto the enclosure at both ends, leaving the ribbon loose inside the connectors. 
 
 ### Wiring
 
