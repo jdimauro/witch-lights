@@ -322,7 +322,7 @@ Solder leads to the `GND` and `EN` pins on the PowerBoost 1000C, and solder lead
 
 Run the `+` and `-` pins to the (outer) LED terminals on the power switch. Make sure to connect them to the `+` and `-` terminals of the switch, respectively. Connect `GND` and `EN` to the terminals labeled `NC` and `C1`. ("Normaly closed" and "Common contact".) 
 
-What you are doing is, you're closing the circuit between `EN` and `GND` on the PowerBoost 1000C. That tells to PowerBoost to turn off. When the on/off switch is pressed, it _opens_ the circuit, and the PowerBoost gets the message to turn on, which supplies power to both the Arduino and the LED ring around the switch itself. 
+What you are doing is, you're closing the circuit between `EN` and `GND` on the PowerBoost 1000C. That tells the PowerBoost to turn off. When the on/off switch is pressed, it _opens_ the circuit, and the PowerBoost gets the message to turn on, which supplies power to both the Arduino and the LED ring around the switch itself. 
 
 Connect a battery to the PowerBoost 1000C. When you press the on/off switch, the switch should light up, and the Arduino should power on. 
 
