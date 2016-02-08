@@ -288,15 +288,14 @@ The `NeoPixel_Reel_Test` sketch runs alternating colors down the length of any N
 
 Use the reel tester after you solder cable to every NeoPixel strip, then roll up the NeoPixel strip onto its reel and put it away in its silver bag; mark "Tested" and the date on the bag. 
 
-### Pulling Cable
-
-Use a cable snake to pull ribbon cable through the heyco conduit. Oh yeah, cut the conduit to length first. 
 
 ## Software
 
 The current iteration of the software is in the directory marked `witch-lights-classic`. This code successfully handles two PIR sensors and will trigger a different sprite animation when one or the other sensor is tripped. 
 
 Download `witch-lights-classic` and use the Arduino IDE to upload the code to your Arduino Due. 
+
+If the Arduino is properly wired to its terminal board, you should be able to use the screw terminals to connect directly to a NeoPixel strip. Power on the Arduino and use a jumper cable to make the green terminal pin go high; you should see the purple faerie lights race away down the NeoPixel strip. 
 
 ## Final Assembly and Use
 
@@ -324,7 +323,7 @@ Run the `+` and `-` pins to the (outer) LED terminals on the power switch. Make 
 
 What you are doing is, you're closing the circuit between `EN` and `GND` on the PowerBoost 1000C. That tells the PowerBoost to turn off. When the on/off switch is pressed, it _opens_ the circuit, and the PowerBoost gets the message to turn on, which supplies power to both the Arduino and the LED ring around the switch itself. 
 
-Connect a battery to the PowerBoost 1000C. When you press the on/off switch, the switch should light up, and the Arduino should power on. 
+Connect a battery to the PowerBoost 1000C. When you press the on/off switch, the switch should light up, and the Arduino should power on. If not, check your connections to the terminals on the switch. It's very easy to mix up the `+` and `-` terminals for the switch's LED, and if you do, the PowerBoost won't turn on. 
 
 Position the battery as shown in the photograph above, and carefully use stick-on velcro dots to attach it to the inside of the enclosure. 
 
