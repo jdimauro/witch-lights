@@ -45,6 +45,7 @@ Components:
 * [M3 socket-head machine screws, 8mm length](http://www.mcmaster.com/#socket-head-cap-screws/=10zugcn "McMaster-Carr") (box 100)
 * [Heyco 8452 3/4" conduit](http://amazon.com/Heyco-8452-BLACK-LIQUID-TUBING/dp/B001BQ029G/ "Amazon.com: Heyco 8452 HF2 3/4-inch FLEX II BLACK LIQUID TIGHT TUBING (each): Industrial &amp; Scientific") (100' spool)
 * [PIR Motion Sensor](https://www.adafruit.com/products/189) (2)
+* [micro-USB power adapter](https://www.adafruit.com/products/1995)
 
 Arduino Enclosure components:
 
@@ -312,7 +313,7 @@ Now for the power circuit. First, we need to place the switch.
 
 Use a 16mm hole saw to cut a hole in the side of the enclosure; make sure to position it so that the switch's terminals won't interfere with the arduino's proto board. Screw the panel-mount switch into the hole (and don't forget the rubber O-ring). 
 
-Solder leads to the `GND` and `EN` pins on the PowerBoost 1000C, and solder leads to the `5V` and `GND` pins, as well as the `+` and `-` pins. Run `5V` and `GND` down to the power plug on the proto-board, and screw them into the terminals of the male DC adapter. 
+Solder leads to the `GND` and `EN` pins on the PowerBoost 1000C, and solder leads to the `5V` and `GND` pins, as well as the `+` and `-` pins. Run `5V` and `GND` down to the power plug on the proto-board, and screw them into the terminals of the male DC adapter. Plug it into the proto-board. 
 
 ![Diagram of the on/off panel-mount power switch](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-powerswitch-diagram.jpg)
 
@@ -324,13 +325,9 @@ Connect a battery to the PowerBoost 1000C. When you press the on/off switch, the
 
 Position the battery as shown in the photograph above, and carefully use stick-on velcro dots to attach it to the inside of the enclosure. 
 
-### PIR sensors 
+At this point, you have a functional brain. You can charge the battery with the lid open by plugging it into a [micro-USB power adapter](https://www.adafruit.com/products/1995), and the system will continue to run. 
 
-Press-fit the PIR sensor into the provided slot in the bottom of the 3D-printed "PIR" enclosure.
-
-![PIR Enclosure side view](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-pir-enclosure2.png)
-
-You may want to then pop the circuit board off, leaving the lens in place, and use hot glue to weatherproof the opening, as well as keep the PIR sensor from popping free, which it will tend to do unless you glue it in. 
+You should still also have access to the programming port on the Arduino, in case you need to reprogram it for upgrades or bug fixes.  
 
 ### Terminal boards
 
@@ -338,6 +335,29 @@ Use 8mm M3 machine screws to attach the terminal boards to the bosses in the enc
 
 ![Enclosure](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-pir-enclosure1.png)
 
+In *one* terminal board, you're going to solder an extra 2-wire terminal onto the side. These terminals are a passthrough for the yellow "pir1" sensor line, so set this board aside for use on the first ("pir0") sensor housing. 
+
+TODO: picture of the terminal board with the "passthrough" extra terminal
+
+### PIR sensors 
+
+Two enclosures house PIR passive-infrared motion sensors. Hold off installing the terminal boards in those two housings. 
+
+Press-fit the PIR sensor into the provided slot in the bottom of the 3D-printed "PIR" enclosure. 
+
+![PIR Enclosure side view](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-pir-enclosure2.png)
+
+You may want to then pop the circuit board off, leaving the lens in place, and use hot glue to weatherproof the opening, as well as keep the PIR sensor from popping free, which it will tend to do unless you glue it in. 
+
+Once you've glued the PIR lens into the housing, carefully replace it, and connect the header and leads which came with it in the package.  
+
+![PIR sensor and wires](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-pir-enclosure3.png)
+
+Install a terminal board over the sensor. Screw the power, data, and ground wires into the red, yellow, and black terminals, respectively. 
+
+For the PIR sensor closest to the Arduino, connect the green wire on the ribbon cable to the PIR sensor, and the yellow wire to the special "passthrough" terminal you soldered in the previous step. 
+
+TODO: picture of PIR sensor installed 
 
 ### Conduit to Connectors
 
