@@ -105,6 +105,8 @@ Tools:
 * label printer (optional)
 * cable snake
 * wooden dowel (for running cable)
+* stick-on velcro dots
+* thin velcro cable-management strips
 
 ## 3D Printing
 
@@ -298,7 +300,29 @@ Download `witch-lights-classic` and use the Arduino IDE to upload the code to yo
 
 ### Arduino Enclosure and Power
 
-Cut a hole in the enclosure for the heyco conduit thingy, and optionally a hole for the power button, unless you want to just unplug the battery when you want to turn it off. 
+TODO: More better enclosure writeup
+
+![Enclosure with battery pack](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-ard-enclosure1.jpg)
+
+Cut a 1" hole in the enclosure for the heyco conduit thingy, and slide the half-size perma-proto board into the printed `wl-arduino-mount.STL` piece, then mount it in the enclosure using the M4 screws provided when you unwrapped the enclosure. 
+
+You'll need to use a file or rough sandpaper to open the 1" hole up enough to insert a Heyco connector. 
+
+Now for the power circuit. First, we need to place the switch. 
+
+Use a 16mm hole saw to cut a hole in the side of the enclosure; make sure to position it so that the switch's terminals won't interfere with the arduino's proto board. Screw the panel-mount switch into the hole (and don't forget the rubber O-ring). 
+
+Solder leads to the `GND` and `EN` pins on the PowerBoost 1000C, and solder leads to the `5V` and `GND` pins, as well as the `+` and `-` pins. Run `5V` and `GND` down to the power plug on the proto-board, and screw them into the terminals of the male DC adapter. 
+
+![Diagram of the on/off panel-mount power switch](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-powerswitch-diagram.jpg)
+
+(See the [product page for the power switch](https://www.adafruit.com/products/482) for details)
+
+Run the `+` and `-` pins to the (outer) LED terminals on the power switch. Make sure to connect them to the `+` and `-` terminals of the switch, respectively. Connect `GND` and `EN` to the terminals labeled `NC` and `C1`. ("Normaly closed" and "Common contact".) 
+
+Connect a battery to the PowerBoost 1000C. When you press the on/off switch, the switch should light up, and the Arduino should power on. 
+
+Position the battery as shown in the photograph above, and carefully use stick-on velcro dots to attach it to the inside of the enclosure. 
 
 ### PIR sensors 
 
