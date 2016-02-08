@@ -31,7 +31,7 @@ This is an advanced project. It involves building a weather resistant wire rig w
 
 ### Important Caveat
 
-Even though the rig is designed to be weather resistant, it has not yet been tested in heavy rain or other wet conditions! Please take care and consider that this project uses electricity outdoors. Proceed at your own risk. 
+Even though the rig is designed to be weather resistant, it has not yet been tested in heavy rain or other wet conditions! Please take care and consider that this project uses electricity outdoors. **Proceed at your own risk.** 
 
 ## Bill of Materials
 
@@ -107,6 +107,8 @@ Tools:
 * wooden dowel (for running cable)
 
 ## 3D Printing
+
+For best results, print all components in black or green plastic. 
 
 The enclosures are designed to be easily printable on any commercial 3D printer; they were printed on a first-generation Makerbot Replicator in PLA and ABS plastic, and have been successfully tested on Makerbot Replicator 2, Printrbot, and Lulzbot printers.
 
