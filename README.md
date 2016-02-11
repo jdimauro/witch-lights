@@ -43,7 +43,7 @@ Components:
 * [Ribbon Cable, 100' spool](http://www.mouser.com/ProductDetail/Amphenol-Spectra-Strip/135-2801-010/)
 * [Hookup wire, 22AWG, various colors](https://www.adafruit.com/products/1311)
 * [M3 socket-head machine screws, 8mm length](http://www.mcmaster.com/#socket-head-cap-screws/=10zugcn "McMaster-Carr") (box 100)
-* [Heyco 8452 3/4" conduit](http://amazon.com/Heyco-8452-BLACK-LIQUID-TUBING/dp/B001BQ029G/ "Amazon.com: Heyco 8452 HF2 3/4-inch FLEX II BLACK LIQUID TIGHT TUBING (each): Industrial &amp; Scientific") (100' spool)
+* [Heyco 8452 3/4" conduit](http://amazon.com/Heyco-8452-BLACK-LIQUID-TUBING/dp/B001BQ029G/) (100' spool)
 * [PIR Motion Sensor](https://www.adafruit.com/products/189) (2)
 * [micro-USB power adapter](https://www.adafruit.com/products/1995)
 
@@ -68,7 +68,7 @@ Arduino Enclosure components:
 
 You will need one set of these parts per 3D-printed enclosure (see instructions):
 
-* [Heyco 8404 3/4" conduit fittings](http://smile.amazon.com/Heyco-BLACK-STRAIGHT-CONNECTOR-package/dp/B00LWLMX7O/ "Amazon.com: Heyco 8404 HFC 3/4 BLACK HI FLEX STRAIGHT CONNECTOR WITH NUT (package of 10): Industrial &amp; Scientific") (2)
+* [Heyco 8404 3/4" conduit fittings](http://smile.amazon.com/Heyco-BLACK-STRAIGHT-CONNECTOR-package/dp/B00LWLMX7O/) (2)
 * [Heyco 3261 3/4" waterproof washers](https://amazon.com/Heyco-3261-SANTOPRENE-SEALING-package/dp/B00PKLGC8S/) (2)
 * [Adafruit Perma-Proto 1/4 board](https://www.adafruit.com/products/1608)
 * [Screw Terminals, 2-pin](https://www.adafruit.com/products/2234) (3)
@@ -402,7 +402,7 @@ Congratulations, you've got your first length of conduit ready to go.
 
 Once you've got your conduit set, it's time to pull ribbon cable through it. You're going to want a friend to help you with the next step. 
 
-Extend your cable snake into the conduit and keep unreeling it until it pokes through the far end of the conduit. Then your friend can pinch the cable and stuff it through the little hole on the end of the cable snake, or use gaffer's tape to attach it. Now have your friend put your wooden dowel through the hole in the ribbon cable spool, and stand with their arms out as you _slowly and carefully_ reel in the cable, until the cable pokes out of the conduit on your end. Pull about 4-5 inches of ribbon past the end of the cable, and then cut the ribbon cable on the other end, also with about 4-5 inches of extra. 
+Extend your cable snake into the conduit and keep unreeling it until it pokes through the far end of the conduit. Then your friend can pinch the cable and stuff it through the little hole on the end of the cable snake, or use tape to attach it. Now have your friend put your wooden dowel through the hole in the ribbon cable spool, and hold either end of the dowel as you _slowly and carefully_ reel in the cable, until the cable pokes out of the conduit on your end. Pull about 4-5 inches of ribbon past the end of the cable, and then cut the ribbon cable on the other end, also with about 4-5 inches of extra. 
 
 Decide which way you plan to orient the conduit, and then use a label printer or tape and a marker to mark an arrow → pointing _away_ from the Arduino enclosure. 
 
@@ -482,7 +482,7 @@ This is where you should snap the lids tightly down on the enclosures, and screw
 
 ### Install 
 
-Lay the entire length of the lights out in a straight line, if you can. 
+Lay the entire length of the lights out in a straight line, if you can. Leave the lids of the enclosures off (for the sensors) or loosely connected (for the NeoPixel interfaces). 
 
 Power on the Arduino and walk alongside the assembly as the sprite animates. Watch for dead pixels, dead strips (probably caused by a bad cable connection on the terminal board), stuttering animation (caused by too high an `interval` value in the software), or other glitches. You want to catch those now, because the next thing you're going to do is install the whole assembly on-site. Test both motion sensors; when you reach the end of the animation loop, you should trip the farthest sensor, causing the sprite to animate back the way it came. If the far sensor doesn't work, you'll have to check continuity for the yellow line on the ribbon cable all the way down the chain. 
 
@@ -494,14 +494,38 @@ Reconnect the NeoPixels. Use velcro loops to bind the NeoPixel strips to the con
 
 ## Troubleshooting
 
-Most problems with this installation are caused by wiring problems. If you're getting weird behavior, or no pixel illumination, check:
+Most problems with this installation are caused by wiring problems. If you're getting weird behavior, or no pixel illumination:
 
-* are there any short circuits? 
-* is the white data line connected all the way to the first NeoPixel input? Use the continuity check function of your multimeter to be certain. 
-* Is the yellow data line connected all the way to the farthest PIR sensor? Check continuity with your multimeter. 
-* Check any enclosures where the NeoPixels connect to 4-pin waterproof cables; it's possible that the terminals connecting the cables to the wiring harness have come loose as the cables flexed during installation. 
-* Are the NeoPixel strips oriented correctly? (Check the arrow on the strip; it should be pointed *away* from the Arduino enclosure)
-* Is the Arduino power light on? Does the indicator LED come on when the PIR sensor is tripped? 
 * Check the voltage at the positive and negative terminals in each enclosure while the assembly is powered on; you should have 5 volts at each terminal. If the voltage is less than 5V, you may have a short circuit in the power line. 
+
+Specific problems I have run into:
+
+### One or more of the NeoPixel strips do not light up
+
+* Are the NeoPixel strips oriented correctly? (Check the arrow on the strip; it should be pointed *away* from the Arduino enclosure)
+* is the white data line connected all the way to the first NeoPixel input? Use the continuity check function of your multimeter to be certain. 
+* Check any enclosures where the NeoPixels connect to 4-pin waterproof cables; it's possible that the terminals connecting the cables to the wiring harness have come loose as the cables flexed during installation. 
+* Check the voltage on the terminal board just before the NeoPixel problem: do you have 5V at the `+` and `-` terminals? 
+
+### One of the motion sensors isn't working
+
+* Is the Arduino power light on? Does the indicator LED come on when the PIR sensor is tripped? 
+* Is the yellow data line connected all the way to the farthest PIR sensor? Check continuity with your multimeter. Aren't you glad you didn't screw the lids onto all the 3D-printed enclosures?
+
+### The Arduino does not power on
+
+Either the battery is dead, the power switch isn't working, the PowerBoost 1000C isn't supplying 5V to the interface board for some reason, or you've got a wiring mistake. 
+
+* Check the leads on the power switch: are any loose? Any short-circuits?
+* Is the battery charged? Plug the PowerBoost 1000C into USB. 
+* Does the light turn on on the PowerBoost 1000C? The power switch? 
+* Test the terminals on the DC power plug. You should have 5V coming into the interface board. If not, check your solders on the PowerBoost 1000C. (And double-check that the PowerBoost is turning on.)
+* Check the wiring on the Arduino: the red terminal on the interface board should connect to the `5V` pin on the Arduino Due. The black terminal on the interface board should connect to the `GND` pin. 
+
+### The NeoPixels light up all weird when I power it on
+
+Most likely you've got a 3-volt signal from the Arduino Due connected to the NeoPixels. Usually this is a wiring mistake. 
+
+* Check to make certain you have pin 6 on the Arduino Due connected to the *second pin from the right* on the "top" of the interface board, and the white ribbon cable wire is connected to the *third pin from the right* on the "bottom" of the board. ("Top" and "Bottom" here are assuming you hold the board with the IC on the _right_ side, and the DC power plug on the _left_.)
 
 TODO: more better troubleshooting 
