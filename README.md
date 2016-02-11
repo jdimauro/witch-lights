@@ -312,7 +312,17 @@ IMPORTANT: As you increase the number of LEDs past 150, the animation speed will
 
 `hoverLowerDistance`: This adjusts how frequently the sprite stops and hovers. Decrease it to make the sprite stop more often. Increase it to make the sprite run for longer distances before it pauses to hover. 
 
- 
+`hoverLowerTime`: Adjust this variable, along with `hoverUpperTime`, to change how long the sprite "hovers" for; the higher the values, the longer the sprite will hover. A value of 5 means that the sprite will run through its "sparkle" animation cycle 5 times. The greater the difference between the two values, the greater the random variation in how long the sprite pauses to sparkle for. You will need to tune this value after you've made changes to any of the above variables. 
+
+The process for adjusting the animation goes like this: 
+
+* Set the `N_LEDS` first.
+* Let the animation run a few times, watching the sprite as it _starts_. The animation should be a slow but smooth launch. 
+* If the speed at start feels slow or choppy, decrease `interval`. If the sprite zips away too quickly, increase `interval`.
+* Use the `hoverLowerDistance` variable to tune how often the sprite stops. I recommend laying the strip on the floor at full length, and walking alongside it. You want the sprite to go just a bit faster than you would walk at a natural pace. 
+* Fine-tune the `hoverLowerTime` and `hoverUpperTime` variables. This is a matter of feel; you want the amount of time the sprite pauses to feel natural. It's a matter of "you know it when you see it".
+
+TODO: install knobs and map them to the `interval` and `hoverLowerDistance` variables to allow for on-site fine tuning without the need for a laptop.
 
 ## Final Assembly and Use
 

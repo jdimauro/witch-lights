@@ -11,12 +11,12 @@
 long interval = 30;             // delay between pixel draws -- 45 is slower than you can walk away from
 long minInterval = 0;           // 
 
-int hoverTime;				          // how long the sprite hovers for
-int hoverLowerTime = 5;         // shortest possible hoverTime
-int hoverUpperTime = 30;        // longest possible hoverTime
 int hoverLowerDistance = 40;   // shortest possible pause distance
 int hoverUpperDistance = hoverLowerDistance + 80;   // longest possible pause distance
 
+int hoverTime;				          // how long the sprite hovers for
+int hoverLowerTime = 5;         // shortest possible hoverTime
+int hoverUpperTime = 30;        // longest possible hoverTime
 
 // NOT USER ADJUSTABLE
 
