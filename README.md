@@ -293,9 +293,26 @@ Use the reel tester after you solder cable to every NeoPixel strip, then roll up
 
 The current iteration of the software is in the directory marked `witch-lights-classic`. This code successfully handles two PIR sensors and will trigger a different sprite animation when one or the other sensor is tripped. 
 
+### Program the Arduino
+
 Download `witch-lights-classic` and use the Arduino IDE to upload the code to your Arduino Due. 
 
 If the Arduino is properly wired to its terminal board, you should be able to use the screw terminals to connect directly to a NeoPixel strip. Power on the Arduino and use a jumper cable to make the green terminal pin go high; you should see the purple faerie lights race away down the NeoPixel strip. 
+
+### Adjust the Code
+
+Once you have an animation running, you can adjust the variables in the code to tune the speed and frequency of the animation. All of the variables you need to adjust are declared at the beginning of the file: 
+
+`N_LEDS`: Each NeoPixel strip has 150 LEDs. Change this value to equal the total number of LEDs in your project. 
+IMPORTANT: As you increase the number of LEDs past 150, the animation speed will slow, and you will have to reduce the "interval" variable to compensate.
+
+`interval`: Increase this to make the sprite's animation begin more slowly. Reduce it to make the sprite's animation begin more quickly. As you add LEDs to your project, you will have to adjust this variable.
+
+`minInterval`: If your project has a smaller number of LEDs (150 or 300), you may need to increase this variable to 1 or 2, in order to make the animation appear natural. If you have more than 300 LEDs, leave it at 0. 
+
+`hoverLowerDistance`: This adjusts how frequently the sprite stops and hovers. Decrease it to make the sprite stop more often. Increase it to make the sprite run for longer distances before it pauses to hover. 
+
+ 
 
 ## Final Assembly and Use
 

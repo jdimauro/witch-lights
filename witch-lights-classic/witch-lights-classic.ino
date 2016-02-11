@@ -4,8 +4,23 @@
  #define PSTR // Make Arduino Due happy (???)
 #endif
 
-#define PIN    6                // Pin for neopixels
+// USER ADJUSTABLE 
+
 #define N_LEDS 750              // 5 5-meter reels hooked up so far    
+
+long interval = 30;             // delay between pixel draws -- 45 is slower than you can walk away from
+long minInterval = 0;           // 
+
+int hoverTime;				          // how long the sprite hovers for
+int hoverLowerTime = 5;         // shortest possible hoverTime
+int hoverUpperTime = 30;        // longest possible hoverTime
+int hoverLowerDistance = 40;   // shortest possible pause distance
+int hoverUpperDistance = hoverLowerDistance + 80;   // longest possible pause distance
+
+
+// NOT USER ADJUSTABLE
+
+#define PIN    6                // Pin for neopixels
 
 int ledPin = 13;                // choose the pin for the LED
 int loc0Pin = 3;                // choose the input pin (for PIR sensor)
@@ -15,18 +30,12 @@ int pir1State = LOW;
 int loc0val = 0;                // variable for reading the pin status
 int loc1val = 1;
 
-int hoverTime;				          // how long the sprite hovers for
-int hoverLowerTime = 5;         // shortest possible hoverTime
-int hoverUpperTime = 30;        // longest possible hoverTime
-int hoverLowerDistance = 40;   // shortest possible pause distance
-int hoverUpperDistance = hoverLowerDistance + 80;   // longest possible pause distance
                                 // TODO: make hover distance adjustable via a knob
 
 int hoverRandom;
 int dir = 1;					          // +1 to move forwards, -1 to move backwards
 
-long interval = 30;             // delay between pixel draws -- 45 is slower than you can walk away from
-long minInterval = 0;           // 
+
       
 boolean debug = false;
 
