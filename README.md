@@ -326,6 +326,25 @@ TODO: install knobs and map them to the `interval` and `hoverLowerDistance` vari
 
 ## Final Assembly and Use
 
+You're ready to put the whole thing together! At this point, you should have:
+
+* 3D-printed enclosures
+* 3D-printed arduino mount
+* Terminal boards (1 per enclosure)
+* Arduino and its terminal board, with the software uploaded and adjusted
+* NeoPixel reels with cabling (tested)
+* All the remaining components on the Bill of Materials, such as conduit, ribbon cable, etc. 
+
+Here's the process you're going to follow: 
+
+1. Assemble the Arduino Enclosure, and build the power circuit.
+2. Cut conduit to the proper lengths, and pull ribbon cable through them for the wiring harness.
+3. Install the terminal boards in the 3D-printed housings
+4. Install the PIR sensors in the sensor housings
+5. Connect the ribbon cable to the terminals on the boards, and test continuity
+6. Wire the NeoPixel interface cables into the housings and connect the NeoPixels
+7. Run final testing on the assembly
+
 ### Arduino Enclosure and Power
 
 TODO: More better enclosure writeup
@@ -424,6 +443,8 @@ TODO: picture of PIR sensor installed
 
 ### Wiring
 
+TODO: pictures of the wiring process
+
 Start at the arduino enclosure and screw all the matching colored ribbon cable ends to their appropriate terminal. Leave any extras un-stripped, so that in the future you have the option of additional sensors or branching LED strips. 
 
 At each terminal board, hook power and ground into the provided terminals. 
@@ -454,7 +475,15 @@ This is where you should snap the lids tightly down on the enclosures, and screw
 
 ### Install 
 
-Disconnect the NeoPixels temporarily, and loop the conduit through branches, around trees, along the ground, overhead… whatever path you want the lights to take. Then reconnect the NeoPixel cables at each end, and use velcro loops to bind the NeoPixel strips to the conduit so that there's no bunching or sagging. 
+Lay the entire length of the lights out in a straight line, if you can. 
+
+Power on the Arduino and walk alongside the assembly as the sprite animates. Watch for dead pixels, dead strips (probably caused by a bad cable connection on the terminal board), stuttering animation (caused by too high an `interval` value in the software), or other glitches. You want to catch those now, because the next thing you're going to do is install the whole assembly on-site. Test both motion sensors; when you reach the end of the animation loop, you should trip the farthest sensor, causing the sprite to animate back the way it came. If the far sensor doesn't work, you'll have to check continuity for the yellow line on the ribbon cable all the way down the chain. 
+
+Disconnect the NeoPixels from the assembly. Loop the conduit through branches, around trees, along the ground, overhead… whatever path you want the lights to take. 
+
+If your assembly is long enough, you may find it easier to break the length up into two or more pieces. That may allow you to loop around trees and tree branches without dragging the entire assembly along with you. 
+
+Reconnect the NeoPixels. Use velcro loops to bind the NeoPixel strips to the conduit so that there's no bunching or sagging. The Heyco conduit should provide structure for the NeoPixel strips, which tend to sag and droop on their own. 
 
 ## Troubleshooting
 
