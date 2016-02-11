@@ -193,7 +193,14 @@ Print one of the `wl-arduino-mount.STL` file and place it with the components fo
 
 The physical layer of this project is composed of the Arduino Due, a power circuit, ribbon cable running through conduit, terminal circuit boards in the enclosures, and waterproof cabling for the NeoPixel strips. 
 
-### Arduino Enclosure
+This part of the project has four steps: 
+
+1. Wire and solder the interface board for the Arduino
+2. Solder the power elements to the Arduino interface board
+3. Wire and solder the terminal boards
+4. Connect the NeoPixels to 4-pin waterproof cables and test them
+
+### Arduino Interface Board
 
 The Arduino Due is a 3.3v microcontroller, but the NeoPixels need 5v on the data line. So we'll need to use a logic level shifter, which will take the data signals sent by pin 6 of the arduino and amp them up to 5 volts. 
 
