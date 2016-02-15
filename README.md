@@ -500,17 +500,31 @@ Most problems with this installation are caused by wiring problems. If you're ge
 
 Specific problems I have run into:
 
-### One or more of the NeoPixel strips do not light up
+### One or more of the NeoPixel strips do not light up (but some do)
 
 * Are the NeoPixel strips oriented correctly? (Check the arrow on the strip; it should be pointed *away* from the Arduino enclosure)
 * is the white data line connected all the way to the first NeoPixel input? Use the continuity check function of your multimeter to be certain. 
 * Check any enclosures where the NeoPixels connect to 4-pin waterproof cables; it's possible that the terminals connecting the cables to the wiring harness have come loose as the cables flexed during installation. 
 * Check the voltage on the terminal board just before the NeoPixel problem: do you have 5V at the `+` and `-` terminals? 
 
+### None of the NeoPixel strips light up
+
+Either no power is reaching the NeoPixels, or the data signal is not reaching them for some reason. At absolute minimum, even if the PIR sensors both fail, the first NeoPixel should light up green. 
+
+* Does the Arduino have a power light? If not, refer to "The Arduino does not power on" below.
+* Use the *NeoPixel Reel Test* assembly to check your first NeoPixel strip. 
+* Is the logic level shifter chip installed in the interface board? 
+* Does the logic level shifter chip face the correct way? The "U"-shaped cutout should face to the right/top of the board. 
+* Is the logic level shifter chip installed in the correct (rightmost) pins of the socket? 
+* Check the voltage at the `+` and `-` (red and black) terminals on the arduino interface board. You should have 5 volts. If so, go "downstream" and check the power terminals on all the terminal boards between the NeoPixels and the interface board; find the loose or missing power connections. If not, refer to "The Arduino does not power on" below for troubleshooting steps. 
+* Use the continuity tester on your multimeter to make certain the white "data" terminal on the NeoPixel terminal board is connected to the white "data" pin on the Arduino Interface Board. 
+
 ### One of the motion sensors isn't working
 
 * Is the Arduino power light on? Does the indicator LED come on when the PIR sensor is tripped? 
 * Is the yellow data line connected all the way to the farthest PIR sensor? Check continuity with your multimeter. Aren't you glad you didn't screw the lids onto all the 3D-printed enclosures?
+* Test the power and ground pins where the PIR sensor connects to the terminal board; you should have 5 volts.
+* Check to make certain the wires from the terminal board to the PIR sensor itself have not come loose at either end.
 
 ### The Arduino does not power on
 
@@ -520,6 +534,7 @@ Either the battery is dead, the power switch isn't working, the PowerBoost 1000C
 * Is the battery charged? Plug the PowerBoost 1000C into USB. 
 * Does the light turn on on the PowerBoost 1000C? The power switch? 
 * Test the terminals on the DC power plug. You should have 5V coming into the interface board. If not, check your solders on the PowerBoost 1000C. (And double-check that the PowerBoost is turning on.)
+* Double-check the wiring on the Arduino interface board. Make sure the red and blue power rails are connected to the red and black terminals, and that there are no short circuits. 
 * Check the wiring on the Arduino: the red terminal on the interface board should connect to the `5V` pin on the Arduino Due. The black terminal on the interface board should connect to the `GND` pin. 
 
 ### The NeoPixels light up all weird when I power it on
@@ -527,5 +542,6 @@ Either the battery is dead, the power switch isn't working, the PowerBoost 1000C
 Most likely you've got a 3-volt signal from the Arduino Due connected to the NeoPixels. Usually this is a wiring mistake. 
 
 * Check to make certain you have pin 6 on the Arduino Due connected to the *second pin from the right* on the "top" of the interface board, and the white ribbon cable wire is connected to the *third pin from the right* on the "bottom" of the board. ("Top" and "Bottom" here are assuming you hold the board with the IC on the _right_ side, and the DC power plug on the _left_.)
+* Is the logic level shifter installed correctly? 
 
 TODO: more better troubleshooting 
