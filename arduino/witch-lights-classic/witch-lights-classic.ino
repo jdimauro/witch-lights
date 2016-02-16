@@ -14,9 +14,10 @@ long minInterval = 0;           //
 int hoverLowerDistance = 40;   // shortest possible pause distance
 int hoverUpperDistance = hoverLowerDistance + 80;   // longest possible pause distance
 
-int hoverTime;				          // how long the sprite hovers for
 int hoverLowerTime = 5;         // shortest possible hoverTime
 int hoverUpperTime = 30;        // longest possible hoverTime
+
+boolean debug = false;
 
 // NOT USER ADJUSTABLE
 
@@ -30,14 +31,11 @@ int pir1State = LOW;
 int loc0val = 0;                // variable for reading the pin status
 int loc1val = 1;
 
-                                // TODO: make hover distance adjustable via a knob
-
+int hoverTime;				          // how long the sprite hovers for
 int hoverRandom;
+
 int dir = 1;					          // +1 to move forwards, -1 to move backwards
-
-
       
-boolean debug = false;
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(N_LEDS, PIN, NEO_GRB + NEO_KHZ800);
 
