@@ -208,7 +208,7 @@ And since we're using ribbon cable to send the power and data signals down the l
 
 Therefore, you're going to need to make a circuit board for the Arduino Due so it can talk to the NeoPixels and hook up to the ribbon cable. 
 
-![Witch Light Arduino Perma-Proto Board](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-ard-proto.png)
+![Witch Lights - Arduino Interface Board](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-ard-proto.png)
 
 Use an Adafruit Perma-Proto Half-Size board and solder a pair of 10-pin screw terminals to it, and wire it up as shown in the photograph above. 
 
@@ -502,7 +502,10 @@ Specific problems I have run into:
 
 ### One or more of the NeoPixel strips do not light up (but some do)
 
+Usually this happens because a wire has come loose, or you've got the polarity wrong. One of the NeoPixel strips themselves could be defective. 
+
 * Are the NeoPixel strips oriented correctly? (Check the arrow on the strip; it should be pointed *away* from the Arduino enclosure)
+* Use the *NeoPixel Reel Test* assembly to check the first NeoPixel strip that isn't working. 
 * is the white data line connected all the way to the first NeoPixel input? Use the continuity check function of your multimeter to be certain. 
 * Check any enclosures where the NeoPixels connect to 4-pin waterproof cables; it's possible that the terminals connecting the cables to the wiring harness have come loose as the cables flexed during installation. 
 * Check the voltage on the terminal board just before the NeoPixel problem: do you have 5V at the `+` and `-` terminals? 
@@ -521,9 +524,13 @@ Either no power is reaching the NeoPixels, or the data signal is not reaching th
 
 ### One of the motion sensors isn't working
 
-* Is the Arduino power light on? Does the indicator LED come on when the PIR sensor is tripped? 
+The PIR sensors work by sending a 3 volt signal down the yellow or the green wires in the ribbon cable. They're powered by the red and black wires on their terminal pins. If the PIR doesn't get power, or if the yellow or green wires don't have perfect continuity all the way down the line from the arduino to the sensor, the sensors won't work. 
+
+* Is the Arduino power light on? If not, see "The Arduino does not power on" below. 
+* Does the indicator LED come on when the PIR sensor is tripped? If so, see "None of the NeoPixel strips light up" above. 
+* Is the green data line connected all the way to the nearest PIR sensor? Check continuity with your multimeter. 
 * Is the yellow data line connected all the way to the farthest PIR sensor? Check continuity with your multimeter. Aren't you glad you didn't screw the lids onto all the 3D-printed enclosures?
-* Test the power and ground pins where the PIR sensor connects to the terminal board; you should have 5 volts.
+* Test the power and ground pins where the PIR sensor connects to the terminal board; you should have 5 volts. If not, check the power and ground pins on the terminal board itself. Got power there? You have a bad terminal board. No power? There's a break somewhere in the red or the black lines running back to the Arduino Interface Board, *or* there is a short circuit somewhere. 
 * Check to make certain the wires from the terminal board to the PIR sensor itself have not come loose at either end.
 
 ### The Arduino does not power on
