@@ -268,6 +268,7 @@ Tin the wires a little bit by heating them up with a soldering iron and brushing
 
 ![Soldering wires](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-neopixel-cables-1.jpg)
 
+Use the continuity tester on your multimeter to test that you have continuity from the pins on the cable to the bare spliced wires. You may have to use some trial and error to figure out which pin goes to which color of cable; I always forget and have to poke around. 
 
 Then slide the thin heat shrink tubing over the bare soldered wire. Use a heat gun to shrink the tubing over the wires. 
 
@@ -362,7 +363,7 @@ Here's the process you're going to follow:
 
 ### Arduino Enclosure and Power
 
-TODO: More better enclosure writeup
+In this step, you will assemble the Arduino Enclosure, and construct a power circuit, with battery connector and power switch. 
 
 ![Enclosure with battery pack](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-ard-enclosure1.jpg)
 
