@@ -159,7 +159,7 @@ If you want to lengthen the lights, just add another `wl-nopir.stl` enclosure to
 
 ![3D Printing Instructions Figure 3](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-3dprint-fig3.png)
 
-For each installation you build, you will want one PIR sensor enclosure, one "terminus" enclosure, and one more "nopir" enclosure than the number of NeoPixel strips. 
+For each installation you build, you will want one `wl-pir.stl` enclosure, one `wl-terminus.stl` enclosure, and one more `wl-nopir.stl` enclosure than the number of NeoPixel strips. 
 
 If you want to make things a bit more complex (why not?), you can space out the NeoPixel strips with areas of blank conduit, which will lengthen the area you can cover with the lights, like so: 
 
@@ -177,7 +177,7 @@ Take a look at your sketch from earlier. Let's say you're making a two-strip ins
 
     A-------P------N======================N=====================N------------P
 
-(TODO: scan actual drawing of the configurations)
+![3D Printing Instructions Figure 3](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-3dprint-fig3.png)
 
 There are three possible lids to print, with zero, one, or two cutouts for waterproof cable glands. That's where the waterproof cables will come out of the enclosures and connect to the NeoPixel strips. 
 
@@ -185,7 +185,7 @@ For each enclosure, look at the diagram. Is there a NeoPixel strip touching the 
 
 If there's one NeoPixel strip touching the enclosure, print a lid with 1 holes. And if there are two strips touching (like the middle enclosure in the above diagram), print a lid with 2 holes. 
 
-The rule of thumb is, print a lid with the same number of holes as the number of NeoPixels this enclosure needs to interface with. 
+The rule of thumb is, **print a lid with the same number of holes as the number of NeoPixels this enclosure needs to interface with**. 
 
 ### Printing Arduino Mount
 
