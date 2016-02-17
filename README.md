@@ -136,6 +136,8 @@ For example, here is a diagram of a naive installation, with two PIR sensors and
 
     A------P========================================P
 
+![3D Printing Instructions Figure 1](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-3dprint-fig1.png)
+
 This configuration uses the PIR enclosures to connect the NeoPixels to power and data. 
 
 I *do not* recommend you use this configuration, because the PIR sensors have a very, very long range, and so you won't get reliable results. As you approach one end of the strip, the other sensor may trip, and that ruins the illusion of the lights. 
@@ -145,7 +147,7 @@ Instead, I recommend a slightly more complex configuration as the simplest possi
 
     A-------P------N====================================N------------P
 
-(TODO: scan actual drawing of the configurations)
+![3D Printing Instructions Figure 2](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-3dprint-fig2.png)
 
 To make this configuration, you will need two `wl-pir.stl` enclosures, one `wl-nopir.stl` enclosure, and one `wl-terminus.stl` enclosure. This will space out the sensors and make it so that they trigger at the right times, making the lights chase back and forth between the sensors. 
 
@@ -155,15 +157,15 @@ If you want to lengthen the lights, just add another `wl-nopir.stl` enclosure to
 
     A-------P------N======================N=====================N------------P
 
-(TODO: scan actual drawing of the configurations)
+![3D Printing Instructions Figure 3](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-3dprint-fig3.png)
 
-Basically, for each installation you build, you will want one PIR sensor enclosure, one "terminus" enclosure, and one more "nopir" enclosure than the number of NeoPixel strips. 
+For each installation you build, you will want one PIR sensor enclosure, one "terminus" enclosure, and one more "nopir" enclosure than the number of NeoPixel strips. 
 
 If you want to make things a bit more complex (why not?), you can space out the NeoPixel strips with areas of blank conduit, which will lengthen the area you can cover with the lights, like so: 
 
     A-------P------N==================N----------------N==================N------------P
 
-(TODO: scan actual drawing of the configurations)
+![3D Printing Instructions Figure 4](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-3dprint-fig4.png)
 
 In the end, I recommend sketching your intended installation and then counting the number of each enclosure you will want. Once you do that, start printing your enclosures; they take an average of 5-6 hours each, so while they print you can start figuring out which lids you want to print. 
 
