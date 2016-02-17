@@ -300,6 +300,12 @@ Use the reel tester after you solder cable to every NeoPixel strip, then roll up
 
 The current iteration of the software is in the directory marked `witch-lights-classic`. This code successfully handles two PIR sensors and will trigger a different sprite animation when one or the other sensor is tripped. 
 
+### Required Libraries
+
+The Witch Lights run Adafruit NeoPixels, and therefore require the [Adafruit NeoPixel Library][neolib]. Follow the instructions in the README to install the library in your Arduino environment. 
+
+[neolib]: https://github.com/adafruit/Adafruit_NeoPixel
+
 ### Program the Arduino
 
 Download `witch-lights-classic` and use the Arduino IDE to upload the code to your Arduino Due. 
