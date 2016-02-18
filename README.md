@@ -218,7 +218,9 @@ The 74AHCT125 chip is installed so that the little "U" cutout faces to the right
 
 (TODO: detail shot of 74HCT125 chip)
 
-It's time to connect the Arduino Interface Board with the Arduino Due itself. We're going to use the 20" M3 screw and stand-offs for that. 
+It's time to connect the Arduino Interface Board with the Arduino Due itself. We're going to use the 20" M3 screw and stand-offs to mount the board underneath the Arduino. 
+
+(TODO: detail shots of the Arduino mounted to the interface board)
 
 Use hookup wire to connect the arduino's headers to the top part of the circuit board as follows:
 
