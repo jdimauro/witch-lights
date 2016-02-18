@@ -218,6 +218,8 @@ The 74AHCT125 chip is installed so that the little "U" cutout faces to the right
 
 (TODO: detail shot of 74HCT125 chip)
 
+It's time to connect the Arduino Interface Board with the Arduino Due itself. We're going to use the 20" M3 screw and stand-offs for that. 
+
 Use hookup wire to connect the arduino's headers to the top part of the circuit board as follows:
 
 * Connect the *red* terminal (power) to the "5V" pin
@@ -367,9 +369,11 @@ In this step, you will assemble the Arduino Enclosure, and construct a power cir
 
 ![Enclosure with battery pack](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-ard-enclosure1.jpg)
 
-Cut a 1" hole in the enclosure for the heyco conduit thingy, and slide the half-size perma-proto board into the printed `wl-arduino-mount.STL` piece, then mount it in the enclosure using the M4 screws provided when you unwrapped the enclosure. 
+Use a compass to mark a 1" circle on the narrow end of the enclosure, where you want the Heyco connector to go. This will be the "bottom" of the enclosure. Mark the center of the circle (using the compass). 
 
-You'll need to use a file or rough sandpaper to open the 1" hole up enough to insert a Heyco connector. 
+Drill a pilot hole with a 1/8" drill bit first, and then use your hole saw to cut the 1" hole in the enclosure. You'll need to use a file or rough sandpaper to open the 1" hole up enough to insert a Heyco connector. 
+
+Slide the half-size perma-proto board into the printed `wl-arduino-mount.STL` piece, then mount it in the enclosure using the M4 screws provided when you unwrapped the enclosure. 
 
 Now for the power circuit. First, we need to place the switch. 
 
