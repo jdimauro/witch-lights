@@ -441,13 +441,25 @@ Use 8mm M3 machine screws to attach the terminal boards to the bosses in the enc
 
 In *one* terminal board, you're going to solder an extra 2-wire terminal onto the side. These terminals are a passthrough for the yellow "pir1" sensor line, so set this board aside for use on the first ("pir0") sensor housing. 
 
-TODO: picture of the terminal board with the "passthrough" extra terminal
+![PIR0 Terminal Board Diagram](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-pir0-fritzing.png)
+
+Here is a diagram showing the first PIR sensor terminal board. Note how the green `PIR0` data line is connected to the left set of terminals, and the yellow `PIR1` data line is connected to the extra 2-wire terminal on the side, as instructed above. 
+
+Most of the other terminal boards will be used to pass through the `PIR1` data line, and to connect the NeoPixel data line and power to the NeoPixel strips. 
+
+![NeoPixel Terminal Board Diagram](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-neopixel-terminal-fritzing.png)
+
+Here is a diagram showing the first terminal board where a NeoPixel strip is connected to the board (via the 4-pin waterproof cables). Note that the white `NeoPixel` data line connects to the input data pin on the right, and the NeoPixel strip is connected to the output data pins. 
+
+Hopefully this gives you an idea of the model of the system: NeoPixel terminals pass the data line from white line to NeoPixel, or from NeoPixel to NeoPixel. They also connect the NeoPixel strips to power and ground at both ends. That keeps the color of the pixels bright. 
+
+Every single terminal takes the `PIR1` line as an input, and passes it on, until the final "terminus" board, where the `PIR1` sensor connects to the terminal board. 
 
 ### PIR sensors 
 
 Two enclosures house PIR passive-infrared motion sensors. Hold off installing the terminal boards in those two housings. 
 
-Press-fit the PIR sensor into the provided slot in the bottom of the 3D-printed "PIR" enclosure. 
+Press-fit the PIR sensor into the provided slot in the bottom of the 3D-printed "PIR" enclosures. 
 
 ![PIR Enclosure side view](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-pir-enclosure2.png)
 
