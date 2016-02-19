@@ -395,7 +395,7 @@ Connect a battery to the PowerBoost 1000C. When you press the on/off switch, the
 
 Position the battery as shown in the photograph above, and carefully use stick-on velcro dots to attach it to the inside of the enclosure. 
 
-At this point, you have a functional brain. You can charge the battery with the lid open by plugging it into a [micro-USB power adapter](https://www.adafruit.com/products/1995), and the system will continue to run. 
+At this point, you have a functional brain. You can charge the battery with the lid open by plugging the PowerBoost 1000C into a [micro-USB power adapter](https://www.adafruit.com/products/1995), and the system will continue to run as it charges. 
 
 You should still also have access to the programming port on the Arduino, in case you need to reprogram it for upgrades or bug fixes.  
 
