@@ -369,7 +369,7 @@ Here's the process you're going to follow:
 
 In this step, you will assemble the Arduino Enclosure, and construct a power circuit, with battery connector and power switch. 
 
-![Enclosure with battery pack](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-ard-enclosure1.jpg)
+![Enclosure with battery pack](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-ard-enclosure2.png)
 
 Use a compass to mark a 1" circle on the narrow end of the enclosure, where you want the Heyco connector to go. This will be the "bottom" of the enclosure. Mark the center of the circle (using the compass). 
 
