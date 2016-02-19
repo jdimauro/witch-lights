@@ -313,6 +313,10 @@ The Witch Lights run Adafruit NeoPixels, and therefore require the [Adafruit Neo
 
 [neolib]: https://github.com/adafruit/Adafruit_NeoPixel
 
+If you have trouble installing the library, or if you've never installed an Arduino library before, please check out the [Adafruit Guide to Arduino Libraries][agal] for in-depth instructions. 
+
+[agal]: https://learn.adafruit.com/adafruit-all-about-arduino-libraries-install-use
+
 ### Program the Arduino
 
 Download `witch-lights-classic` and use the Arduino IDE to upload the code to your Arduino Due. 
@@ -371,7 +375,7 @@ In this step, you will assemble the Arduino Enclosure, and construct a power cir
 
 ![Enclosure with battery pack](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-ard-enclosure2.png)
 
-Use a compass to mark a 1" circle on the narrow end of the enclosure, where you want the Heyco connector to go. This will be the "bottom" of the enclosure. Mark the center of the circle (using the compass). 
+Use a compass to mark a 1" circle on the narrow end of the enclosure, where you want the Heyco connector to go. This will be the "bottom" of the enclosure. (See the photograph above for guidance on where to mark the hole.) Mark the center of the circle. 
 
 Drill a pilot hole with a 1/8" drill bit first, and then use your hole saw to cut the 1" hole in the enclosure. You'll need to use a file or rough sandpaper to open the 1" hole up enough to insert a Heyco connector. 
 
