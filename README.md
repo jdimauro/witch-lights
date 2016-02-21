@@ -19,6 +19,8 @@ Imagine: as you walk through the unlit path, a tiny purple faerie jumps out of t
 [vid0]: https://vimeo.com/153011114#t=2s
 [vid1]: https://vimeo.com/153011829
 
+![Proof of Concept - Firefly 2015](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/)
+
 <iframe src="https://player.vimeo.com/video/153011829" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe> 
 
 The design of the lighting system is modular, so it can be used with any length of NeoPixel strip. The current configuration of the project uses five 30 pixel-per-meter NeoPixel strips, each one five meters long, for a total of 750 pixels. 
