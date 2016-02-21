@@ -267,7 +267,7 @@ You'll have to solder and heat-shrink one end of a waterproof 4-pin cable to eac
 
 Make sure you always use the same cable gender for input and output, or else it'll get really confusing. I used a label printer to make an arrow pointing in the direction of the NeoPixel data flow (as indicated by arrows on the NeoPixel Strips), and labeled all the waterproof cables before starting assembly. 
 
-(TODO: Picture of labeled waterproof cables)
+![Arrows on NeoPixel Cables](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-neopixel-cables-0.png)
 
 Use a third-hand tool to hold the waterproof cable and the end of the NeoPixel strip. Use your wire strippers to take some more insulation off the red, black, and white wires coming out of the waterproof cable, and clip the yellow wire short; we won't be using it. 
 
