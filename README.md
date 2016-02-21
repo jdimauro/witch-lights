@@ -256,6 +256,11 @@ Once those are soldered, use masking tape to hold the terminals on to the board,
 
 Use the continuity tester feature of your multi-meter to test for short circuits and to ensure that the power, data, and ground lines pass properly through from one side of the board to the other. 
 
+Once you're certain you have a good board, do yourself two small favors:
+
+1. Use a 1.5mm flathead screwdriver to loosen _all_ of the terminals; they ship tightened all the way, and it's far easier to loosen them now than it will be in the field
+2. Draw an arrow on the board as shown. This indicates the direction of the data flow away from the Arduino. When it's time to install the boards in their enclosures, you'll install them so that the arrow points away from the Arduino, and that will save you heartache and troubleshooting later. Trust me. 
+
 ### NeoPixel Cables
 
 You'll have to solder and heat-shrink one end of a waterproof 4-pin cable to each side of the NeoPixel strip, so that we have a weatherproof way to connect the strips to the 3D-printed enclosures. Once you do that, you'll need to test the strip to make certain there are no problems with your soldering job. 
@@ -439,7 +444,9 @@ Next, we will install terminal boards in the 3D-printed enclosures, and we will 
 
 ### Terminal boards
 
-Use 8mm M3 machine screws to attach the terminal boards to the bosses in the enclosures. Depending on your 3D printer, the screws *should* bite into the provided holes. If your printer's dimensional accuracy isn't 100% you might end up inserting helicoils. 
+Use 8mm M3 machine screws to attach the terminal boards to the bosses in the enclosures. Be sure to orient them so that the arrow you drew on them points away from the Arduino, in the direction of the data flow down the NeoPixel strips. 
+
+Depending on your 3D printer, the screws *should* bite into the provided holes. If your printer's dimensional accuracy isn't 100% you might end up inserting helicoils. 
 
 ![Enclosure](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-pir-enclosure1.png)
 
