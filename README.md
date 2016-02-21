@@ -8,6 +8,8 @@ The documentation and code are currently under construction, so they may change 
 
 This project creates a set of [ghostly lights][vid0], which come out of the woods when you approach them and jump from tree to tree. 
 
+![Animation Demo 1](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-animation-demo1.gif)
+
 Imagine: as you walk through the unlit path, a tiny purple faerie jumps out of the underbrush, coiling about trees and floating overhead. It zips ahead of you, but pauses, flickering, while you catch up. It then takes off again, remaining always just out of reach, until you reach the end of their territory, where they vanish back into the woods. As you pass by where they disappeared, the lights jump out again, heading back the other way, daring you to chase them.
 
 <iframe src="https://player.vimeo.com/video/153011114" width="500" height="889" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe> 
