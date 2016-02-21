@@ -6,6 +6,10 @@
 
 using namespace std;
 
+#ifndef PSTR
+ #define PSTR // Make Arduino Due happy
+#endif
+
 #include <MemoryFree.h>
 
 #include <Adafruit_NeoPixel.h>
