@@ -252,7 +252,7 @@ You'll probably want to strip and install the wires first, like so:
 
 Once those are soldered, use masking tape to hold the terminals on to the board, and solder them on, like so: 
 
-(TODO: close-up diagram shot of perma-proto boards)
+![PIR Terminal Board Detail 2](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-pir-board2.png)
 
 Use the continuity tester feature of your multi-meter to test for short circuits and to ensure that the power, data, and ground lines pass properly through from one side of the board to the other. 
 
