@@ -8,6 +8,8 @@ The documentation and code are currently under construction, so they may change 
 
 This project creates a set of [ghostly lights][vid0], which come out of the woods when you approach them and jump from tree to tree. 
 
+![Animation Demo 1](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-animation-demo1.gif)
+
 Imagine: as you walk through the unlit path, a tiny purple faerie jumps out of the underbrush, coiling about trees and floating overhead. It zips ahead of you, but pauses, flickering, while you catch up. It then takes off again, remaining always just out of reach, until you reach the end of their territory, where they vanish back into the woods. As you pass by where they disappeared, the lights jump out again, heading back the other way, daring you to chase them.
 
 <iframe src="https://player.vimeo.com/video/153011114" width="500" height="889" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe> 
@@ -16,6 +18,8 @@ Imagine: as you walk through the unlit path, a tiny purple faerie jumps out of t
 
 [vid0]: https://vimeo.com/153011114#t=2s
 [vid1]: https://vimeo.com/153011829
+
+![Proof of Concept - Firefly 2015](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-poc-firefly1.gif)
 
 <iframe src="https://player.vimeo.com/video/153011829" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe> 
 
@@ -132,38 +136,40 @@ First, download the files in the `STLs` directory.
 
 Next, before you jump in to printing and assembling the enclosures, you should make a thumbnail sketch of the installation, so that you know how how many of which components to make, and how they will be assembled. 
 
-For example, here is a diagram of the simplest possible installation, with two PIR sensors and one NeoPixel strip:
+For example, here is a diagram of a naive installation, with two PIR sensors and one NeoPixel strip:
 
     A------P========================================P
+
+![3D Printing Instructions Figure 1](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-3dprint-fig1.png)
 
 This configuration uses the PIR enclosures to connect the NeoPixels to power and data. 
 
 I *do not* recommend you use this configuration, because the PIR sensors have a very, very long range, and so you won't get reliable results. As you approach one end of the strip, the other sensor may trip, and that ruins the illusion of the lights. 
 
-Instead, I recommend a slightly more complex configuration: 
+Instead, I recommend a slightly more complex configuration as the simplest possible arrangement: 
 
 
     A-------P------N====================================N------------P
 
-(TODO: scan actual drawing of the configurations)
+![3D Printing Instructions Figure 2](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-3dprint-fig2.png)
 
-To make this configuration, you will need two PIR enclosures, one "nopir" enclosure, and one "nopir terminal" connector. This will space out the sensors and make it so that they trigger at the right times, making the lights chase back and forth between the sensors. 
+To make this configuration, you will need two `wl-pir.stl` enclosures, one `wl-nopir.stl` enclosure, and one `wl-terminus.stl` enclosure. This will space out the sensors and make it so that they trigger at the right times, making the lights chase back and forth between the sensors. 
 
 Please see the second video in the Overview section if you want to see what this configuration looks like in the wild. 
 
-If you want to lengthen the lights, just add another "nopir" enclosure to connect another NeoPixel strip, like so: 
+If you want to lengthen the lights, just add another `wl-nopir.stl` enclosure to connect another NeoPixel strip, like so: 
 
     A-------P------N======================N=====================N------------P
 
-(TODO: scan actual drawing of the configurations)
+![3D Printing Instructions Figure 3](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-3dprint-fig3.png)
 
-Basically, for each installation you build, you will want two PIR sensor enclosures, and one more "nopir" enclosure than the number of NeoPixel strips. 
+For each installation you build, you will want one `wl-pir.stl` enclosure, one `wl-terminus.stl` enclosure, and one more `wl-nopir.stl` enclosure than the number of NeoPixel strips. 
 
 If you want to make things a bit more complex (why not?), you can space out the NeoPixel strips with areas of blank conduit, which will lengthen the area you can cover with the lights, like so: 
 
     A-------P------N==================N----------------N==================N------------P
 
-(TODO: scan actual drawing of the configurations)
+![3D Printing Instructions Figure 4](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-3dprint-fig4.png)
 
 In the end, I recommend sketching your intended installation and then counting the number of each enclosure you will want. Once you do that, start printing your enclosures; they take an average of 5-6 hours each, so while they print you can start figuring out which lids you want to print. 
 
@@ -175,7 +181,7 @@ Take a look at your sketch from earlier. Let's say you're making a two-strip ins
 
     A-------P------N======================N=====================N------------P
 
-(TODO: scan actual drawing of the configurations)
+![3D Printing Instructions Figure 3](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-3dprint-fig3.png)
 
 There are three possible lids to print, with zero, one, or two cutouts for waterproof cable glands. That's where the waterproof cables will come out of the enclosures and connect to the NeoPixel strips. 
 
@@ -183,7 +189,7 @@ For each enclosure, look at the diagram. Is there a NeoPixel strip touching the 
 
 If there's one NeoPixel strip touching the enclosure, print a lid with 1 holes. And if there are two strips touching (like the middle enclosure in the above diagram), print a lid with 2 holes. 
 
-The rule of thumb is, print a lid with the same number of holes as the number of NeoPixels this enclosure needs to interface with. 
+The rule of thumb is, **print a lid with the same number of holes as the number of NeoPixels this enclosure needs to interface with**. 
 
 ### Printing Arduino Mount
 
@@ -208,13 +214,17 @@ And since we're using ribbon cable to send the power and data signals down the l
 
 Therefore, you're going to need to make a circuit board for the Arduino Due so it can talk to the NeoPixels and hook up to the ribbon cable. 
 
-![Witch Light Arduino Perma-Proto Board](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-ard-proto.png)
+![Witch Lights - Arduino Interface Board](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-ard-proto.png)
 
 Use an Adafruit Perma-Proto Half-Size board and solder a pair of 10-pin screw terminals to it, and wire it up as shown in the photograph above. 
 
 The 74AHCT125 chip is installed so that the little "U" cutout faces to the right of the board, matching the little "U" cutout in the socket. 
 
 (TODO: detail shot of 74HCT125 chip)
+
+It's time to connect the Arduino Interface Board with the Arduino Due itself. We're going to use the 20" M3 screw and stand-offs to mount the board underneath the Arduino. 
+
+(TODO: detail shots of the Arduino mounted to the interface board)
 
 Use hookup wire to connect the arduino's headers to the top part of the circuit board as follows:
 
@@ -246,9 +256,14 @@ You'll probably want to strip and install the wires first, like so:
 
 Once those are soldered, use masking tape to hold the terminals on to the board, and solder them on, like so: 
 
-(TODO: close-up diagram shot of perma-proto boards)
+![PIR Terminal Board Detail 2](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-pir-board2.png)
 
 Use the continuity tester feature of your multi-meter to test for short circuits and to ensure that the power, data, and ground lines pass properly through from one side of the board to the other. 
+
+Once you're certain you have a good board, do yourself two small favors:
+
+1. Use a 1.5mm flathead screwdriver to loosen _all_ of the terminals; they ship tightened all the way, and it's far easier to loosen them now than it will be in the field
+2. Draw an arrow on the board as shown. This indicates the direction of the data flow away from the Arduino. When it's time to install the boards in their enclosures, you'll install them so that the arrow points away from the Arduino, and that will save you heartache and troubleshooting later. Trust me. 
 
 ### NeoPixel Cables
 
@@ -256,7 +271,7 @@ You'll have to solder and heat-shrink one end of a waterproof 4-pin cable to eac
 
 Make sure you always use the same cable gender for input and output, or else it'll get really confusing. I used a label printer to make an arrow pointing in the direction of the NeoPixel data flow (as indicated by arrows on the NeoPixel Strips), and labeled all the waterproof cables before starting assembly. 
 
-(TODO: Picture of labeled waterproof cables)
+![Arrows on NeoPixel Cables](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-neopixel-cables-0.png)
 
 Use a third-hand tool to hold the waterproof cable and the end of the NeoPixel strip. Use your wire strippers to take some more insulation off the red, black, and white wires coming out of the waterproof cable, and clip the yellow wire short; we won't be using it. 
 
@@ -266,6 +281,7 @@ Tin the wires a little bit by heating them up with a soldering iron and brushing
 
 ![Soldering wires](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-neopixel-cables-1.jpg)
 
+Use the continuity tester on your multimeter to test that you have continuity from the pins on the cable to the bare spliced wires. You may have to use some trial and error to figure out which pin goes to which color of cable; I always forget and have to poke around. 
 
 Then slide the thin heat shrink tubing over the bare soldered wire. Use a heat gun to shrink the tubing over the wires. 
 
@@ -299,6 +315,16 @@ Use the reel tester after you solder cable to every NeoPixel strip, then roll up
 ## Software
 
 The current iteration of the software is in the directory marked `witch-lights-classic`. This code successfully handles two PIR sensors and will trigger a different sprite animation when one or the other sensor is tripped. 
+
+### Required Libraries
+
+The Witch Lights run Adafruit NeoPixels, and therefore require the [Adafruit NeoPixel Library][neolib]. Follow the instructions in the README to install the library in your Arduino environment. 
+
+[neolib]: https://github.com/adafruit/Adafruit_NeoPixel
+
+If you have trouble installing the library, or if you've never installed an Arduino library before, please check out the [Adafruit Guide to Arduino Libraries][agal] for in-depth instructions. 
+
+[agal]: https://learn.adafruit.com/adafruit-all-about-arduino-libraries-install-use
 
 ### Program the Arduino
 
@@ -354,13 +380,15 @@ Here's the process you're going to follow:
 
 ### Arduino Enclosure and Power
 
-TODO: More better enclosure writeup
+In this step, you will assemble the Arduino Enclosure, and construct a power circuit, with battery connector and power switch. 
 
-![Enclosure with battery pack](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-ard-enclosure1.jpg)
+![Enclosure with battery pack](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-ard-enclosure2.png)
 
-Cut a 1" hole in the enclosure for the heyco conduit thingy, and slide the half-size perma-proto board into the printed `wl-arduino-mount.STL` piece, then mount it in the enclosure using the M4 screws provided when you unwrapped the enclosure. 
+Use a compass to mark a 1" circle on the narrow end of the enclosure, where you want the Heyco connector to go. This will be the "bottom" of the enclosure. (See the photograph above for guidance on where to mark the hole.) Mark the center of the circle. 
 
-You'll need to use a file or rough sandpaper to open the 1" hole up enough to insert a Heyco connector. 
+Drill a pilot hole with a 1/8" drill bit first, and then use your hole saw to cut the 1" hole in the enclosure. You'll need to use a file or rough sandpaper to open the 1" hole up enough to insert a Heyco connector. 
+
+Slide the half-size perma-proto board into the printed `wl-arduino-mount.STL` piece, then mount it in the enclosure using the M4 screws provided when you unwrapped the enclosure. 
 
 Now for the power circuit. First, we need to place the switch. 
 
@@ -380,7 +408,7 @@ Connect a battery to the PowerBoost 1000C. When you press the on/off switch, the
 
 Position the battery as shown in the photograph above, and carefully use stick-on velcro dots to attach it to the inside of the enclosure. 
 
-At this point, you have a functional brain. You can charge the battery with the lid open by plugging it into a [micro-USB power adapter](https://www.adafruit.com/products/1995), and the system will continue to run. 
+At this point, you have a functional brain. You can charge the battery with the lid open by plugging the PowerBoost 1000C into a [micro-USB power adapter](https://www.adafruit.com/products/1995), and the system will continue to run as it charges. 
 
 You should still also have access to the programming port on the Arduino, in case you need to reprogram it for upgrades or bug fixes.  
 
@@ -420,19 +448,33 @@ Next, we will install terminal boards in the 3D-printed enclosures, and we will 
 
 ### Terminal boards
 
-Use 8mm M3 machine screws to attach the terminal boards to the bosses in the enclosures. Depending on your 3D printer, the screws *should* bite into the provided holes. If your printer's dimensional accuracy isn't 100% you might end up inserting helicoils. 
+Use 8mm M3 machine screws to attach the terminal boards to the bosses in the enclosures. Be sure to orient them so that the arrow you drew on them points away from the Arduino, in the direction of the data flow down the NeoPixel strips. 
+
+Depending on your 3D printer, the screws *should* bite into the provided holes. If your printer's dimensional accuracy isn't 100% you might end up inserting helicoils. 
 
 ![Enclosure](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-pir-enclosure1.png)
 
 In *one* terminal board, you're going to solder an extra 2-wire terminal onto the side. These terminals are a passthrough for the yellow "pir1" sensor line, so set this board aside for use on the first ("pir0") sensor housing. 
 
-TODO: picture of the terminal board with the "passthrough" extra terminal
+![PIR0 Terminal Board Diagram](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-pir0-fritzing.png)
+
+Here is a diagram showing the first PIR sensor terminal board. Note how the green `PIR0` data line is connected to the left set of terminals, and the yellow `PIR1` data line is connected to the extra 2-wire terminal on the side, as instructed above. 
+
+Most of the other terminal boards will be used to pass through the `PIR1` data line, and to connect the NeoPixel data line and power to the NeoPixel strips. 
+
+![NeoPixel Terminal Board Diagram](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-neopixel-terminal-fritzing.png)
+
+Here is a diagram showing the first terminal board where a NeoPixel strip is connected to the board (via the 4-pin waterproof cables). Note that the white `NeoPixel` data line connects to the input data pin on the right, and the NeoPixel strip is connected to the output data pins. 
+
+Hopefully this gives you an idea of the model of the system: NeoPixel terminals pass the data line from white line to NeoPixel, or from NeoPixel to NeoPixel. They also connect the NeoPixel strips to power and ground at both ends. That keeps the color of the pixels bright. 
+
+Every single terminal takes the `PIR1` line as an input, and passes it on, until the final "terminus" board, where the `PIR1` sensor connects to the terminal board. 
 
 ### PIR sensors 
 
 Two enclosures house PIR passive-infrared motion sensors. Hold off installing the terminal boards in those two housings. 
 
-Press-fit the PIR sensor into the provided slot in the bottom of the 3D-printed "PIR" enclosure. 
+Press-fit the PIR sensor into the provided slot in the bottom of the 3D-printed "PIR" enclosures. 
 
 ![PIR Enclosure side view](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-pir-enclosure2.png)
 
@@ -500,17 +542,38 @@ Most problems with this installation are caused by wiring problems. If you're ge
 
 Specific problems I have run into:
 
-### One or more of the NeoPixel strips do not light up
+### One or more of the NeoPixel strips do not light up (but some do)
+
+Usually this happens because a wire has come loose, or you've got the polarity wrong. One of the NeoPixel strips themselves could be defective. 
 
 * Are the NeoPixel strips oriented correctly? (Check the arrow on the strip; it should be pointed *away* from the Arduino enclosure)
+* Use the *NeoPixel Reel Test* assembly to check the first NeoPixel strip that isn't working. 
 * is the white data line connected all the way to the first NeoPixel input? Use the continuity check function of your multimeter to be certain. 
 * Check any enclosures where the NeoPixels connect to 4-pin waterproof cables; it's possible that the terminals connecting the cables to the wiring harness have come loose as the cables flexed during installation. 
 * Check the voltage on the terminal board just before the NeoPixel problem: do you have 5V at the `+` and `-` terminals? 
 
+### None of the NeoPixel strips light up
+
+Either no power is reaching the NeoPixels, or the data signal is not reaching them for some reason. At absolute minimum, even if the PIR sensors both fail, the first NeoPixel should light up green. 
+
+* Does the Arduino have a power light? If not, refer to "The Arduino does not power on" below.
+* Use the *NeoPixel Reel Test* assembly to check your first NeoPixel strip. 
+* Is the logic level shifter chip installed in the interface board? 
+* Does the logic level shifter chip face the correct way? The "U"-shaped cutout should face to the right/top of the board. 
+* Is the logic level shifter chip installed in the correct (rightmost) pins of the socket? 
+* Check the voltage at the `+` and `-` (red and black) terminals on the arduino interface board. You should have 5 volts. If so, go "downstream" and check the power terminals on all the terminal boards between the NeoPixels and the interface board; find the loose or missing power connections. If not, refer to "The Arduino does not power on" below for troubleshooting steps. 
+* Use the continuity tester on your multimeter to make certain the white "data" terminal on the NeoPixel terminal board is connected to the white "data" pin on the Arduino Interface Board. 
+
 ### One of the motion sensors isn't working
 
-* Is the Arduino power light on? Does the indicator LED come on when the PIR sensor is tripped? 
+The PIR sensors work by sending a 3 volt signal down the yellow or the green wires in the ribbon cable. They're powered by the red and black wires on their terminal pins. If the PIR doesn't get power, or if the yellow or green wires don't have perfect continuity all the way down the line from the arduino to the sensor, the sensors won't work. 
+
+* Is the Arduino power light on? If not, see "The Arduino does not power on" below. 
+* Does the indicator LED come on when the PIR sensor is tripped? If so, see "None of the NeoPixel strips light up" above. 
+* Is the green data line connected all the way to the nearest PIR sensor? Check continuity with your multimeter. 
 * Is the yellow data line connected all the way to the farthest PIR sensor? Check continuity with your multimeter. Aren't you glad you didn't screw the lids onto all the 3D-printed enclosures?
+* Test the power and ground pins where the PIR sensor connects to the terminal board; you should have 5 volts. If not, check the power and ground pins on the terminal board itself. Got power there? You have a bad terminal board. No power? There's a break somewhere in the red or the black lines running back to the Arduino Interface Board, *or* there is a short circuit somewhere. 
+* Check to make certain the wires from the terminal board to the PIR sensor itself have not come loose at either end.
 
 ### The Arduino does not power on
 
@@ -520,6 +583,7 @@ Either the battery is dead, the power switch isn't working, the PowerBoost 1000C
 * Is the battery charged? Plug the PowerBoost 1000C into USB. 
 * Does the light turn on on the PowerBoost 1000C? The power switch? 
 * Test the terminals on the DC power plug. You should have 5V coming into the interface board. If not, check your solders on the PowerBoost 1000C. (And double-check that the PowerBoost is turning on.)
+* Double-check the wiring on the Arduino interface board. Make sure the red and blue power rails are connected to the red and black terminals, and that there are no short circuits. 
 * Check the wiring on the Arduino: the red terminal on the interface board should connect to the `5V` pin on the Arduino Due. The black terminal on the interface board should connect to the `GND` pin. 
 
 ### The NeoPixels light up all weird when I power it on
@@ -527,5 +591,6 @@ Either the battery is dead, the power switch isn't working, the PowerBoost 1000C
 Most likely you've got a 3-volt signal from the Arduino Due connected to the NeoPixels. Usually this is a wiring mistake. 
 
 * Check to make certain you have pin 6 on the Arduino Due connected to the *second pin from the right* on the "top" of the interface board, and the white ribbon cable wire is connected to the *third pin from the right* on the "bottom" of the board. ("Top" and "Bottom" here are assuming you hold the board with the IC on the _right_ side, and the DC power plug on the _left_.)
+* Is the logic level shifter installed correctly? 
 
 TODO: more better troubleshooting 
