@@ -25,7 +25,7 @@ using namespace std;
 #define PUSHBUTTON_TIMEOUT_IN_MS  1000
 
 // The maximum number of sprites run simultaneously.
-#define MAXSPRITES           7
+#define MAXSPRITES           3
 
 // "Framerate" minimum and maximum period for animations.
 #define MIN_UPDATE_INTERVAL_IN_MS  15
@@ -133,7 +133,7 @@ public:
         SetNextUpdateTime();
     }
 
-    uint32_t GetNextUpdateTime() {
+    virtual uint32_t GetNextUpdateTime() {
         return nextUpdateTime;
     }
 
@@ -160,8 +160,8 @@ protected:
     uint32_t nextUpdateTime;
 };
 
-class ForwardScannerSprite : public Sprite {
-private:
+class ScannerSprite : public Sprite {
+protected:
     uint32_t pixelColor;
     int currentPixel;
     int targetPivot;
@@ -171,43 +171,60 @@ private:
     int scannerWidth;
 
     // The number of the pixel for the purposes of the scanner. A PIVOT_WIDTH wide scanner
-    // should cause this number to range from 1 to (PIVOT_WIDTH - 1) * 2.
+    // should cause this number to range from 0 to (PIVOT_WIDTH - 1) * 2 - 1.
     int pivotPixel;
-    
-    int GetNextPivotPosition(int currentPivot) {
-        return currentPivot + random(MIN_LEAP_DISTANCE_BETWEEN_PIVOTS, MAX_LEAP_DISTANCE_BETWEEN_PIVOTS) + 3;
-    }
+    int pivotPixelMax;
 
-    int getScannerPixelPosition(int _targetPivot, int _pivotWidth, int _pivotPixel) {
+    int getScannerPixelPositionRelative(int _pivotWidth, int _pivotPixel) {
+        // Here, _pivotPixel is the "frame" of the animation, starting at 0.
+        // A scanner width of 9 would allow the result of this function to vary
+        // from +4 to -4 (nine possible values). There would be sixteen possible
+        // steps in this animation before returning to the beginning of the 
+        // animation.
+        // 
+        // Or, in general, a scanner width of n (must be an odd number) would allow
+        // the result of this function to vary from -((n - 1) / 2) to +((n - 1) / 2), 
+        // that is to say, n possible values. There would be 2*(n - 1) possible steps
+        // in this animation before returning to the beginning. 
+      
         // Examples:
         //    targetPivot (T) = 15, pivotWidth (=) = 9, pivotPixel (*) = 1
-        //         ..........====T*===........... returns 16
+        //         ..........====T*===........... returns 1
         
         //    targetPivot (T) = 15, pivotWidth (=) = 9, pivotPixel (*) = 4
-        //         ..........====T===*........... returns 19
+        //         ..........====T===*........... returns 4
     
         //    targetPivot (T) = 15, pivotWidth (=) = 9, pivotPixel (*) = 5
-        //         ..........====T==*=........... returns 18
+        //         ..........====T==*=........... returns 3
     
         //    targetPivot (T) = 15, pivotWidth (=) = 9, pivotPixel (*) = 11
-        //         ..........=*==T====........... returns 12
+        //         ..........=*==T====........... returns -3
     
         //    targetPivot (T) = 15, pivotWidth (=) = 9, pivotPixel (*) = 12
-        //         ..........*===T====........... returns 11
+        //         ..........*===T====........... returns -4
     
         //    targetPivot (T) = 15, pivotWidth (=) = 9, pivotPixel (*) = 16
-        //         ..........====*====........... returns 15
-    
-        int farSide = (_pivotWidth - 1) / 2;
-        int nearSide = farSide + _pivotWidth - 1;
-    
-        if (_pivotPixel <= farSide) {
-            return _targetPivot + _pivotPixel;
-        } else if (_pivotPixel > farSide && _pivotPixel <= nearSide) {
-            return _targetPivot + 2 * farSide - _pivotPixel;
+        //         ..........====*====........... returns 0
+        //
+        //      -------> direction of sprite motion ------->
+
+        int p = _pivotPixel % (2 * (_pivotWidth - 1));
+        int maxDeviationFromCenter = (_pivotWidth - 1) / 2;
+        
+        if (p <= maxDeviationFromCenter) {
+            return p;
+        } else if (p > maxDeviationFromCenter && p <= 3 * maxDeviationFromCenter) {
+            return (_pivotWidth - 1) - p;
         } else {
-            return _targetPivot - (2 * (_pivotWidth - 1) - _pivotPixel); 
+            return -(2 * (_pivotWidth - 1)) + p; 
        }
+    }
+};
+
+class ForwardScannerSprite : public ScannerSprite {
+private:
+    int GetNextPivotPosition(int currentPivot) {
+        return currentPivot + random(MIN_LEAP_DISTANCE_BETWEEN_PIVOTS, MAX_LEAP_DISTANCE_BETWEEN_PIVOTS) + 3;
     }
     
 public:
@@ -218,217 +235,162 @@ public:
         pivoting = false;
         pivotCount = 0;
         generatedPivotTotal = random(MIN_PIVOT_COUNT, MAX_PIVOT_COUNT);
-        scannerWidth = MIN_SCANNER_WIDTH + 2 * random(0, 1 + (MAX_SCANNER_WIDTH - MIN_SCANNER_WIDTH) / 2);
+        scannerWidth = 2 * random((MIN_SCANNER_WIDTH - 1) / 2, (MAX_SCANNER_WIDTH - 1) / 2) + 1;
         
         pivotPixel = 0;
+        pivotPixelMax = 2 * (scannerWidth - 1) * generatedPivotTotal;
     }
     
     ~ForwardScannerSprite() {
     }
+
+    virtual uint32_t GetNextUpdateTime() {
+        return random(MIN_UPDATE_INTERVAL_IN_MS, MAX_UPDATE_INTERVAL_IN_MS);
+    }
     
     virtual void Update() {
         if (IsDone() || (! UpdateNow())) {
             return; 
         }
 
-        if (currentPixel >= strip.numPixels() + 1) {
-            MarkDone();
-            return;
+        if (! pivoting) {
+            if (currentPixel < targetPivot) {
+                // Moving along as normal. TODO: Add a velocity here?
+                writePixel(currentPixel, pixelColor);
+                writePixel(currentPixel - 1, DARK);
+                
+                ++currentPixel;
+                // TODO: Add trails.
+
+                if (currentPixel > strip.numPixels()) {
+                    // We've run off the end. We're done here.
+                    MarkDone();
+                }                
+            } else if (currentPixel == targetPivot) {
+                // Peanut butter pivot with a baseball bat!
+               pivoting = true;
+               pivotPixel = 0; 
+            } 
         }
 
-        if (! (pivoting) && currentPixel < targetPivot) {
-            strip.setPixelColor(currentPixel, pixelColor);
-            strip.setPixelColor(currentPixel - 1, DimColor(strip.getPixelColor(currentPixel)));
-            strip.setPixelColor(currentPixel - 2, DimColor(strip.getPixelColor(currentPixel - 1)));
-            strip.setPixelColor(currentPixel - 3, DimColor(strip.getPixelColor(currentPixel - 2)));
-            strip.setPixelColor(currentPixel - 4, DARK);
-            currentPixel++;
-        } else if (! (pivoting) && currentPixel == targetPivot) {
-            // Reached the next pivot!
-            pivoting = true;
-            pivotPixel = 1;
-            strip.setPixelColor(targetPivot, pixelColor);
-            strip.setPixelColor(targetPivot - 1, DimColor(strip.getPixelColor(targetPivot)));
-            strip.setPixelColor(targetPivot - 2, DimColor(strip.getPixelColor(targetPivot - 1)));
-            strip.setPixelColor(targetPivot - 3, DimColor(strip.getPixelColor(targetPivot - 2)));
-            strip.setPixelColor(targetPivot - 4, DARK);
-        } else if (pivoting && pivotPixel < (2 * (scannerWidth - 1))) {
-            // Pivoting.
-            int thisPos = getScannerPixelPosition(targetPivot, scannerWidth, pivotPixel);
-            int lastPos1 = getScannerPixelPosition(targetPivot, scannerWidth, pivotPixel - 1);
-            int lastPos2 = getScannerPixelPosition(targetPivot, scannerWidth, pivotPixel - 2);
-            int lastPos3 = getScannerPixelPosition(targetPivot, scannerWidth, pivotPixel - 3);
-            int lastPos4 = getScannerPixelPosition(targetPivot, scannerWidth, pivotPixel - 4);
+        if (pivoting) {
+            int thisPixel = getScannerPixelPositionRelative(scannerWidth, pivotPixel);
+            int lastPixel = getScannerPixelPositionRelative(scannerWidth, pivotPixel - 1);
             
-            strip.setPixelColor(thisPos, pixelColor);
-            strip.setPixelColor(lastPos1, DimColor(strip.getPixelColor(thisPos)));
-            strip.setPixelColor(lastPos2, DimColor(strip.getPixelColor(lastPos1)));
-            strip.setPixelColor(lastPos3, DimColor(strip.getPixelColor(lastPos2)));
-            strip.setPixelColor(lastPos4, DARK);
-
-            pivotPixel++;
-        } else if (pivoting && pivotPixel >= (2 * (scannerWidth - 1))) {
-            pivotCount++;
-
-            strip.setPixelColor(currentPixel, pixelColor);
-            strip.setPixelColor(currentPixel - 1, DimColor(strip.getPixelColor(currentPixel)));
-            strip.setPixelColor(currentPixel - 2, DimColor(strip.getPixelColor(currentPixel - 1)));
-            strip.setPixelColor(currentPixel - 3, DimColor(strip.getPixelColor(currentPixel - 2)));
-            strip.setPixelColor(currentPixel - 4, DARK);
+            writePixel(targetPivot + thisPixel, pixelColor);
+            writePixel(targetPivot + lastPixel, DARK);
+            ++pivotPixel;
             
-            if (pivotCount > MAX_PIVOT_COUNT) {
-                // Transitioning out of pivot and back into chase -- maybe.
-                pivoting = false;
-                currentPixel = targetPivot + 1;
-                targetPivot = GetNextPivotPosition(targetPivot);
-                pivotCount = 0;
-            } else {
-                // Pivot again!
-                pivotCount++;
-                pivotPixel = 0;
+            if (pivotPixel >= 2 * (scannerWidth - 1)) {
+                // Go again! Or, if we must, transition out of pivot and back into chase.
+                if (pivotCount < pivotPixelMax) {
+                    ++pivotCount;
+                } else {
+                    // We're done here. Go back to chase mode.
+                    pivoting = false;
+                    currentPixel = targetPivot;
+                    targetPivot = GetNextPivotPosition(targetPivot);
+                    pivotCount = 0;
+                }
             }
         }
-        
+
+        strip.show();
+
         MarkUpdated();
     }  
 };
 
-class BackwardScannerSprite : public Sprite {
+class BackwardScannerSprite : public ScannerSprite {
 private:
-    uint16_t indexPixel = strip.numPixels() - 1;             // start pixel for animations
-    uint16_t destPixel = strip.numPixels() - 10;             // destination pixel for animations
-
-    uint32_t pixelColor;
-    int16_t currentPixel;
-    uint16_t targetPivot;
-    uint16_t pivotCount;
-    bool pivoting;
-    uint16_t generatedPivotTotal = random(MIN_PIVOT_COUNT, MAX_PIVOT_COUNT);
-    uint16_t scannerWidth = MIN_SCANNER_WIDTH + 2 * random(0, 1 + (MAX_SCANNER_WIDTH - MIN_SCANNER_WIDTH) / 2);
-
-    // The number of the pixel for the purposes of the scanner. A PIVOT_WIDTH wide scanner
-    // should cause this number to range from 1 to (PIVOT_WIDTH - 1) * 2.
-    int pivotPixel;
-    
     int GetNextPivotPosition(int currentPivot) {
-        return currentPivot - random(MIN_LEAP_DISTANCE_BETWEEN_PIVOTS, MAX_LEAP_DISTANCE_BETWEEN_PIVOTS) - 3;
+        return currentPivot - random(MIN_LEAP_DISTANCE_BETWEEN_PIVOTS, MAX_LEAP_DISTANCE_BETWEEN_PIVOTS) + 3;
     }
-
-    int getScannerPixelPosition(int _targetPivot, int _pivotWidth, int _pivotPixel) {
-        // Examples:
-        //    targetPivot (T) = 15, pivotWidth (=) = 9, pivotPixel (*) = 1
-        //         ..........===*T====........... returns 14
-        
-        //    targetPivot (T) = 15, pivotWidth (=) = 9, pivotPixel (*) = 4
-        //         ..........*===T====........... returns 11
     
-        //    targetPivot (T) = 15, pivotWidth (=) = 9, pivotPixel (*) = 5
-        //         ..........=*==T====........... returns 12
-    
-        //    targetPivot (T) = 15, pivotWidth (=) = 9, pivotPixel (*) = 11
-        //         ..........====T==*=........... returns 18
-    
-        //    targetPivot (T) = 15, pivotWidth (=) = 9, pivotPixel (*) = 12
-        //         ..........====T===*........... returns 19
-    
-        //    targetPivot (T) = 15, pivotWidth (=) = 9, pivotPixel (*) = 16
-        //         ..........====*====........... returns 15
-        //
-        //                 farside  nearside
-        
-        int farSide = (_pivotWidth - 1) / 2; 
-        int nearSide = farSide + _pivotWidth - 1;
-    
-        if (_pivotPixel < farSide) {
-            return _targetPivot - _pivotPixel;
-        } else if (_pivotPixel >= farSide && _pivotPixel < nearSide) {
-            return _targetPivot - 2 * farSide + _pivotPixel;
-        } else {
-            return _targetPivot + (2 * (_pivotWidth - 1) - _pivotPixel); 
-       }
-    }
-
 public:
     BackwardScannerSprite(uint32_t _color) {
         pixelColor = _color;
         currentPixel = strip.numPixels() - 1;
-        targetPivot = GetNextPivotPosition(currentPixel);
+        // targetPivot = GetNextPivotPosition(currentPixel);
+        targetPivot = 20;
         pivoting = false;
         pivotCount = 0;
         generatedPivotTotal = random(MIN_PIVOT_COUNT, MAX_PIVOT_COUNT);
-        scannerWidth = MIN_SCANNER_WIDTH + 2 * random(0, 1 + (MAX_SCANNER_WIDTH - MIN_SCANNER_WIDTH) / 2);
+        // scannerWidth = 2 * random((MIN_SCANNER_WIDTH - 1) / 2, (MAX_SCANNER_WIDTH - 1) / 2) + 1;
+        scannerWidth = 9;
         
-        pivotPixel = 1;
+        pivotPixel = 0;
+        pivotPixelMax = 2 * (scannerWidth - 1) * generatedPivotTotal;
     }
     
     ~BackwardScannerSprite() {
+    }
+
+    virtual uint32_t GetNextUpdateTime() {
+        return random(MIN_UPDATE_INTERVAL_IN_MS, MAX_UPDATE_INTERVAL_IN_MS);
     }
     
     virtual void Update() {
         if (IsDone() || (! UpdateNow())) {
             return; 
         }
+ 
+        if (! pivoting) {
+            if (currentPixel > targetPivot) {
+                // Moving along as normal. TODO: Add a velocity here?
+                writePixel(currentPixel, pixelColor);
+//                writePixel(currentPixel + 1, DimColor(pixelColor));
+//              writePixel(currentPixel + 2, DimColor(DimColor(pixelColor)));
+//              writePixel(currentPixel + 3, DimColor(DimColor(DimColor(pixelColor))));
+//              writePixel(currentPixel + 4, DARK);
+                writePixel(currentPixel + 1, DARK);
+                
+                --currentPixel;
+                // TODO: Add trails.
 
-        if (currentPixel < -5) {
-            MarkDone();
-            return;
+                if (currentPixel < -4) {
+                    // We've run off the end. We're done here.
+                    MarkDone();
+                }                
+            } else if (currentPixel == targetPivot) {
+                // Peanut butter pivot with a baseball bat!
+               pivoting = true;
+               pivotPixel = 0; 
+            } 
         }
 
-        if (! (pivoting) && currentPixel > targetPivot) {
-            strip.setPixelColor(currentPixel, pixelColor);
-            strip.setPixelColor(currentPixel + 1, DimColor(strip.getPixelColor(currentPixel)));
-            strip.setPixelColor(currentPixel + 2, DimColor(strip.getPixelColor(currentPixel + 1)));
-            strip.setPixelColor(currentPixel + 3, DimColor(strip.getPixelColor(currentPixel + 2)));
-            strip.setPixelColor(currentPixel + 4, DARK);
-            currentPixel--;
-        } else if (! (pivoting) && currentPixel == targetPivot) {
-            // Reached the next pivot!
-            pivoting = true;
-            pivotPixel = 1;
-            strip.setPixelColor(targetPivot, pixelColor);
-            strip.setPixelColor(targetPivot + 1, DimColor(strip.getPixelColor(targetPivot)));
-            strip.setPixelColor(targetPivot + 2, DimColor(strip.getPixelColor(targetPivot + 1)));
-            strip.setPixelColor(targetPivot + 3, DimColor(strip.getPixelColor(targetPivot + 2)));
-            strip.setPixelColor(targetPivot + 4, DARK);
-        } else if (pivoting && pivotPixel <= scannerWidth * 2 - 1) {
-            // pivotPixel counts up, even though currentPixel will be counting down. Yes, I know that's a bit weird.
+        if (pivoting) {
+            int thisPixel = getScannerPixelPositionRelative(scannerWidth, pivotPixel);
+            int lastPixel = getScannerPixelPositionRelative(scannerWidth, pivotPixel - 1);
+            int lastPixel2 = getScannerPixelPositionRelative(scannerWidth, pivotPixel - 2);
+            int lastPixel3 = getScannerPixelPositionRelative(scannerWidth, pivotPixel - 3);
+            int lastPixel4 = getScannerPixelPositionRelative(scannerWidth, pivotPixel - 3);
 
-            // Pivoting.
-            int thisPos = getScannerPixelPosition(targetPivot, scannerWidth, pivotPixel);
-            int lastPos1 = getScannerPixelPosition(targetPivot, scannerWidth, pivotPixel - 1);
-            int lastPos2 = getScannerPixelPosition(targetPivot, scannerWidth, pivotPixel - 2);
-            int lastPos3 = getScannerPixelPosition(targetPivot, scannerWidth, pivotPixel - 3);
-            int lastPos4 = getScannerPixelPosition(targetPivot, scannerWidth, pivotPixel - 4);
+            writePixel(targetPivot - thisPixel, pixelColor);
+/*            writePixel(targetPivot - lastPixel, DimColor(pixelColor));
+            writePixel(targetPivot - lastPixel2, DimColor(DimColor(pixelColor)));
+            writePixel(targetPivot - lastPixel3, DimColor(DimColor(DimColor(pixelColor))));
+            writePixel(targetPivot - lastPixel4, DARK); */
+            writePixel(targetPivot - lastPixel, DARK);
             
-            strip.setPixelColor(thisPos, pixelColor);
-            strip.setPixelColor(lastPos1, DimColor(strip.getPixelColor(thisPos)));
-            strip.setPixelColor(lastPos2, DimColor(strip.getPixelColor(lastPos1)));
-            strip.setPixelColor(lastPos3, DimColor(strip.getPixelColor(lastPos2)));
-            strip.setPixelColor(lastPos4, DARK);
-
-            pivotPixel++;
-        } else if (pivoting && pivotPixel > scannerWidth * 2 - 1) {
-            pivotCount++;
-
-            strip.setPixelColor(currentPixel, pixelColor);
-            strip.setPixelColor(currentPixel + 1, DimColor(strip.getPixelColor(currentPixel)));
-            strip.setPixelColor(currentPixel + 2, DimColor(strip.getPixelColor(currentPixel + 1)));
-            strip.setPixelColor(currentPixel + 3, DimColor(strip.getPixelColor(currentPixel + 2)));
-            strip.setPixelColor(currentPixel + 4, DARK);
+            ++pivotPixel;
             
-            if (pivotCount > MAX_PIVOT_COUNT) {
-                // Transitioning out of pivot and back into chase -- maybe.
-                pivoting = false;
-                currentPixel = targetPivot - 1;
-                targetPivot = GetNextPivotPosition(targetPivot);
-                pivotCount = 0;
-            } else {
-                // Pivot again!
-                pivotCount++;
-                pivotPixel = 1;
+            if (pivotPixel >= 2 * (scannerWidth - 1)) {
+                // Go again! Or, if we must, transition out of pivot and back into chase.
+                if (pivotCount < pivotPixelMax) {
+                    ++pivotCount;
+                } else {
+                    // We're done here. Go back to chase mode.
+                    pivoting = false;
+                    currentPixel = targetPivot;
+                    targetPivot = GetNextPivotPosition(targetPivot);
+                    pivotCount = 0;
+                }
             }
         }
-        
+
+        strip.show();
+
         MarkUpdated();
     }  
 };
@@ -452,7 +414,7 @@ public:
             return; 
         }
 
-        strip.setPixelColor(currentPixel, DARK);
+        writePixel(currentPixel, DARK);
         
         currentPixel += velocity;
         velocity += acceleration;
@@ -461,7 +423,7 @@ public:
             MarkDone(); 
         }
 
-        strip.setPixelColor(currentPixel, pixelColor);        
+        writePixel(currentPixel, pixelColor);        
 
         strip.show();
 
@@ -469,7 +431,6 @@ public:
     }
     
     void SetNextUpdateTime() {
-
       nextUpdateTime = 33;    
     }
 };
@@ -495,8 +456,8 @@ public:
             return; 
         }
 
-        strip.setPixelColor(currentPixel - (directionForward ? 1 : -1), DARK);
-        strip.setPixelColor(currentPixel, pixelColor);
+        writePixel(currentPixel - (directionForward ? 1 : -1), DARK);
+        writePixel(currentPixel, pixelColor);
 
         if (currentPixel >= strip.numPixels()) {
             // We've run off the end of the strip. We're done here.
@@ -548,8 +509,8 @@ public:
         // test();
         // JOSH: EDIT HERE...
 
-        strip.setPixelColor(currentPixel - 1, DARK);
-        strip.setPixelColor(currentPixel, pixelColor);
+        writePixel(currentPixel - 1, DARK);
+        writePixel(currentPixel, pixelColor);
 
         if (currentPixel >= strip.numPixels()) {
             // We've run off the end of the strip. We're done here.
@@ -591,10 +552,10 @@ class SpriteManager {
         int q = sprites.size();
 
         for (int i = 0; i < q; i++) {
-            strip.setPixelColor(i, 0x202020); 
+            writePixel(i, 0x202020); 
         }
         for (int i = q; i < MAXSPRITES; i++) {
-            strip.setPixelColor(i, DARK);
+            writePixel(i, DARK);
         }
         
         strip.show();*/
@@ -643,7 +604,8 @@ void setup() {
     darkenStrip();
 
     manager = new SpriteManager();
-    
+
+/*    
     TestPatternSprite *s1 = new TestPatternSprite(0, 0xff0000);
     manager->Add(s1);
     
@@ -652,6 +614,9 @@ void setup() {
     
     TestPatternSprite *s3 = new TestPatternSprite(10, 0x0000ff);
     manager->Add(s3);
+*/
+
+    manager->Add(new BackwardScannerSprite(random(0xffffff)));
 
     /* Initialize pir1, pir2 here. */ 
     pushbutton = new Pushbutton(PUSHBUTTON_PIN);
@@ -684,18 +649,27 @@ void loop() {
     if (infraredSensor2.IsActuated()) {
         manager->Add(new BackwardScannerSprite(random(0xffffff))); 
     }
-    */
 
     if (pushbutton->IsActuated()) {
         manager->Add(new TestPatternSprite()); 
     }
+*/
 
-    if (random(3000) == 0) {
-        Sprite* nextSprite = new GravitySprite(random(4), random(0xffffff));
+    if (random(5000) == 0) {
+        Sprite* nextSprite = new ForwardScannerSprite(random(0xff0000f));
+        //Sprite *nextSprite = new BackwardScannerSprite(random(0xffffff));
         
         if (! manager->Add(nextSprite)) {
             delete nextSprite;  
         }
+    }
+    
+    if (random(5000) == 0) {
+        Sprite* nextSprite = new BackwardScannerSprite(random(0x0000ff));
+         
+        if (! manager->Add(nextSprite)) {
+            delete nextSprite;
+        }  
     }
 
     // Update all existing sprites.
@@ -704,7 +678,7 @@ void loop() {
 
 void darkenStrip() {
     for (uint16_t i = 0; i < strip.numPixels(); i++) {
-        strip.setPixelColor(i, DARK); 
+        writePixel(i, DARK); 
     }
     
     strip.show();
@@ -714,7 +688,7 @@ void test(uint32_t c) {
     uint32_t randomColor = c;     
  
     for (uint16_t i = 0; i < strip.numPixels(); i++) {
-        strip.setPixelColor(i, randomColor); 
+        writePixel(i, randomColor); 
     }
     
     strip.show();
@@ -724,7 +698,7 @@ void testRandom() {
     uint32_t randomColor = random(0xffffff);     
  
     for (uint16_t i = 0; i < strip.numPixels(); i++) {
-        strip.setPixelColor(i, randomColor); 
+        writePixel(i, randomColor); 
     }
     
     strip.show();
@@ -734,10 +708,10 @@ void showNumberOfSprites(int count) {
    int i;
    
    for (i = 0; i < count; i++) {
-       strip.setPixelColor(i, 0x404040); 
+       writePixel(i, 0x404040); 
    }
    for (int j = i; j < MAXSPRITES; j++) {
-       strip.setPixelColor(i, DARK); 
+       writePixel(i, DARK); 
    }
    
    strip.show();
@@ -765,3 +739,8 @@ uint8_t Blue(uint32_t color) {
     return color & 0xFF;
 }
 
+void writePixel(int pixelNumber, uint32_t color) {
+    if (pixelNumber >= 0 && pixelNumber < strip.numPixels()) {
+        strip.setPixelColor(pixelNumber, color);
+    } 
+}
