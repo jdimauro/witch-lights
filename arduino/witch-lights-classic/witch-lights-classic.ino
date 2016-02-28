@@ -10,6 +10,7 @@
 
 long interval = 30;             // delay between pixel draws -- 45 is slower than you can walk away from
 long minInterval = 0;           // 
+long currentInterval;           // for acceleration
 
 int hoverLowerDistance = 40;   // shortest possible pause distance
 int hoverUpperDistance = hoverLowerDistance + 80;   // longest possible pause distance
@@ -125,23 +126,13 @@ void chase(uint32_t c)
           }
         moveFromToLocation(locPos, destPixel, c);
         locPos = destPixel;
-  
-        // experiment begins
         
-        // dir = (dir==1) ? -1 : 1;  // reverse direction
-        //
-        // moveFromToLocation(locPos, locPos-10, c);
-        // locPos = locPos - 10;
-        //
-        // dir = (dir==1) ? -1 : 1; // reverse direction again
-
-        // experiment ends
- 
   	    hoverRandom = random(hoverLowerDistance,hoverUpperDistance);
   	    destPixel = locPos + hoverRandom * dir;
         destPixel = (destPixel < 0) ? 0 : destPixel;
         destPixel = (destPixel > N_LEDS) ? N_LEDS : destPixel;
         hoverTime = random(hoverLowerTime,hoverUpperTime);
+
 
   	    for (int j=0; j<hoverTime; j++) 
         {  //do 10 cycles of chasing
@@ -184,7 +175,7 @@ void chase(uint32_t c)
 
 void moveFromToLocation(uint16_t locStart, uint16_t locEnd, uint32_t color) 
 {
-  long currentInterval = interval;
+  currentInterval = interval;
   uint16_t locPos = locStart;
   while(locPos != locEnd) {
     setPixelColor(locPos, color); // Draw new pixel
