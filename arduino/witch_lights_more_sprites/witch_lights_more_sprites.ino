@@ -45,6 +45,8 @@ using namespace std;
 
 #define DARK    0x000000
 #define WHITE   0xffffff
+void writePixel(int, uint32_t);
+
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(N_LEDS, NEOPIXEL_DATA_PIN, NEO_GRB + NEO_KHZ800);
 
