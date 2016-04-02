@@ -1,18 +1,19 @@
+#include <Adafruit_NeoPixel.h>
+
 #ifndef PSTR
  #define PSTR // Make Arduino Due happy
 #endif
 
-#include <Adafruit_NeoPixel.h>
-
 // JOSH: FEEL FREE TO EDIT CONSTANT VALUES HERE...
 
 // Hardware configuration.
+#define N_LEDS              750               // 30/meter test reel    
+
+#define LED_PIN              13
 #define NEOPIXEL_DATA_PIN    6                // Pin for neopixels
 #define PIR_SENSOR_1_PIN     3
 #define PIR_SENSOR_2_PIN     4
 #define PUSHBUTTON_PIN       2
-
-#define N_LEDS              30               // 30/meter test reel    
 
 // Sensor timeouts.
 #define INFRARED_SENSOR_TIMEOUT_IN_MS  2000
@@ -517,6 +518,8 @@ public:
         currentPixel++;
      
         // ...TO HERE.
+
+        strip.show();
         
         MarkUpdated();
     }
@@ -533,6 +536,8 @@ class SpriteManager {
     }
     
     int SpriteCount() {
+        return 1;
+      
         int count = 0;
         
         for (int i = 0; i < MAXSPRITES; i++) {
@@ -549,20 +554,13 @@ class SpriteManager {
             spritesArray[i]->Update(); 
         }
 
-        // Add the number of bytes left.
-        // int q = freeRam();
-        
-        /*
-        int q = sprites.size();
+        int q = this->SpriteCount();
 
         for (int i = 0; i < q; i++) {
-            writePixel(i, 0x202020); 
-        }
-        for (int i = q; i < MAXSPRITES; i++) {
-            writePixel(i, DARK);
+            writePixel(i, 0xffffff); 
         }
         
-        strip.show();*/
+        strip.show();
     }
 
     // Add it to the first free spot we see.
@@ -602,35 +600,40 @@ InfraredSensor infraredSensor2;
 Pushbutton* pushbutton;
 
 void setup() {
-    randomSeed(analogRead(0));  
-
     // JOSH: EDIT HERE FOR BASIC SETUP AS BEFORE...
     
-    pinMode(NEOPIXEL_DATA_PIN, OUTPUT);      // declare LED as output
+    pinMode(LED_PIN, OUTPUT);      // declare LED as output
     pinMode(PIR_SENSOR_1_PIN, INPUT);     // declare sensor as input
     pinMode(PIR_SENSOR_2_PIN, INPUT);
- 
+    
+    digitalWrite(LED_PIN, LOW);
+    randomSeed(analogRead(0));  
+
     strip.begin();
+    strip.show();
 
     darkenStrip();
 
     manager = new SpriteManager();
 
-/*    
     TestPatternSprite *s1 = new TestPatternSprite(0, 0xff0000);
     manager->Add(s1);
-    
+
+    /*
     TestPatternSprite *s2 = new TestPatternSprite(5, 0x00ff00);
     manager->Add(s2);
     
     TestPatternSprite *s3 = new TestPatternSprite(10, 0x0000ff);
     manager->Add(s3);
-*/
 
-    manager->Add(new BackwardScannerSprite(random(0xffffff)));
-
+/*
+    manager->dd(new    pinMode(NEOPIXEL_DATA_PIN, OUTPUT);      // declare LED as output
+ BackwardScannerSprite(random(0xffffff)));
+*(/
+*
+ */
     /* Initialize pir1, pir2 here. */ 
-    pushbutton = new Pushbutton(PUSHBUTTON_PIN);
+//    pushbutton = new Pushbutton(PUSHBUTTON_PIN);
 
     // ...END HERE.
 }
@@ -638,6 +641,22 @@ void setup() {
 bool booted = false;
 int32_t starttime = millis();
 bool loadedScannerSprite = false;
+
+int i = 0;
+void loop3() {
+    setPixelColor(i, 0xffffff);
+    setPixelColor((i - 1) % 750, 0x000000);
+    strip.show();
+    delay(50);
+    i = ++i % 750;  
+}
+
+void setPixelColor(uint16_t loc, uint32_t color)
+{
+  if (loc > 0 && loc < N_LEDS) {
+    strip.setPixelColor(loc, color);
+  }
+}
 
 void loop() {  
     if (! booted) {
@@ -664,7 +683,6 @@ void loop() {
     if (pushbutton->IsActuated()) {
         manager->Add(new TestPatternSprite()); 
     }
-*/
 
     if (random(5000) == 0) {
         Sprite* nextSprite = new ForwardScannerSprite(random(0xff0000f));
@@ -674,14 +692,16 @@ void loop() {
             delete nextSprite;  
         }
     }
+*/
     
-    if (random(5000) == 0) {
+/*    if (random(5000) == 0) {
         Sprite* nextSprite = new BackwardScannerSprite(random(0x0000ff));
          
         if (! manager->Add(nextSprite)) {
             delete nextSprite;
         }  
     }
+    */
 
     // Update all existing sprites.
     manager->Update();
