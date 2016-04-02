@@ -23,8 +23,8 @@
 #define MAXSPRITES           3
 
 // "Framerate" minimum and maximum period for animations.
-#define MIN_UPDATE_INTERVAL_IN_MS  15
-#define MAX_UPDATE_INTERVAL_IN_MS  40
+#define MIN_UPDATE_INTERVAL_IN_MS  0
+#define MAX_UPDATE_INTERVAL_IN_MS  0
 
 // ScannerSprite parameters.
 #define MIN_PIVOT_COUNT 2                    // Josh: reset to 5
@@ -119,7 +119,7 @@ public:
         SetNextUpdateTime();
     }
     
-    virtual void Update() = 0;
+    virtual bool Update() = 0;
 
     boolean UpdateNow() {
         return (millis() - lastUpdateTime >= GetNextUpdateTime());
@@ -245,9 +245,9 @@ public:
         return random(MIN_UPDATE_INTERVAL_IN_MS, MAX_UPDATE_INTERVAL_IN_MS);
     }
     
-    virtual void Update() {
+    virtual boolean Update() {
         if (IsDone() || (! UpdateNow())) {
-            return; 
+            return false; 
         }
 
         if (! pivoting) {
@@ -295,6 +295,8 @@ public:
         strip.show();
 
         MarkUpdated();
+
+        return true;
     }  
 };
 
@@ -327,9 +329,9 @@ public:
         return random(MIN_UPDATE_INTERVAL_IN_MS, MAX_UPDATE_INTERVAL_IN_MS);
     }
     
-    virtual void Update() {
+    virtual boolean Update() {
         if (IsDone() || (! UpdateNow())) {
-            return; 
+            return false;
         }
  
         if (! pivoting) {
@@ -389,94 +391,11 @@ public:
         strip.show();
 
         MarkUpdated();
+
+        return true;
     }  
 };
 
-class GravitySprite : public Sprite {
-private:
-    int currentPixel;
-    float velocity = 0.01;
-    float acceleration = 0.2;
-    uint32_t pixelColor;
-    bool directionForward;
-
-public:
-    GravitySprite(int startPixel, uint32_t color) {
-        this->pixelColor = color;
-        this->currentPixel = startPixel;
-    }
-    
-    void Update() {
-        if (IsDone() || (! UpdateNow())) {
-            return; 
-        }
-
-        writePixel(currentPixel, DARK);
-        
-        currentPixel += velocity;
-        velocity += acceleration;
-        
-        if (currentPixel >= strip.numPixels()) {
-            MarkDone(); 
-        }
-
-        writePixel(currentPixel, pixelColor);        
-
-        strip.show();
-
-        MarkUpdated();
-    }
-    
-    void SetNextUpdateTime() {
-      nextUpdateTime = 33;    
-    }
-};
-
-class BoringSprite : public Sprite {
-private:
-    int currentPixel;
-    uint32_t pixelColor;
-    bool directionForward;
-    
-public:
-    BoringSprite(int start, uint32_t pc) {
-        currentPixel = start;
-        pixelColor = pc;
-        directionForward = true;
-    }
-    
-    ~BoringSprite() {
-    }
-
-    void Update() {
-        if (IsDone() || (! UpdateNow())) {
-            return; 
-        }
-
-        writePixel(currentPixel - (directionForward ? 1 : -1), DARK);
-        writePixel(currentPixel, pixelColor);
-
-        if (currentPixel >= strip.numPixels()) {
-            // We've run off the end of the strip. We're done here.
-            directionForward = false;
-            currentPixel = strip.numPixels() - 1;
-        } else if (currentPixel < 0) {
-            // We've run off the front of the strip.  
-            directionForward = true;
-            currentPixel = 0;
-        } else {
-            currentPixel += (directionForward ? 1 : -1); 
-        }
-
-        strip.show();
-     
-        MarkUpdated();
-    }
-    
-    void SetNextUpdateTime() {
-        nextUpdateTime = 10 * random(MAX_UPDATE_INTERVAL_IN_MS);  
-    }
-};
 
 class TestPatternSprite : public Sprite {
 private:
@@ -498,9 +417,9 @@ public:
     ~TestPatternSprite() {
     }
     
-    void Update() {
+    boolean Update() {
         if (IsDone() || (! UpdateNow())) {
-            return; 
+            return false;
         }
 
         // test();
@@ -522,6 +441,8 @@ public:
         strip.show();
         
         MarkUpdated();
+
+        return true;
     }
 };
 
@@ -550,8 +471,10 @@ class SpriteManager {
     }
 
     void Update() {
+        boolean updatedSomething = false;
+      
         for (int i = 0; i < this->SpriteCount(); i++) {
-            spritesArray[i]->Update(); 
+            updatedSomething |= spritesArray[i]->Update(); 
         }
 
         int q = this->SpriteCount();
@@ -559,8 +482,10 @@ class SpriteManager {
         for (int i = 0; i < q; i++) {
             writePixel(i, 0xffffff); 
         }
-        
-        strip.show();
+
+        if (updatedSomething) {
+            strip.show();
+        }
     }
 
     // Add it to the first free spot we see.
@@ -641,22 +566,6 @@ void setup() {
 bool booted = false;
 int32_t starttime = millis();
 bool loadedScannerSprite = false;
-
-int i = 0;
-void loop3() {
-    setPixelColor(i, 0xffffff);
-    setPixelColor((i - 1) % 750, 0x000000);
-    strip.show();
-    delay(50);
-    i = ++i % 750;  
-}
-
-void setPixelColor(uint16_t loc, uint32_t color)
-{
-  if (loc > 0 && loc < N_LEDS) {
-    strip.setPixelColor(loc, color);
-  }
-}
 
 void loop() {  
     if (! booted) {
