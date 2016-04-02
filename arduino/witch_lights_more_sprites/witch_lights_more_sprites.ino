@@ -1,13 +1,6 @@
-#include "StandardCplusplus.h"
-#include "vector"
-
-using namespace std;
-
 #ifndef PSTR
  #define PSTR // Make Arduino Due happy
 #endif
-
-#include <MemoryFree.h>
 
 #include <Adafruit_NeoPixel.h>
 
@@ -532,20 +525,28 @@ public:
 class SpriteManager {
   public:
     SpriteManager() {
+        spritesArray = new Sprite*[MAXSPRITES];
     }
     
     ~SpriteManager() {
+        delete[] spritesArray;
     }
     
     int SpriteCount() {
         int count = 0;
         
-        return sprites.size();
+        for (int i = 0; i < MAXSPRITES; i++) {
+           if (spritesArray[i] != NULL) {
+               ++count; 
+           } 
+        }
+        
+        return count;
     }
 
     void Update() {
-        for (int i = 0; i < sprites.size(); i++) {
-            sprites[i]->Update(); 
+        for (int i = 0; i < this->SpriteCount(); i++) {
+            spritesArray[i]->Update(); 
         }
 
         // Add the number of bytes left.
@@ -566,26 +567,33 @@ class SpriteManager {
 
     // Add it to the first free spot we see.
     bool Add(Sprite *newSprite) {
-        if (sprites.size() >= MAXSPRITES) {
+        if (this->SpriteCount() >= MAXSPRITES) {
             delete newSprite;
             return false;
         } 
         
-        sprites.push_back(newSprite);
-        return true;
+        for (int i = 0; i < MAXSPRITES; i++) {
+            if (spritesArray[i] != NULL) {
+                spritesArray[i] = newSprite;
+                return true;
+            }
+        }
     }
 
     void Clean() {
-        for (int i = 0; i < sprites.size(); i++) {
-            if (sprites[i]->IsDone()) {
-                sprites.erase(sprites.begin() + i);
-                i--;
+        for (int i = 0; i < this->SpriteCount(); i++) {
+            if (spritesArray[i]->IsDone()) {
+                Sprite *ptr = spritesArray[i];
+                spritesArray[i] = NULL;
+
+                delete ptr;    
             } 
         }
     }
 
     private:
-    vector<Sprite *> sprites;
+    // vector<Sprite *> sprites;
+    Sprite** spritesArray;
 };
 
 SpriteManager* manager;
