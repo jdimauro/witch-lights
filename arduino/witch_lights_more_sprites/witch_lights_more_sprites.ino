@@ -23,17 +23,18 @@
 #define MAXSPRITES           10
 
 // "Framerate" minimum and maximum period for animations.
-#define MIN_UPDATE_INTERVAL_IN_MS  0
-#define MAX_UPDATE_INTERVAL_IN_MS  0
+#define MIN_UPDATE_INTERVAL_IN_MS  4
+#define MAX_UPDATE_INTERVAL_IN_MS  50
 
 // ScannerSprite parameters.
 #define MIN_PIVOT_COUNT 2                    // Josh: reset to 5
 #define MAX_PIVOT_COUNT 10                    // Josh: reset to 40
-#define MIN_LEAP_DISTANCE_BETWEEN_PIVOTS 5   // Josh: reset to 20
-#define MAX_LEAP_DISTANCE_BETWEEN_PIVOTS 15   // Josh: reset to 80
-#define SCANNER_WIDTH  9        // Must be an odd number.
-#define MIN_SCANNER_WIDTH  7    // Must be an odd number.
-#define MAX_SCANNER_WIDTH  13   // Must be an odd number.
+#define MIN_LEAP_DISTANCE_BETWEEN_PIVOTS 30   // Josh: reset to 20
+#define MAX_LEAP_DISTANCE_BETWEEN_PIVOTS 60   // Josh: reset to 80
+#define SCANNER_WIDTH  5        // Must be an odd number.
+#define MIN_SCANNER_WIDTH  5    // Must be an odd number.
+#define MAX_SCANNER_WIDTH  5    // Must be an odd number.
+#define SCANNER_SPRITE_ACCELERATION   1.0
 
 // ...TO HERE.
 
@@ -81,6 +82,8 @@ public:
 
         if (digitalRead(this->_pinNumber) == HIGH) {
             this->lastPollTime = millis();
+            digitalWrite(13, HIGH);
+            
             return true;
         }        
 
@@ -217,6 +220,8 @@ class SpriteVector {
 
 class ScannerSprite : public Sprite {
 protected:
+    float timeToNext = (float) MAX_UPDATE_INTERVAL_IN_MS;
+
     uint32_t pixelColor;
     int currentPixel;
     int targetPivot;
@@ -300,7 +305,13 @@ public:
     }
 
     virtual uint32_t GetNextUpdateTime() {
-        return random(MIN_UPDATE_INTERVAL_IN_MS, MAX_UPDATE_INTERVAL_IN_MS);
+        timeToNext -= SCANNER_SPRITE_ACCELERATION;
+
+        if (timeToNext < MIN_UPDATE_INTERVAL_IN_MS) {
+            timeToNext = MIN_UPDATE_INTERVAL_IN_MS;
+        }
+
+        return timeToNext;
     }
     
     virtual boolean Update() {
@@ -346,11 +357,10 @@ public:
                     currentPixel = targetPivot;
                     targetPivot = GetNextPivotPosition(targetPivot);
                     pivotCount = 0;
+                    timeToNext = MAX_UPDATE_INTERVAL_IN_MS;
                 }
             }
         }
-
-        strip.show();
 
         MarkUpdated();
 
@@ -446,8 +456,6 @@ public:
             }
         }
 
-        strip.show();
-
         MarkUpdated();
 
         return true;
@@ -474,6 +482,10 @@ public:
     
     ~TestPatternSprite() {
     }
+
+    virtual uint32_t GetNextUpdateTime() {
+        return 0;
+    }
     
     boolean Update() {
         if (IsDone() || (! UpdateNow())) {
@@ -496,8 +508,6 @@ public:
      
         // ...TO HERE.
 
-        strip.show();
-        
         MarkUpdated();
 
         return true;
@@ -507,7 +517,7 @@ public:
 class SpriteManager {
   public:
     SpriteManager() {
-        spriteVector = new SpriteVector(3);
+        spriteVector = new SpriteVector(MAXSPRITES);
     }
     
     ~SpriteManager() {
@@ -525,11 +535,13 @@ class SpriteManager {
             updatedSomething |= spriteVector->Get(i)->Update(); 
         }
 
+/*
         int q = this->SpriteCount();
 
         for (int i = 0; i < q; i++) {
             writePixel(i, 0xffffff); 
         }
+*/
 
         if (updatedSomething) {
             strip.show();
@@ -539,14 +551,6 @@ class SpriteManager {
     // Add it to the first free spot we see.
     bool Add(Sprite *newSprite) {
         bool x = spriteVector->Add(newSprite);
-
-        if (x) {
-                    for (int i = 50; i < 57; i++) {
-                strip.setPixelColor(i, 0xffffff);
-            }
-        
-        }
-            strip.show();
 
         return x;
     }
@@ -618,11 +622,17 @@ void loop() {
     // TODO Clean up any old sprites that no longer have anything to do.
     manager->Clean();
 
+/*
     // TODO Poll input devices, determine if we have to add a new sprite.
-    /*
     if (infraredSensor1.IsActuated()) {
-        manager->Add(new ForwardScannerSprite(random(0xffffff)));
+        Sprite *nextSprite = new ForwardScannerSprite(random(0xffffff));
+
+        if (! manager->Add(nextSprite)) {
+            delete nextSprite;
+        }  
     }
+  */  
+    /*
 
     if (infraredSensor2.IsActuated()) {
         manager->Add(new BackwardScannerSprite(random(0xffffff))); 
@@ -633,7 +643,7 @@ void loop() {
     }
 
 */
-    if (random(1000) == 0) {
+    if (random(2000) == 0) {
         Sprite* nextSprite = new ForwardScannerSprite(random(0xff0000f));
         //Sprite *nextSprite = new BackwardScannerSprite(random(0xffffff));
         
@@ -641,7 +651,6 @@ void loop() {
             delete nextSprite;  
         }
     }
-    
 /*    if (random(5000) == 0) {
         Sprite* nextSprite = new BackwardScannerSprite(random(0x0000ff));
          
