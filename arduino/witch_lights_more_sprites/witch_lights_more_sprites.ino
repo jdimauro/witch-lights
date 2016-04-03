@@ -20,7 +20,7 @@
 #define PUSHBUTTON_TIMEOUT_IN_MS  1000
 
 // The maximum number of sprites run simultaneously.
-#define MAXSPRITES           3
+#define MAXSPRITES           10
 
 // "Framerate" minimum and maximum period for animations.
 #define MIN_UPDATE_INTERVAL_IN_MS  0
@@ -155,6 +155,64 @@ protected:
     boolean done;
     uint16_t id;
     uint32_t nextUpdateTime;
+};
+
+class SpriteVector {
+    private:
+        Sprite **sprites;
+        int maxCapacity;
+    
+        int count = 0;
+
+    public:
+        SpriteVector(int maxCap) {
+            this->maxCapacity = maxCap;
+            sprites = new Sprite*[maxCap];
+
+            for (int i = 0; i < maxCap; i++) {
+                sprites[i] = NULL;
+            }
+        }
+
+        ~SpriteVector() {
+        }
+
+        Sprite *Get(int i) {
+            if (i < this->count) {
+                return sprites[i];  
+            } else {
+                return NULL;
+            }
+          
+        }
+
+        boolean Add(Sprite *sprite) {
+            if (count >= this->maxCapacity) {
+                return false;
+            }
+
+            sprites[count] = sprite;
+            ++count;
+
+            return true;
+        }
+
+        int Count() {
+            return this->count;
+        }
+
+        boolean RemoveAt(int i) {
+            Sprite *ptr = sprites[i];
+            sprites[i] = NULL;
+            delete ptr;
+
+            for (int j = i + 1; j < count; j++) {
+                sprites[j - 1] = sprites[j];
+                sprites[j] = NULL; 
+            }
+
+            --count;
+        }
 };
 
 class ScannerSprite : public Sprite {
@@ -449,32 +507,22 @@ public:
 class SpriteManager {
   public:
     SpriteManager() {
-        spritesArray = new Sprite*[MAXSPRITES];
+        spriteVector = new SpriteVector(3);
     }
     
     ~SpriteManager() {
-        delete[] spritesArray;
+        // delete[] spritesArray;
     }
     
     int SpriteCount() {
-        return 1;
-      
-        int count = 0;
-        
-        for (int i = 0; i < MAXSPRITES; i++) {
-           if (spritesArray[i] != NULL) {
-               ++count; 
-           } 
-        }
-        
-        return count;
+        return spriteVector->Count();
     }
 
     void Update() {
         boolean updatedSomething = false;
       
         for (int i = 0; i < this->SpriteCount(); i++) {
-            updatedSomething |= spritesArray[i]->Update(); 
+            updatedSomething |= spriteVector->Get(i)->Update(); 
         }
 
         int q = this->SpriteCount();
@@ -490,33 +538,31 @@ class SpriteManager {
 
     // Add it to the first free spot we see.
     bool Add(Sprite *newSprite) {
-        if (this->SpriteCount() >= MAXSPRITES) {
-            delete newSprite;
-            return false;
-        } 
-        
-        for (int i = 0; i < MAXSPRITES; i++) {
-            if (spritesArray[i] != NULL) {
-                spritesArray[i] = newSprite;
-                return true;
+        bool x = spriteVector->Add(newSprite);
+
+        if (x) {
+                    for (int i = 50; i < 57; i++) {
+                strip.setPixelColor(i, 0xffffff);
             }
+        
         }
+            strip.show();
+
+        return x;
     }
 
     void Clean() {
         for (int i = 0; i < this->SpriteCount(); i++) {
-            if (spritesArray[i]->IsDone()) {
-                Sprite *ptr = spritesArray[i];
-                spritesArray[i] = NULL;
-
-                delete ptr;    
+            if (spriteVector->Get(i)->IsDone()) {
+                spriteVector->RemoveAt(i);
             } 
         }
     }
 
     private:
     // vector<Sprite *> sprites;
-    Sprite** spritesArray;
+    // Sprite** spritesArray;
+    SpriteVector *spriteVector;
 };
 
 SpriteManager* manager;
@@ -544,19 +590,12 @@ void setup() {
     TestPatternSprite *s1 = new TestPatternSprite(0, 0xff0000);
     manager->Add(s1);
 
-    /*
     TestPatternSprite *s2 = new TestPatternSprite(5, 0x00ff00);
     manager->Add(s2);
     
     TestPatternSprite *s3 = new TestPatternSprite(10, 0x0000ff);
     manager->Add(s3);
 
-/*
-    manager->dd(new    pinMode(NEOPIXEL_DATA_PIN, OUTPUT);      // declare LED as output
- BackwardScannerSprite(random(0xffffff)));
-*(/
-*
- */
     /* Initialize pir1, pir2 here. */ 
 //    pushbutton = new Pushbutton(PUSHBUTTON_PIN);
 
@@ -593,7 +632,8 @@ void loop() {
         manager->Add(new TestPatternSprite()); 
     }
 
-    if (random(5000) == 0) {
+*/
+    if (random(1000) == 0) {
         Sprite* nextSprite = new ForwardScannerSprite(random(0xff0000f));
         //Sprite *nextSprite = new BackwardScannerSprite(random(0xffffff));
         
@@ -601,7 +641,6 @@ void loop() {
             delete nextSprite;  
         }
     }
-*/
     
 /*    if (random(5000) == 0) {
         Sprite* nextSprite = new BackwardScannerSprite(random(0x0000ff));
