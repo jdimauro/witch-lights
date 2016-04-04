@@ -23,14 +23,14 @@
 #define MAXSPRITES           10
 
 // "Framerate" minimum and maximum period for animations.
-#define MIN_UPDATE_INTERVAL_IN_MS  4
-#define MAX_UPDATE_INTERVAL_IN_MS  50
+#define MIN_UPDATE_INTERVAL_IN_MS  0
+#define MAX_UPDATE_INTERVAL_IN_MS  30
 
 // ScannerSprite parameters.
 #define MIN_PIVOT_COUNT 2                    // Josh: reset to 5
 #define MAX_PIVOT_COUNT 10                    // Josh: reset to 40
-#define MIN_LEAP_DISTANCE_BETWEEN_PIVOTS 30   // Josh: reset to 20
-#define MAX_LEAP_DISTANCE_BETWEEN_PIVOTS 60   // Josh: reset to 80
+#define MIN_LEAP_DISTANCE_BETWEEN_PIVOTS 60   // Josh: reset to 20
+#define MAX_LEAP_DISTANCE_BETWEEN_PIVOTS 100   // Josh: reset to 80
 #define SCANNER_WIDTH  5        // Must be an odd number.
 #define MIN_SCANNER_WIDTH  5    // Must be an odd number.
 #define MAX_SCANNER_WIDTH  5    // Must be an odd number.
