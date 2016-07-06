@@ -2,6 +2,8 @@
 
 The Witch Lights are an interactive light art installation, meant to be seen outdoors at night. 
 
+
+
 The documentation and code are currently under construction, so they may change without notice. 
 
 ## Overview
