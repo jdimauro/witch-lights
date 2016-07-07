@@ -41,11 +41,29 @@ The Witch Lights were exhibited at the Firefly Art Festival in Vermont, from Jun
 
 [vid2]: https://vimeo.com/173539041
 
+### Photos
+
 The lights were installed on a winding path through the woods, near the rear entrance to Library Camp. 
 
 ![Electronics package and beginning of LED strips](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-firefly2016-0.jpg)
 
+The lights wound up around a tree, and then snaked through a tree stump.
 
+![Lights wrapped around tree stump](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-firefly2016-1.jpg)
+
+The conduit provides structure for the LED strips, and can be used to create spirals and loops in mid-air. 
+
+![Spiral segment of conduit and LEDs](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-firefly2016-2.jpg)
+
+![Spiral and stump](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-firefly2016-3.jpg)
+
+The lights terminated by ducking behind a tree, so that they appear to hide behind a tree and vanish, or come out from behind the tree if activated by the motion sensor on this end (shown in green). 
+
+![Motion sensor and terminus](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-firefly2016-4.jpg)
+
+### Reception
+
+The reaction to the Witch Lights was hugely enthusiastic and positive. Many attendees reported stopping and watching the lights, entranced, on their way through the path. Firefly's location feels like a magical forest, and the addition of a purple faerie that leads you down one of the paths felt like a natural thing to encounter in the dark. 
 
 ## Challenges
 
