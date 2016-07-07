@@ -33,6 +33,20 @@ As you can see in the above video, the design uses waterproof conduit, connected
 
 At the beginning and end of the installation are passive infrared (PIR) motion sensors, which trigger the lights to appear and then zip away in the opposite direction of the triggered sensor. 
 
+## Firefly 2016
+
+The Witch Lights were exhibited at the Firefly Art Festival in Vermont, from June 29th through July 4th 2016. 
+
+[Here is a video of the Witch Lights in action at the festival][vid2]. 
+
+[vid2]: https://vimeo.com/173539041
+
+The lights were installed on a winding path through the woods, near the rear entrance to Library Camp. 
+
+![Electronics package and beginning of LED strips](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-firefly2016-0.jpg)
+
+
+
 ## Challenges
 
 This is an advanced project. It involves building a weather resistant wire rig with 3D-printed sensor housings, which itself requires a great deal of soldering, assembly, cable pulling, and testing. The modular nature of the design means you will have to take your intended installation environment into account and make your own decisions about the length and number of LED strips and connectors you plan to use. 
