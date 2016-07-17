@@ -1,0 +1,27 @@
+*Pick And Place List
+*Company=
+*Author=
+*eMail=
+*
+*Project=Witch Lights Arduino Interface Board
+*Date=12:13:33
+*CreatedBy=Fritzing 0.9.3b.04.19.5c895d327c44a3114e5fcc9d8260daf0cbb52806
+*
+*
+*Coordinates in mm, always center of component
+*Origin 0/0=Lower left corner of PCB
+*Rotation in degree (0-360, math. pos.)
+*
+*No;Value;Package;X;Y;Rotation;Side;Name
+1;4.7mF;100 mil [THT, electrolytic];9.45444;-19.6087;180;Bottom;C1
+2;10k;THT;20.8844;-9.44871;0;Bottom;R3
+3;;THT;48.6974;-32.8167;-90;Bottom;J1
+4;10k;THT;20.8844;-4.36871;0;Bottom;R2
+5;10k;THT;15.8044;-43.7387;0;Bottom;R7
+6;;THT;48.9514;-12.7507;90;Bottom;J2
+7;10k;THT;20.8844;-6.90871;0;Bottom;R1
+8;;;3.10444;-18.3387;0;Bottom;Hole1
+9;10k;THT;15.8044;-41.1987;0;Bottom;R6
+10;;;7.54945;-5.63871;90;Bottom;JACK2
+11;10k;THT;15.8044;-38.6587;0;Bottom;R5
+12;10k;THT;15.8044;-36.1187;0;Bottom;R4
