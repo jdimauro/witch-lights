@@ -1,0 +1,25 @@
+*Pick And Place List
+*Company=
+*Author=
+*eMail=
+*
+*Project=witchlight proto board fork
+*Date=13:26:33
+*CreatedBy=Fritzing 0.9.2b.11.19.8d2d5970658f0bed09c661c9ea9a515b5f40f44c
+*
+*
+*Coordinates in mm, always center of component
+*Origin 0/0=Lower left corner of PCB
+*Rotation in degree (0-360, math. pos.)
+*
+*No;Value;Package;X;Y;Rotation;Side;Name
+1;;THT;10.2126;-47.2772;180;Bottom;J14
+2;;THT;40.4386;-19.5912;0;Bottom;J7
+3;;;4.3706;-29.6242;0;Bottom;Hole2
+4;;THT;37.8986;-47.5312;0;Bottom;J16
+5;;THT;18.2136;-36.4822;-90;Bottom;J5
+6;;THT;6.40259;-6.63716;180;Bottom;J2
+7;;THT;32.4376;-20.2262;90;Bottom;J3
+8;;THT;32.1836;-36.4822;-90;Bottom;J6
+9;;;39.9142;-29.6242;0;Bottom;Hole1
+10;;THT;18.4676;-20.2262;90;Bottom;J4
