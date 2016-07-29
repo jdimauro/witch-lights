@@ -4,7 +4,7 @@
 *eMail=
 *
 *Project=Witch Lights Arduino Interface Board 5-terminal
-*Date=10:38:06
+*Date=17:53:02
 *CreatedBy=Fritzing 0.9.3b.04.19.5c895d327c44a3114e5fcc9d8260daf0cbb52806
 *
 *
@@ -13,10 +13,10 @@
 *Rotation in degree (0-360, math. pos.)
 *
 *No;Value;Package;X;Y;Rotation;Side;Name
-1;10k;THT;20.8844;-4.22788;0;Bottom;R2
-2;;;7.54944;-5.49788;90;Bottom;JACK2
-3;;THT;34.7274;-32.6759;-90;Bottom;J1
-4;;THT;34.9814;-13.8799;90;Bottom;J2
-5;10k;THT;20.8844;-6.76788;0;Bottom;R1
-6;4.7mF;100 mil [THT, electrolytic];9.45444;-32.1679;180;Bottom;C1
-7;;;4.37444;-14.3879;0;Bottom;Hole1
+1;4.7mF;100 mil [THT, electrolytic];5.86545;-32.3602;180;Bottom;C1
+2;10k;THT;17.2955;-4.42016;0;Bottom;R2
+3;;THT;31.3925;-14.0722;90;Bottom;J2
+4;;;41.4255;-8.23016;0;Bottom;Hole1
+5;;;3.96045;-5.69016;90;Bottom;JACK2
+6;;THT;31.1385;-32.8682;-90;Bottom;J1
+7;10k;THT;17.2955;-6.96016;0;Bottom;R1
