@@ -68,7 +68,7 @@ void loop()                      // special function
       if (debug) { Serial.println("moving to 150"); }
       dir = 1;
       // we have just turned on
-      chase(0x633051);
+      chase(0x36540C);
       // We only want to print on the output change, not state
       pir0State = HIGH;
     }
@@ -89,7 +89,7 @@ void loop()                      // special function
       if (debug) { Serial.println("moving to 0"); }
       dir = -1;
       // we have just turned on
-      chase(0x552255);
+      chase(0x633051);
       // We only want to print on the output change, not state
       pir1State = HIGH;
       dir = 1;
