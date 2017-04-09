@@ -6,7 +6,7 @@
 
 // USER ADJUSTABLE 
 
-#define N_LEDS 600              // 5 5-meter reels hooked up so far    
+#define N_LEDS 600              // 4 5-meter reels   
 
 long interval = 30;             // delay between pixel draws -- 45 is slower than you can walk away from
 long minInterval = 0;           // 
