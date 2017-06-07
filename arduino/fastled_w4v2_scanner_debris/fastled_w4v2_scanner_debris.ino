@@ -5,7 +5,11 @@
 #define PSTR // Make Arduino Due happy
 #endif
 
+#define PIR_SENSOR_1_PIN     2
+#define PIR_SENSOR_2_PIN     3
 #define NEOPIXEL_DATA_PIN    6                // Pin for neopixels
+
+#define INFRARED_SENSOR_TIMEOUT_IN_MS   500
 
 // ...TO HERE.
 
@@ -13,9 +17,40 @@
 CRGB leds[NUM_LEDS];
 
 // Function prototypes.
-void writePixel(int, CRGB color);
 void resetStrip(void);
 void debug(void);
+
+class InputDevice {
+  public:
+    virtual bool IsActuated() = 0;
+    uint32_t lastPollTime;
+    
+protected:
+    int _pinNumber;
+};
+
+class InfraredSensor : public InputDevice {
+public:
+    InfraredSensor(int pinNumber) {
+        this->_pinNumber = pinNumber;
+    }
+
+    bool IsActuated() {
+        // Put sensor read code here. Return true if triggered, false otherwise.
+        if (millis() - this->lastPollTime < INFRARED_SENSOR_TIMEOUT_IN_MS) {
+            return false;
+        }
+
+        // TODO Should this be analogRead?
+        if (digitalRead(this->_pinNumber) == HIGH) {
+            this->lastPollTime = millis();
+            return true;
+        }        
+
+        return false;
+    }
+};
+
 
 class Sprite {
   public:
@@ -30,12 +65,16 @@ class Sprite {
     virtual bool Update() = 0;
 
     boolean UpdateNow() {
+        return true;
+    // Reinstate the below if the update interval is greater than zero.
+/*
       if (millis() - lastUpdateTime >= 0) {
         lastUpdateTime = millis();
         return true;
       } else {
         return false;
       }
+*/
     }
 
   protected:
@@ -254,6 +293,8 @@ class W1V1Sprite : public Sprite {
 
         return true;
       }
+
+      return false;
     }
 };
 
@@ -342,46 +383,53 @@ class SpriteManager {
         } */
 };
 
+InfraredSensor *sensor1;
+InfraredSensor *sensor2;
 
 // W4V1ScannerSprite* sprite;
 W1V1Sprite* sprite;
 
 void setup() {
-  resetStrip();
+    sensor1 = new InfraredSensor(PIR_SENSOR_1_PIN);
+    sensor2 = new InfraredSensor(PIR_SENSOR_2_PIN);
+  
+    resetStrip();
 
-  // sprite = new W4V1ScannerSprite();
-  sprite = new W1V1Sprite();
+    // sprite = new W4V1ScannerSprite();
+    sprite = new W1V1Sprite();
 }
 
 int currentPixel = 0;
 
 void loop() {
-  if (sprite->Update()) {
-    FastLED.show();
-  }
+    if (sensor1->IsActuated()) {
+        // TODO Add sprite.
+    }
+
+    if (sensor2->IsActuated()) {
+        // TODO Add sprite.
+    }
+  
+    if (sprite->Update()) {
+        FastLED.show();
+    }
 }
 
 
 /* ---Utility functions --- */
 
 void resetStrip() {
-  FastLED.addLeds<NEOPIXEL, NEOPIXEL_DATA_PIN>(leds, NUM_LEDS);
+    FastLED.addLeds<NEOPIXEL, NEOPIXEL_DATA_PIN>(leds, NUM_LEDS);
 
-  for (int i = 0; i < NUM_LEDS; i++) {
-    leds[i] = CRGB::Black;
-  }
+    for (int i = 0; i < NUM_LEDS; i++) {
+      leds[i] = CRGB::Black;
+    }
 
-  FastLED.show();
-}
-
-// Note: latest version doesn't do bounds-checking to avoid comparisons on each pixel operation.
-// You're on your own!
-void writePixel(int pixelNumber, CRGB color) {
-  leds[pixelNumber] = color;
+    FastLED.show();
 }
 
 void debug(int number) {
-  fill_solid(leds, number < NUM_LEDS ? number : NUM_LEDS, CRGB::White);
-  FastLED.show();
+    fill_solid(leds, number < NUM_LEDS ? number : NUM_LEDS, CRGB::White);
+    FastLED.show();
 }
 
