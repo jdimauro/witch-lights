@@ -1,9 +1,11 @@
 #include <FastLED.h>
-#define NUM_LEDS 750
+#define NUM_LEDS 30
 
 #ifndef PSTR
 #define PSTR // Make Arduino Due happy
 #endif
+
+#define MAXSPRITES           2
 
 #define PIR_SENSOR_1_PIN     2
 #define PIR_SENSOR_2_PIN     3
@@ -65,16 +67,12 @@ class Sprite {
     virtual bool Update() = 0;
 
     boolean UpdateNow() {
-        return true;
-    // Reinstate the below if the update interval is greater than zero.
-/*
-      if (millis() - lastUpdateTime >= 0) {
+      if (millis() - lastUpdateTime >= 80) {
         lastUpdateTime = millis();
         return true;
       } else {
         return false;
       }
-*/
     }
 
   protected:
@@ -82,7 +80,6 @@ class Sprite {
     boolean done;
 };
 
-/*
 class SpriteVector {
     private:
         Sprite **sprites;
@@ -142,7 +139,6 @@ class SpriteVector {
             return true;
         }
 };
-        */
 
 class TestPatternFastLEDSprite : public Sprite {
   private:
@@ -332,45 +328,44 @@ class TestingScannerSprite : public Sprite {
 class SpriteManager {
   private:
     boolean updatedSomething = false;
-    // SpriteVector* spriteVector;
-    TestPatternFastLEDSprite* sprite;
+    SpriteVector* spriteVector;
+    // TestPatternFastLEDSprite* sprite;
 
   public:
     SpriteManager() {
-      // spriteVector = new SpriteVector(MAXSPRITES);
+        spriteVector = new SpriteVector(MAXSPRITES);
     }
 
     ~SpriteManager() {
-      // delete[] spritesArray;
+       // Don't bother. Should never be called.
     }
 
     int SpriteCount() {
-      // return spriteVector->Count();
-      return (sprite != NULL) ? 1 : 0;
+      return spriteVector->Count();
+      // return (sprite != NULL) ? 1 : 0;
     }
 
     void Update() {
-      /*        for (int i = 0; i < this->SpriteCount(); i++) {
-                  updatedSomething = sprite->Update();
-              }
+        for (int i = 0; i < this->SpriteCount(); i++) {
+            updatedSomething = spriteVector->Get(i)->Update();
+        }
+    
+        if (updatedSomething) {
+            FastLED.show();
+        }
+    
+        updatedSomething = false;
 
-              if (updatedSomething) {
-                  FastLED.show();
-              }
-
-              updatedSomething = false;
-              */
-
-      sprite->Update();
+        // sprite->Update();
     }
 
     // Add it to the first free spot we see.
-    bool Add(TestPatternFastLEDSprite *newSprite) {
-      // bool x = spriteVector->Add(newSprite);
-      // return x;
+    bool Add(Sprite *newSprite) {
+      bool x = spriteVector->Add(newSprite);
+      return x;
 
-      sprite = newSprite;
-      return true;
+      // sprite = newSprite;
+      // return true;
     }
 
     /*
@@ -385,23 +380,36 @@ class SpriteManager {
 
 InfraredSensor *sensor1;
 InfraredSensor *sensor2;
+SpriteManager *spriteManager;
+
 
 // W4V1ScannerSprite* sprite;
-W1V1Sprite* sprite;
+// W1V1Sprite* sprite;
 
 void setup() {
+    randomSeed(analogRead(0));
+   
+    spriteManager = new SpriteManager();
+
+    spriteManager->Add(new W1V1Sprite());
+    
     sensor1 = new InfraredSensor(PIR_SENSOR_1_PIN);
     sensor2 = new InfraredSensor(PIR_SENSOR_2_PIN);
   
     resetStrip();
 
     // sprite = new W4V1ScannerSprite();
-    sprite = new W1V1Sprite();
+    // sprite = new W1V1Sprite();
 }
 
 int currentPixel = 0;
 
 void loop() {
+    if (random(0, 2000000) == 3000) {
+        spriteManager->Add(new W1V1Sprite());
+        leds[0] = leds[1] = leds[2] = 0xff0000;
+    }
+  
     if (sensor1->IsActuated()) {
         // TODO Add sprite.
     }
@@ -410,9 +418,7 @@ void loop() {
         // TODO Add sprite.
     }
   
-    if (sprite->Update()) {
-        FastLED.show();
-    }
+    spriteManager->Update();
 }
 
 
