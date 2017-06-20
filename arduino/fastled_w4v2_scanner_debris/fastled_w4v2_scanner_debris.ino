@@ -14,6 +14,8 @@
 #define DEFAULT_COLOR        0x633051 
 
 #define INFRARED_SENSOR_TIMEOUT_IN_MS   500
+int ledPin = 13;                // choose the pin for the LED that indicates motion activation
+
 
 // ...TO HERE.
 
@@ -50,7 +52,10 @@ public:
         // TODO Should this be analogRead?
         if (digitalRead(this->_pinNumber) == HIGH) {
             // Test pixel to indicate when the button's been pressed. Feel free to remove this when you like.
-            leds[29] = CRGB::Red;
+            // leds[29] = CRGB::Red;
+            // Turn Arduino LED on when motion is sensed
+            digitalWrite(ledPin, HIGH);  // turn LED ON
+            
 
             
 
@@ -60,6 +65,7 @@ public:
             return true;
         }        
 
+        digitalWrite(ledPin, LOW); 	// turn LED OFF if motion sensor is not actuated
         return false;
     }
 };
