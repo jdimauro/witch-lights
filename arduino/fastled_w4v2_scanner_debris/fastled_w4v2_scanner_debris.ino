@@ -1,15 +1,17 @@
 #include <FastLED.h>
-#define NUM_LEDS 30
 
 #ifndef PSTR
 #define PSTR // Make Arduino Due happy
 #endif
 
-#define MAXSPRITES           2
+#define NUM_LEDS             750
+#define MAXSPRITES           10
 
 #define PIR_SENSOR_1_PIN     2
 #define PIR_SENSOR_2_PIN     3
 #define NEOPIXEL_DATA_PIN    6                // Pin for neopixels
+
+#define DEFAULT_COLOR        0x633051 
 
 #define INFRARED_SENSOR_TIMEOUT_IN_MS   500
 
@@ -37,14 +39,23 @@ public:
         this->_pinNumber = pinNumber;
     }
 
+    // Put sensor read code here. Return true if triggered, false otherwise.
     bool IsActuated() {
-        // Put sensor read code here. Return true if triggered, false otherwise.
         if (millis() - this->lastPollTime < INFRARED_SENSOR_TIMEOUT_IN_MS) {
             return false;
         }
 
+
+        // Josh: put whatever sensor check you need in the "if" condition here.
         // TODO Should this be analogRead?
         if (digitalRead(this->_pinNumber) == HIGH) {
+            // Test pixel to indicate when the button's been pressed. Feel free to remove this when you like.
+            leds[29] = CRGB::Red;
+
+            
+
+            // Make sure these stay at the end of the sensor "if" block. This will set the last polling time to 
+            // ensure that the sensor is properly "debounced".
             this->lastPollTime = millis();
             return true;
         }        
@@ -67,13 +78,21 @@ class Sprite {
     virtual bool Update() = 0;
 
     boolean UpdateNow() {
-      if (millis() - lastUpdateTime >= 80) {
+      if (millis() - lastUpdateTime >= 1) {
         lastUpdateTime = millis();
         return true;
       } else {
         return false;
       }
     }
+
+    void MarkDone() {
+        this->done = true;
+    }
+
+    bool IsDone() {
+        return this->done;
+    } 
 
   protected:
     uint32_t lastUpdateTime;
@@ -272,10 +291,17 @@ class W4V1ScannerSprite : public Sprite {
 class W1V1Sprite : public Sprite {
   private:
     int currentPixel;
+    CRGB color;
 
   public:
     W1V1Sprite() {
         this->currentPixel = 0;
+        this->color = DEFAULT_COLOR;
+    }
+
+    W1V1Sprite(int startPixel, CRGB startColor) {
+        this->currentPixel = startPixel;
+        this->color = startColor;
     }
 
     ~W1V1Sprite() {
@@ -283,9 +309,16 @@ class W1V1Sprite : public Sprite {
 
     bool Update() {
       if (this->UpdateNow()) {
-        currentPixel = (currentPixel + 1) % NUM_LEDS;
-        leds[currentPixel] = 0x0000ff;
-        leds[currentPixel - 1] = 0x000000;
+        currentPixel++;
+        
+        if (currentPixel >= NUM_LEDS) {
+            this->MarkDone();
+        }
+        
+        leds[currentPixel] = this->color;
+        if (currentPixel > 0) {
+          leds[currentPixel - 1] = 0x000000;
+        }
 
         return true;
       }
@@ -329,7 +362,6 @@ class SpriteManager {
   private:
     boolean updatedSomething = false;
     SpriteVector* spriteVector;
-    // TestPatternFastLEDSprite* sprite;
 
   public:
     SpriteManager() {
@@ -342,7 +374,6 @@ class SpriteManager {
 
     int SpriteCount() {
       return spriteVector->Count();
-      // return (sprite != NULL) ? 1 : 0;
     }
 
     void Update() {
@@ -352,41 +383,43 @@ class SpriteManager {
     
         if (updatedSomething) {
             FastLED.show();
+
+            // No need to clean unless something got updated.
+            this->Clean();
         }
     
         updatedSomething = false;
-
-        // sprite->Update();
     }
 
-    // Add it to the first free spot we see.
     bool Add(Sprite *newSprite) {
       bool x = spriteVector->Add(newSprite);
       return x;
-
-      // sprite = newSprite;
-      // return true;
     }
 
-    /*
-        void Clean() {
-            for (int i = 0; i < this->SpriteCount(); i++) {
-                if (spriteVector->Get(i)->IsDone()) {
-                    spriteVector->RemoveAt(i);
-                }
+    // Garbage collection. Remove any sprites that have finished their animation
+    // from the SpriteVector, in order to make room for others.
+    void Clean() {
+        for (int i = this->SpriteCount() - 1; i >= 0; i--) {
+            if (spriteVector->Get(i)->IsDone()) {
+                spriteVector->RemoveAt(i);
             }
-        } */
+        }
+    }
 };
 
 InfraredSensor *sensor1;
 InfraredSensor *sensor2;
 SpriteManager *spriteManager;
+bool isBooted;
+bool testSpritesCreated;
 
+int starttime = millis();
 
-// W4V1ScannerSprite* sprite;
-// W1V1Sprite* sprite;
 
 void setup() {
+    isBooted = false;
+    testSpritesCreated = false;
+  
     randomSeed(analogRead(0));
    
     spriteManager = new SpriteManager();
@@ -397,25 +430,46 @@ void setup() {
     sensor2 = new InfraredSensor(PIR_SENSOR_2_PIN);
   
     resetStrip();
-
-    // sprite = new W4V1ScannerSprite();
-    // sprite = new W1V1Sprite();
 }
 
-int currentPixel = 0;
-
 void loop() {
-    if (random(0, 2000000) == 3000) {
-        spriteManager->Add(new W1V1Sprite());
-        leds[0] = leds[1] = leds[2] = 0xff0000;
+    if (! isBooted) {
+        if (! testSpritesCreated) {
+            spriteManager->Add(new W1V1Sprite(10, 0x750787));
+            spriteManager->Add(new W1V1Sprite( 8, 0x004dff));
+            spriteManager->Add(new W1V1Sprite( 6, 0x008026));
+            spriteManager->Add(new W1V1Sprite( 4, 0xffed00));
+            spriteManager->Add(new W1V1Sprite( 2, 0xff8c00));
+            spriteManager->Add(new W1V1Sprite( 0, 0xe40303));
+
+            testSpritesCreated = true;
+        }
+
+        spriteManager->Update();
+
+        if (spriteManager->SpriteCount() == 0) {
+            isBooted = true;
+        }
+
+        return;
     }
-  
+
+    // (A) JOSH: Remove this when you have the switches working to your heart's content.
+    if (random(0, 50000) == 0) {
+        spriteManager->Add(new W1V1Sprite());
+    }
+    // End (A).
+
+    debug(spriteManager->SpriteCount());
+
     if (sensor1->IsActuated()) {
-        // TODO Add sprite.
+        // Add sprite.
+        spriteManager->Add(new W1V1Sprite());
     }
 
     if (sensor2->IsActuated()) {
-        // TODO Add sprite.
+        // Add sprite.
+        spriteManager->Add(new W1V1Sprite());
     }
   
     spriteManager->Update();
@@ -436,6 +490,6 @@ void resetStrip() {
 
 void debug(int number) {
     fill_solid(leds, number < NUM_LEDS ? number : NUM_LEDS, CRGB::White);
-    FastLED.show();
+    // FastLED.show();
 }
 
