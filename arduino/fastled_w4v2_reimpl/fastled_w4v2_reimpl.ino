@@ -144,42 +144,6 @@ class Sprite {
     boolean done;
 };
 
-/*
-class LinkedList {
-    public:
-        LinkedListNode* first;
-
-        bool Add(Sprite *sprite) {
-            // Order doesn't so much matter for us here, so it'll just be easier to put it FIRST.
-            LinkedListNode *node = new LinkedListNode(sprite, this->first);   
-        }
-
-        bool Remove(Sprite *sprite) {
-            // Traverse the list until we find it.
-
-            LinkedListNode *i;
-
-            while (i->next != NULL) {
-                if (i->content == sprite) {
-                    // Found it.
-                    i->
-                }
-            }
-        }
-}
-
-class LinkedListNode {
-    public: 
-        Sprite *content;
-        LinkedListNode* next;
-
-        LinkedListNode(Sprite *ptr, LinkedListNode *nxt) {
-            this->content = ptr;
-            this->next = nxt;
-        }
-}
-*/
-
 class SpriteVector {
     private:
         Sprite **sprites;
@@ -305,89 +269,6 @@ class ScannerSprite : public Sprite {
         }
 
         return true;
-    }
-};
-
-class W4V1ScannerSprite : public Sprite {
-  private:
-    int currentPixel;
-    bool scanning;
-    bool hasScanned;
-    int scannerCount;
-
-    CRGB regularFlow[4] = { 0x400000, 0x800000, 0xc00000, 0xff0000 };
-
-    const CRGB red0 = 0x000000;
-    const CRGB red4 = 0x400000;
-    const CRGB red8 = 0x800000;
-    const CRGB redC = 0xC00000;
-    const CRGB redF = 0xFF0000;
-
-    CRGB debris[78] = { red0, red0, red0, red0, red0, red0, red0, redF, redC, red8, redC, red0, red0,    // frame 10
-                        red0, red0, red0, red0, red0, redF, redC, red8, red4, red0, red4, red8, red0,    // frame 11
-                        red0, red0, red0, redF, redC, red8, red4, red0, red0, red0, red0, red0, red4,    //       12
-                        red0, red0, redC, red8, redC, redF, red0, red0, red0, red0, red0, red0, red0,    //       13
-                        red0, red8, red4, red0, red4, red8, redC, redF, red0, red0, red0, red0, red0,    //       14
-                        red4, red0, red0, red0, red0, red0, red4, red8, redC, redF, red0, red0, red0     //       15
-                      };
-
-
-  public:
-    W4V1ScannerSprite() : Sprite() {
-      this->currentPixel = 0;
-      this->scanning = false;
-      this->hasScanned = false;
-      this->scannerCount = 0;
-    }
-
-    ~W4V1ScannerSprite() {
-    }
-
-    bool Update() {
-      if (this->UpdateNow()) {
-        if (this->currentPixel >= NUM_LEDS + 3 || this->currentPixel == 0) {
-            currentPixel = 0;
-            scannerCount = 0;
-
-            memset(leds, 0x00, NUM_LEDS * sizeof(CRGB));
-        }
-
-        if (scanning) {
-            if (scannerCount >= 6 * 5) {
-                memset(leds + 8, 0x00, 13 * sizeof(CRGB));
-                scanning = false;
-                currentPixel = 18;
-            }
-        }
-
-        if (! scanning) {
-            if (currentPixel >= 0 && currentPixel <= 3) {
-                memcpy(leds, regularFlow + (3 - currentPixel), (currentPixel + 1) * sizeof(CRGB));
-            } else if (scannerCount == 0 && (currentPixel == 15 || currentPixel == 16)) {
-                memcpy(leds + (currentPixel - 3), regularFlow, 4 * sizeof(CRGB));
-                leds[currentPixel - 4] = CRGB::Black;
-                leds[currentPixel - 5] = CRGB::Black;
-                scanning = true;                
-            } else if (this->currentPixel >= 4 && this->currentPixel < NUM_LEDS) {
-                memcpy(leds + (currentPixel - 3), regularFlow, 4 * sizeof(CRGB));
-                leds[currentPixel - 4] = CRGB::Black;
-                leds[currentPixel - 5] = CRGB::Black;
-            } else if (currentPixel >= NUM_LEDS) {
-                memcpy(leds + (currentPixel - 3), regularFlow, (33 - currentPixel) * sizeof(CRGB));
-                leds[currentPixel - 4] = CRGB::Black;
-                leds[currentPixel - 5] = CRGB::Black;
-            }
-
-            currentPixel += 2;
-        } else {
-            memcpy(leds + 8, debris + (13 * (scannerCount % 6)), 13 * sizeof(CRGB));
-            ++scannerCount;
-        }
-
-        return true;
-      } else {
-        return false;
-      }
     }
 };
 
@@ -548,19 +429,19 @@ void loop() {
     }
 
     // (A) JOSH: Remove this when you have the switches working to your heart's content.
-    if (random(0, 5000) == 0) {
-        spriteManager->Add(new ScannerSprite());
-    }
+    // if (random(0, 5000) == 0) {
+    //     spriteManager->Add(new ScannerSprite());
+    // }
     // End (A).
 
     if (sensor1->IsActuated()) {
         // Add sprite.
-        spriteManager->Add(new W1V1Sprite());
+        spriteManager->Add(new ScannerSprite());
     }
 
     if (sensor2->IsActuated()) {
         // Add sprite.
-        spriteManager->Add(new W1V1Sprite());
+        spriteManager->Add(new /* Reverse */ScannerSprite());
     }
   
     spriteManager->Update();
