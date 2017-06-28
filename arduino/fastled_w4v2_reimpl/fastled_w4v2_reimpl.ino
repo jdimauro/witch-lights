@@ -4,8 +4,8 @@
 #define PSTR // Make Arduino Due happy
 #endif
 
-#define NUM_LEDS             750
-#define MAXSPRITES           2
+#define NUM_LEDS             50
+#define MAXSPRITES           10
 
 #define PIR_SENSOR_1_PIN     2
 #define PIR_SENSOR_2_PIN     3
@@ -19,8 +19,8 @@
 #define SCANNER_MIN_SCANS    2
 #define SCANNER_MAX_SCANS    5
 
-#define SCANNER_MIN_STOP_DISTANCE    6
-#define SCANNER_MAX_STOP_DISTANCE    14
+#define SCANNER_MIN_STOP_DISTANCE    20
+#define SCANNER_MAX_STOP_DISTANCE    30
 
 #define ANIMATION_FRAME_WIDTH     17
 #define ANIMATION_FRAMES          8
@@ -123,7 +123,7 @@ class Sprite {
     virtual bool Update() = 0;
 
     boolean UpdateNow() {
-      if (millis() - lastUpdateTime >= 0) {
+      if (millis() - lastUpdateTime >= 30) {
         lastUpdateTime = millis();
         return true;
       } else {
@@ -260,11 +260,16 @@ class ScannerSprite : public Sprite {
                 scanningFrame = 0;
                 currentPixel -= 8;
             }
+
+            if (currentPixel > NUM_LEDS) {
+               this->MarkDone();
+            }
         } else {
             stripcpy(leds, animationFrames + ANIMATION_FRAME_WIDTH * scanningFrame, currentPixel, ANIMATION_FRAME_WIDTH, ANIMATION_FRAME_WIDTH);
             if (++scanningFrame == ANIMATION_FRAMES) {
                 scanningFrame = 0;
                 ++scanCount;
+                SetNextInflection();
             }
         }
 
@@ -429,9 +434,9 @@ void loop() {
     }
 
     // (A) JOSH: Remove this when you have the switches working to your heart's content.
-    // if (random(0, 5000) == 0) {
-    //     spriteManager->Add(new ScannerSprite());
-    // }
+    if (random(0, 500) == 0) {
+        spriteManager->Add(new ScannerSprite());
+    }
     // End (A).
 
     if (sensor1->IsActuated()) {
