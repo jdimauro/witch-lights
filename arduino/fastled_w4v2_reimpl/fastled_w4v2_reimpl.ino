@@ -4,11 +4,11 @@
 #define PSTR // Make Arduino Due happy
 #endif
 
-#define NUM_LEDS             50
+#define NUM_LEDS             750
 #define MAXSPRITES           10
 
-#define NUM_COLORSETS         2
-#define NUM_COLORS_PER_SET    5
+#define NUM_COLORSETS         1
+#define NUM_COLORS_PER_SET    9
 
 #define PIR_SENSOR_1_PIN     2
 #define PIR_SENSOR_2_PIN     3
@@ -19,16 +19,16 @@
 
 #define INFRARED_SENSOR_TIMEOUT_IN_MS   500
 
-#define SCANNER_SPRITE_FRAME_DELAY_IN_MS  30
+#define SCANNER_SPRITE_FRAME_DELAY_IN_MS  1
 
 #define SCANNER_MIN_SCANS    2
 #define SCANNER_MAX_SCANS    5
 
 #define SCANNER_MIN_STOP_DISTANCE    20
-#define SCANNER_MAX_STOP_DISTANCE    30
+#define SCANNER_MAX_STOP_DISTANCE    80
 
-#define ANIMATION_FRAME_WIDTH     17
-#define ANIMATION_FRAMES          8
+#define ANIMATION_FRAME_WIDTH     23
+#define ANIMATION_FRAMES          28
 
 // ...TO HERE.
 
@@ -49,13 +49,21 @@ CRGB animationFrames[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
 char animationFramesCharsReverse[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
 CRGB animationFramesReverse[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
 
+char afc_w8v1[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
+CRGB af_w8v1[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
+
+char afc_w8v1r[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
+CRGB af_w8v1r[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
 
 // Function prototypes.
 void resetStrip(void);
-void debug(void);
+void debug(int);
+void debugNeg(int);
+void debugN(int, int);
 void stripcpy(CRGB *, CRGB *, int, int, int);
 void createColorsets(void);
 void createAnimationFrames(void);
+
 
 class InputDevice {
   public:
@@ -141,6 +149,7 @@ class Sprite {
 
     void MarkDone() {
         this->done = true;
+        // garbageCollector.ScheduleClean();
     }
 
     bool IsDone() {
@@ -211,6 +220,207 @@ class SpriteVector {
             return true;
         }
 };
+
+class W8V1ScannerDebrisV1Sprite : public Sprite {
+  private:
+    int currentPixel;
+    bool isScanning;
+    int scanningFrame;
+    int nextInflection;
+    int scanCount;
+    int scanCountTotal;
+    int velocity;
+
+    // pattern is one black pixel plus remaining pixels in order of increasing brightness with brightest pixel doubled.
+    CRGB pattern[NUM_COLORS_PER_SET + 1];
+    int patternLength = NUM_COLORS_PER_SET + 1;
+
+    void SetNextInflection() {
+        nextInflection += random(SCANNER_MIN_STOP_DISTANCE, SCANNER_MAX_STOP_DISTANCE + 1);
+    }
+
+    int GetNewScanCountTotal() {
+        return random(SCANNER_MIN_SCANS, SCANNER_MAX_SCANS + 1);
+    }
+    
+  public:
+    W8V1ScannerDebrisV1Sprite() : Sprite() {
+        // Initial state.
+        this->currentPixel = -1;  // The first pixel of the pattern is black.
+        this->scanningFrame = 0;
+        this->isScanning = false;
+        this->nextInflection = 0;
+        SetNextInflection();
+        this->velocity = 1;
+        this->scanCount = 0;
+        this->scanCountTotal = GetNewScanCountTotal();
+
+        // Choose a random color palette from the palettes available.
+        int colorPalette = random(0, NUM_COLORSETS);
+
+        // Set the colors in the pattern.
+        this->pattern[0] = colorSets[colorPalette][0];
+        this->pattern[1] = colorSets[colorPalette][1];
+        this->pattern[2] = colorSets[colorPalette][2];
+        this->pattern[3] = colorSets[colorPalette][3];
+        this->pattern[4] = colorSets[colorPalette][4];
+        this->pattern[5] = colorSets[colorPalette][5];
+        this->pattern[6] = colorSets[colorPalette][6];
+        this->pattern[7] = colorSets[colorPalette][7];
+        this->pattern[8] = colorSets[colorPalette][8];
+        this->pattern[9] = colorSets[colorPalette][8];
+
+        this->patternLength = 10;
+
+        for (int i = 0; i < ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES; i++) {
+            af_w8v1[i] = afc_w8v1[i] > ' ' ? colorSets[colorPalette][afc_w8v1[i] - '0'] : CRGB::Black;
+        }
+    }
+
+    ~W8V1ScannerDebrisV1Sprite() {
+    }
+
+    bool Update() {
+        if (! this->UpdateNow()) {
+            return false;
+        }
+
+        if (isScanning && scanCount == scanCountTotal) {
+            isScanning = false;
+            scanCount = 0;
+            currentPixel += 8;
+            SetNextInflection();
+            scanCount = GetNewScanCountTotal();
+            leds[currentPixel - 6] = CRGB::Black;  // I hate this. One-off to get rid of the straggler when coming out of scan mode.
+        }
+
+        if (! isScanning) {
+            stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
+            currentPixel += velocity;
+
+            if (currentPixel >= nextInflection) {
+                isScanning = true;
+                scanningFrame = 0;
+                currentPixel -= 8;
+            }
+
+            if (currentPixel > NUM_LEDS) {
+               this->MarkDone();
+               // garbageCollector->ScheduleCleaning();
+            }
+        } else {
+            stripcpy(leds, af_w8v1 + ANIMATION_FRAME_WIDTH * scanningFrame, currentPixel, ANIMATION_FRAME_WIDTH, ANIMATION_FRAME_WIDTH);
+            if (++scanningFrame == ANIMATION_FRAMES) {
+                scanningFrame = 0;
+                ++scanCount;
+                SetNextInflection();
+            }
+        }
+
+        return true;
+    }
+};
+
+
+class W8V1ScannerDebrisV1ReverseSprite : public Sprite {
+  private:
+    int currentPixel;
+    bool isScanning;
+    int scanningFrame;
+    int nextInflection;
+    int scanCount;
+    int scanCountTotal;
+    int velocity;
+
+    // pattern is one black pixel plus remaining pixels in order of increasing brightness with brightest pixel doubled.
+    CRGB pattern[NUM_COLORS_PER_SET + 1];
+    int patternLength = NUM_COLORS_PER_SET + 1;
+
+    void SetNextInflection() {
+        nextInflection -= random(SCANNER_MIN_STOP_DISTANCE, SCANNER_MAX_STOP_DISTANCE + 1);
+    }
+
+    int GetNewScanCountTotal() {
+        return random(SCANNER_MIN_SCANS, SCANNER_MAX_SCANS + 1);
+    }
+    
+  public:
+    W8V1ScannerDebrisV1ReverseSprite() : Sprite() {
+        // Initial state.
+        this->currentPixel = NUM_LEDS;  // The first pixel of the pattern is black.
+        this->scanningFrame = 0;
+        this->isScanning = false;
+        this->nextInflection = NUM_LEDS;
+        SetNextInflection();
+        this->velocity = 1;
+        this->scanCount = 0;
+        this->scanCountTotal = GetNewScanCountTotal();
+
+        // Choose a random color palette from the palettes available.
+        int colorPalette = random(0, NUM_COLORSETS);
+
+        // Set the colors in the pattern.
+        this->pattern[9] = colorSets[colorPalette][0];
+        this->pattern[8] = colorSets[colorPalette][1];
+        this->pattern[7] = colorSets[colorPalette][2];
+        this->pattern[6] = colorSets[colorPalette][3];
+        this->pattern[5] = colorSets[colorPalette][4];
+        this->pattern[4] = colorSets[colorPalette][5];
+        this->pattern[3] = colorSets[colorPalette][6];
+        this->pattern[2] = colorSets[colorPalette][7];
+        this->pattern[1] = colorSets[colorPalette][8];
+        this->pattern[0] = colorSets[colorPalette][8];
+
+        this->patternLength = 10;
+
+        for (int i = 0; i < ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES; i++) {
+            af_w8v1r[i] = afc_w8v1r[i] > ' ' ? colorSets[colorPalette][afc_w8v1r[i] - '0'] : CRGB::Black;
+        }
+    }
+
+    ~W8V1ScannerDebrisV1ReverseSprite() {
+    }
+
+    bool Update() {
+        if (! this->UpdateNow()) {
+            return false;
+        }
+
+        if (isScanning && scanCount == scanCountTotal) {
+            isScanning = false;
+            scanCount = 0;
+            currentPixel += 2;
+            SetNextInflection();
+            scanCount = GetNewScanCountTotal();
+            leds[currentPixel + 6] = CRGB::Black;  // I hate this. One-off to get rid of the straggler when coming out of scan mode.
+        }
+
+        if (! isScanning) {
+            stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
+            currentPixel -= velocity;
+
+            if (currentPixel <= nextInflection) {
+                isScanning = true;
+                scanningFrame = 0;
+                currentPixel -= 3;
+            }
+
+            if (currentPixel <= -6) {
+               this->MarkDone();
+            }
+        } else {
+            stripcpy(leds, af_w8v1r + ANIMATION_FRAME_WIDTH * scanningFrame, currentPixel, ANIMATION_FRAME_WIDTH, ANIMATION_FRAME_WIDTH);
+            if (++scanningFrame == ANIMATION_FRAMES) {
+                scanningFrame = 0;
+                ++scanCount;
+                SetNextInflection();
+            }
+        }
+
+        return true;
+    }
+};
+
 
 class ScannerSprite : public Sprite {
   private:
@@ -489,11 +699,40 @@ class SpriteManager {
     }
 };
 
+class GarbageCollectionNotifier {
+  private:
+    SpriteManager *manager;
+    
+  public:
+    bool cleaningToDo;
+
+    GarbageCollectionNotifier(SpriteManager *spriteManager) {
+        this->manager = spriteManager;
+    }
+
+    // Sprites should schedule cleaning, but not clean themselves.
+    void ScheduleCleaning() {
+        cleaningToDo = true;
+    }
+
+        // Garbage collection. Remove any sprites that have finished their animation
+    // from the SpriteVector, in order to make room for others.
+    void Clean() {
+        if (cleaningToDo) {
+            manager->Clean();
+            cleaningToDo = false;
+        }
+    }
+
+};
+
 InfraredSensor *sensor1;
 InfraredSensor *sensor2;
 Pushbutton *pushbutton;
 
+GarbageCollectionNotifier *garbageCollector;
 SpriteManager *spriteManager;
+
 bool isBooted;
 bool testSpritesCreated;
 
@@ -509,6 +748,7 @@ void setup() {
     randomSeed(analogRead(0));
    
     spriteManager = new SpriteManager();
+    garbageCollector = new GarbageCollectionNotifier(spriteManager);
     
     sensor1 = new InfraredSensor(PIR_SENSOR_1_PIN);
     sensor2 = new InfraredSensor(PIR_SENSOR_2_PIN);
@@ -516,6 +756,8 @@ void setup() {
   
     resetStrip();
 }
+
+int counter = 0;
 
 void loop() {
     if (! isBooted) {
@@ -540,20 +782,22 @@ void loop() {
     }
 
     // (A) JOSH: Remove this when you have the switches working to your heart's content.
-    if (random(0, 500) == 0) {
-        spriteManager->Add(new ReverseScannerSprite());
-    }
+    // if (random(0, 500) == 0) {
+    //     spriteManager->Add(new W8V1ScannerDebrisV1ReverseSprite());
+    // }
     // End (A).
 
     if (sensor1->IsActuated()) {
-        spriteManager->Add(new ScannerSprite());
+        spriteManager->Add(new W8V1ScannerDebrisV1Sprite());
     }
 
     if (sensor2->IsActuated()) {
-        spriteManager->Add(new ReverseScannerSprite());
+        spriteManager->Add(new W8V1ScannerDebrisV1ReverseSprite());
     }
-  
+
     spriteManager->Update();
+    spriteManager->Clean();
+    // garbageCollector->Clean();
 }
 
 
@@ -571,6 +815,14 @@ void resetStrip() {
 
 void debug(int number) {
     fill_solid(leds, number < NUM_LEDS ? number : NUM_LEDS, CRGB::White);
+}
+
+void debugNeg(int number) {
+    fill_solid(leds + NUM_LEDS - number, number < NUM_LEDS ? number : NUM_LEDS, CRGB::White);
+}
+
+void debugN(int startPos, int number) {
+    fill_solid(leds + startPos, number < (NUM_LEDS - startPos) ? number : NUM_LEDS - startPos, CRGB::White);
 }
 
 void stripcpy(CRGB *leds, CRGB *source, int start, int width, int patternSize) {
@@ -599,11 +851,23 @@ void stripcpy(CRGB *leds, CRGB *source, int start, int width, int patternSize) {
 }
 
 void createColorsets() {
-    colorSets[0][0] = CRGB::Black;
+/*    colorSets[0][0] = CRGB::Black;
     colorSets[0][1] = 0x180c14;
     colorSets[0][2] = 0x311828;
     colorSets[0][3] = 0x49243c;
-    colorSets[0][4] = 0x633051;
+    colorSets[0][4] = 0x633051;*/
+
+    colorSets[0][0] = CRGB::Black;
+    colorSets[0][1] = 0x010101;
+    colorSets[0][2] = 0x020207;
+    colorSets[0][3] = 0x03030e;
+    colorSets[0][4] = 0x050517;
+    colorSets[0][5] = 0x06061e;
+    colorSets[0][6] = 0x080827;
+    colorSets[0][7] = 0x09092e;
+    colorSets[0][8] = 0x0a0a33;
+//  colorSets[0][8] = 0x00ff00;
+
 
 #if NUM_COLORSETS > 1
     colorSets[1][0] = CRGB::Black;
@@ -611,14 +875,6 @@ void createColorsets() {
     colorSets[1][2] = 0x1b2a06;
     colorSets[1][3] = 0x294009;
     colorSets[1][4] = 0x36540c;
-#endif
-
-#if NUM_COLORSETS > 2
-    colorSets[2][0] = CRGB::Black;
-    colorSets[2][1] = CRGB::Red;
-    colorSets[2][2] = CRGB::Yellow;
-    colorSets[2][3] = CRGB::Green;
-    colorSets[2][4] = CRGB::Blue;
 #endif
 }
 
@@ -640,5 +896,68 @@ void createAnimationFrames() {
     strcat(animationFramesCharsReverse, "         4323    ");
     strcat(animationFramesCharsReverse, "       4321  2   ");
     strcat(animationFramesCharsReverse, "     4321     1  ");
+
+//                    12345678901234567890123
+    strcpy(afc_w8v1, "          123456788    ");
+    strcat(afc_w8v1, "           12345688    ");
+    strcat(afc_w8v1, "            12348876   ");
+    strcat(afc_w8v1, "             128876 4  ");
+    strcat(afc_w8v1, "              88765  2 ");
+    strcat(afc_w8v1, "             887654   1");
+    strcat(afc_w8v1, "            8876543    ");
+    strcat(afc_w8v1, "           88765432    ");
+    strcat(afc_w8v1, "          887654321    ");
+    strcat(afc_w8v1, "         887654321     ");
+    strcat(afc_w8v1, "        887654321      ");
+    strcat(afc_w8v1, "       887654321       ");
+    strcat(afc_w8v1, "      887654321        ");
+    strcat(afc_w8v1, "     887654321         ");
+    strcat(afc_w8v1, "    887654321          ");
+    strcat(afc_w8v1, "    88654321           ");
+    strcat(afc_w8v1, "   67884321            ");
+    strcat(afc_w8v1, "  4 678821             ");
+    strcat(afc_w8v1, " 2  56788              ");
+    strcat(afc_w8v1, "1   456788             ");
+    strcat(afc_w8v1, "    3456788            ");
+    strcat(afc_w8v1, "    23456788           ");
+    strcat(afc_w8v1, "    123456788          ");
+    strcat(afc_w8v1, "     123456788         ");
+    strcat(afc_w8v1, "      123456788        ");
+    strcat(afc_w8v1, "       123456788       ");
+    strcat(afc_w8v1, "        123456788      ");
+    strcat(afc_w8v1, "         123456788     ");
+
+
+//                     12345678901234567890123
+    strcpy(afc_w8v1r, "    887654321          ");
+    strcat(afc_w8v1r, "    88654321           ");
+    strcat(afc_w8v1r, "   67884321            ");
+    strcat(afc_w8v1r, "  4 678821             ");
+    strcat(afc_w8v1r, " 2  56788              ");
+    strcat(afc_w8v1r, "1   456788             ");
+    strcat(afc_w8v1r, "    3456788            ");
+    strcat(afc_w8v1r, "    23456788           ");
+    strcat(afc_w8v1r, "    123456788          ");
+    strcat(afc_w8v1r, "     123456788         ");
+    strcat(afc_w8v1r, "      123456788        ");
+    strcat(afc_w8v1r, "       123456788       ");
+    strcat(afc_w8v1r, "        123456788      ");
+    strcat(afc_w8v1r, "         123456788     ");
+    strcat(afc_w8v1r, "          123456788    ");
+    strcat(afc_w8v1r, "           12345688    ");
+    strcat(afc_w8v1r, "            12348876   ");
+    strcat(afc_w8v1r, "             128876 4  ");
+    strcat(afc_w8v1r, "              88765  2 ");
+    strcat(afc_w8v1r, "             887654   1");
+    strcat(afc_w8v1r, "            8876543    ");
+    strcat(afc_w8v1r, "           88765432    ");
+    strcat(afc_w8v1r, "          887654321    ");
+    strcat(afc_w8v1r, "         887654321     ");
+    strcat(afc_w8v1r, "        887654321      ");
+    strcat(afc_w8v1r, "       887654321       ");
+    strcat(afc_w8v1r, "      887654321        ");
+    strcat(afc_w8v1r, "     887654321         ");
+
+    
 }
 
