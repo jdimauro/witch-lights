@@ -546,13 +546,11 @@ void loop() {
     // End (A).
 
     if (sensor1->IsActuated()) {
-        // Add sprite.
         spriteManager->Add(new ScannerSprite());
     }
 
     if (sensor2->IsActuated()) {
-        // Add sprite.
-        spriteManager->Add(new /* Reverse */ScannerSprite());
+        spriteManager->Add(new ReverseScannerSprite());
     }
   
     spriteManager->Update();
