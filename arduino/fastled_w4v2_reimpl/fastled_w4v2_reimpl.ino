@@ -4,7 +4,7 @@
 #define PSTR // Make Arduino Due happy
 #endif
 
-#define NUM_LEDS             750
+#define NUM_LEDS            750
 #define MAXSPRITES           10
 
 #define NUM_COLORSETS         1
@@ -19,7 +19,8 @@
 
 #define INFRARED_SENSOR_TIMEOUT_IN_MS   500
 
-#define SCANNER_SPRITE_FRAME_DELAY_IN_MS  1
+#define SCANNER_SPRITE_FRAME_DELAY_IN_MS    1
+#define TEST_PATTERN_FRAME_DELAY_IN_MS    10
 
 #define SCANNER_MIN_SCANS    2
 #define SCANNER_MAX_SCANS    5
@@ -149,7 +150,6 @@ class Sprite {
 
     void MarkDone() {
         this->done = true;
-        // garbageCollector.ScheduleClean();
     }
 
     bool IsDone() {
@@ -160,6 +160,7 @@ class Sprite {
     uint32_t lastUpdateTime;
     boolean done;
 };
+
 
 class SpriteVector {
     private:
@@ -187,7 +188,6 @@ class SpriteVector {
             } else {
                 return NULL;
             }
-
         }
 
         boolean Add(Sprite *sprite) {
@@ -211,15 +211,24 @@ class SpriteVector {
             delete ptr;
 
             for (int j = i + 1; j < count; j++) {
-                sprites[j - 1] = sprites[j];
-                sprites[j] = NULL;
+                sprites[j - 1] = sprites[j];              
             }
+            sprites[count - 1] = NULL;
 
             --this->count;
 
             return true;
         }
 };
+
+/*
+ *   0 1 2 3 4 5 6     count = 7
+ *   x 1 2 3 4 5 6
+ *   
+ * 
+ * 
+ *
+ */
 
 class W8V1ScannerDebrisV1Sprite : public Sprite {
   private:
@@ -306,7 +315,6 @@ class W8V1ScannerDebrisV1Sprite : public Sprite {
 
             if (currentPixel > NUM_LEDS) {
                this->MarkDone();
-               // garbageCollector->ScheduleCleaning();
             }
         } else {
             stripcpy(leds, af_w8v1 + ANIMATION_FRAME_WIDTH * scanningFrame, currentPixel, ANIMATION_FRAME_WIDTH, ANIMATION_FRAME_WIDTH);
@@ -405,7 +413,7 @@ class W8V1ScannerDebrisV1ReverseSprite : public Sprite {
                 currentPixel -= 3;
             }
 
-            if (currentPixel <= -6) {
+            if (currentPixel <= -9) {
                this->MarkDone();
             }
         } else {
@@ -629,6 +637,15 @@ class W1V1Sprite : public Sprite {
     ~W1V1Sprite() {
     }
 
+    boolean UpdateNow() {
+      if (millis() - lastUpdateTime >= TEST_PATTERN_FRAME_DELAY_IN_MS) {
+        lastUpdateTime = millis();
+        return true;
+      } else {
+        return false;
+      }
+    }
+
     bool Update() {
       if (this->UpdateNow()) {
         currentPixel++;
@@ -679,8 +696,9 @@ class SpriteManager {
             FastLED.show();
         
             // No need to clean unless something got updated.
-            this->Clean();
         }
+
+        this->Clean();
     }
 
     bool Add(Sprite *newSprite) {
@@ -699,38 +717,10 @@ class SpriteManager {
     }
 };
 
-class GarbageCollectionNotifier {
-  private:
-    SpriteManager *manager;
-    
-  public:
-    bool cleaningToDo;
-
-    GarbageCollectionNotifier(SpriteManager *spriteManager) {
-        this->manager = spriteManager;
-    }
-
-    // Sprites should schedule cleaning, but not clean themselves.
-    void ScheduleCleaning() {
-        cleaningToDo = true;
-    }
-
-        // Garbage collection. Remove any sprites that have finished their animation
-    // from the SpriteVector, in order to make room for others.
-    void Clean() {
-        if (cleaningToDo) {
-            manager->Clean();
-            cleaningToDo = false;
-        }
-    }
-
-};
-
 InfraredSensor *sensor1;
 InfraredSensor *sensor2;
 Pushbutton *pushbutton;
 
-GarbageCollectionNotifier *garbageCollector;
 SpriteManager *spriteManager;
 
 bool isBooted;
@@ -748,7 +738,6 @@ void setup() {
     randomSeed(analogRead(0));
    
     spriteManager = new SpriteManager();
-    garbageCollector = new GarbageCollectionNotifier(spriteManager);
     
     sensor1 = new InfraredSensor(PIR_SENSOR_1_PIN);
     sensor2 = new InfraredSensor(PIR_SENSOR_2_PIN);
@@ -774,6 +763,8 @@ void loop() {
 
         spriteManager->Update();
 
+        // debug(spriteManager->SpriteCount());
+
         if (spriteManager->SpriteCount() == 0) {
             isBooted = true;
         }
@@ -782,9 +773,15 @@ void loop() {
     }
 
     // (A) JOSH: Remove this when you have the switches working to your heart's content.
-    // if (random(0, 500) == 0) {
-    //     spriteManager->Add(new W8V1ScannerDebrisV1ReverseSprite());
-    // }
+    if (random(0, 2500) == 0) {
+        Sprite *s = new W8V1ScannerDebrisV1ReverseSprite();
+        
+        bool added = spriteManager->Add(s);
+
+        if (! added) {
+            delete s;  
+        }
+    }
     // End (A).
 
     if (sensor1->IsActuated()) {
@@ -796,8 +793,8 @@ void loop() {
     }
 
     spriteManager->Update();
-    spriteManager->Clean();
-    // garbageCollector->Clean();
+
+    // debug(spriteManager->SpriteCount());
 }
 
 
@@ -814,15 +811,17 @@ void resetStrip() {
 }
 
 void debug(int number) {
-    fill_solid(leds, number < NUM_LEDS ? number : NUM_LEDS, CRGB::White);
+    fill_solid(leds, NUM_LEDS, CRGB::Black);
+    fill_solid(leds, number < NUM_LEDS ? number : NUM_LEDS, 0x202020);
+    FastLED.show();
 }
 
 void debugNeg(int number) {
-    fill_solid(leds + NUM_LEDS - number, number < NUM_LEDS ? number : NUM_LEDS, CRGB::White);
+    fill_solid(leds + NUM_LEDS - number, number < NUM_LEDS ? number : NUM_LEDS, 0x202020);
 }
 
 void debugN(int startPos, int number) {
-    fill_solid(leds + startPos, number < (NUM_LEDS - startPos) ? number : NUM_LEDS - startPos, CRGB::White);
+    fill_solid(leds + startPos, number < (NUM_LEDS - startPos) ? number : NUM_LEDS - startPos, 0x202020);
 }
 
 void stripcpy(CRGB *leds, CRGB *source, int start, int width, int patternSize) {
@@ -866,7 +865,7 @@ void createColorsets() {
     colorSets[0][6] = 0x080827;
     colorSets[0][7] = 0x09092e;
     colorSets[0][8] = 0x0a0a33;
-//  colorSets[0][8] = 0x00ff00;
+    colorSets[0][8] = CRGB::White;
 
 
 #if NUM_COLORSETS > 1
@@ -960,4 +959,5 @@ void createAnimationFrames() {
 
     
 }
+
 
