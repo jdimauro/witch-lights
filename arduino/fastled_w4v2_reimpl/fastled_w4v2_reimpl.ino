@@ -7,7 +7,7 @@
 #define NUM_LEDS            750
 #define MAXSPRITES           10
 
-#define NUM_COLORSETS         1
+#define NUM_COLORSETS         5
 #define NUM_COLORS_PER_SET    9
 
 #define PIR_SENSOR_1_PIN     2
@@ -15,12 +15,10 @@
 #define PUSHBUTTON_PIN       13
 #define NEOPIXEL_DATA_PIN    6                // Pin for neopixels
 
-#define DEFAULT_COLOR        0x633051 
+#define INFRARED_SENSOR_TIMEOUT_IN_MS   30000
 
-#define INFRARED_SENSOR_TIMEOUT_IN_MS   500
-
-#define SCANNER_SPRITE_FRAME_DELAY_IN_MS    1
-#define TEST_PATTERN_FRAME_DELAY_IN_MS    10
+#define SCANNER_SPRITE_FRAME_DELAY_IN_MS     5
+#define TEST_PATTERN_FRAME_DELAY_IN_MS      10
 
 #define SCANNER_MIN_SCANS    2
 #define SCANNER_MAX_SCANS    5
@@ -413,7 +411,7 @@ class W8V1ScannerDebrisV1ReverseSprite : public Sprite {
                 currentPixel -= 3;
             }
 
-            if (currentPixel <= -9) {
+            if (currentPixel <= -10) {
                this->MarkDone();
             }
         } else {
@@ -625,7 +623,7 @@ class W1V1Sprite : public Sprite {
   public:
     W1V1Sprite() {
         this->currentPixel = -1;
-        this->color = DEFAULT_COLOR;
+        this->color = CRGB::White;
     }
 
     W1V1Sprite(int startPixel, CRGB startColor) {
@@ -694,8 +692,6 @@ class SpriteManager {
     
         if (updatedSomething) {
             FastLED.show();
-        
-            // No need to clean unless something got updated.
         }
 
         this->Clean();
@@ -773,15 +769,15 @@ void loop() {
     }
 
     // (A) JOSH: Remove this when you have the switches working to your heart's content.
-    if (random(0, 2500) == 0) {
-        Sprite *s = new W8V1ScannerDebrisV1ReverseSprite();
+/*  if (random(0, 2500) == 0) {
+        Sprite *s = new W8V1ScannerDebrisV1Sprite();
         
         bool added = spriteManager->Add(s);
 
         if (! added) {
             delete s;  
         }
-    }
+    } */
     // End (A).
 
     if (sensor1->IsActuated()) {
@@ -850,12 +846,7 @@ void stripcpy(CRGB *leds, CRGB *source, int start, int width, int patternSize) {
 }
 
 void createColorsets() {
-/*    colorSets[0][0] = CRGB::Black;
-    colorSets[0][1] = 0x180c14;
-    colorSets[0][2] = 0x311828;
-    colorSets[0][3] = 0x49243c;
-    colorSets[0][4] = 0x633051;*/
-
+// Blue.
     colorSets[0][0] = CRGB::Black;
     colorSets[0][1] = 0x010101;
     colorSets[0][2] = 0x020207;
@@ -865,15 +856,57 @@ void createColorsets() {
     colorSets[0][6] = 0x080827;
     colorSets[0][7] = 0x09092e;
     colorSets[0][8] = 0x0a0a33;
-    colorSets[0][8] = CRGB::White;
 
-
+// Yellow-green.
 #if NUM_COLORSETS > 1
-    colorSets[1][0] = CRGB::Black;
-    colorSets[1][1] = 0x0d1503;
-    colorSets[1][2] = 0x1b2a06;
-    colorSets[1][3] = 0x294009;
-    colorSets[1][4] = 0x36540c;
+    colorSets[1][0] = 0x000000;
+    colorSets[1][1] = 0x060702;
+    colorSets[1][2] = 0x0D1503;
+    colorSets[1][3] = 0x132005;
+    colorSets[1][4] = 0x1B2A06;
+    colorSets[1][5] = 0x223508;
+    colorSets[1][6] = 0x273F09;
+    colorSets[1][7] = 0x2E4A0B;
+    colorSets[1][8] = 0x36540C;
+#endif
+
+#if NUM_COLORSETS > 2
+// Amber.
+    colorSets[2][0] = 0x000000;
+    colorSets[2][1] = 0x070701;
+    colorSets[2][2] = 0x0D0D03;
+    colorSets[2][3] = 0x151504;
+    colorSets[2][4] = 0x1A1A05;
+    colorSets[2][5] = 0x202006;
+    colorSets[2][6] = 0x262608;
+    colorSets[2][7] = 0x2D2D09;
+    colorSets[2][8] = 0x33330A;
+#endif
+
+#if NUM_COLORSETS > 3
+// Reddish-purple.
+    colorSets[3][0] = 0x000000;
+    colorSets[3][1] = 0x0C0509;
+    colorSets[3][2] = 0x190B12;
+    colorSets[3][3] = 0x25101B;
+    colorSets[3][4] = 0x321524;
+    colorSets[3][5] = 0x3E1A2C;
+    colorSets[3][6] = 0x4A2035;
+    colorSets[3][7] = 0x57253E;
+    colorSets[3][8] = 0x632A47;
+#endif
+
+#if NUM_COLORSETS > 4
+// Original purple.
+    colorSets[4][0] = 0x000000;
+    colorSets[4][1] = 0x0C060A;
+    colorSets[4][2] = 0x190B14;
+    colorSets[4][3] = 0x25121E;
+    colorSets[4][4] = 0x321829;
+    colorSets[4][5] = 0x3E1E33;
+    colorSets[4][6] = 0x4A243D;
+    colorSets[4][7] = 0x572A47;
+    colorSets[4][8] = 0x633051;
 #endif
 }
 
