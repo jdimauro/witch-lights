@@ -269,7 +269,8 @@ class W8V1ScannerDebrisV1Sprite : public Sprite {
             SetNextInflection();
             this->scanCount = 0;
             this->scanCountTotal = GetNewScanCountTotal();
-            leds[currentPixel - 6] = CRGB::Black;  // I hate this. One-off to get rid of the straggler when coming out of scan mode.
+            leds[currentPixel - 6] = CRGB::Black;
+            leds[currentPixel - 7] = CRGB::Black;  // I hate this. One-off to get rid of the straggler when coming out of scan mode.
         }
 
         if (! isScanning) {
@@ -370,7 +371,8 @@ class W8V1ScannerDebrisV1ReverseSprite : public Sprite {
             SetNextInflection();
             this->scanCount = 0;
             this->scanCountTotal = GetNewScanCountTotal();
-            leds[currentPixel + 6] = CRGB::Black;  // I hate this. One-off to get rid of the straggler when coming out of scan mode.
+            leds[currentPixel + 6] = CRGB::Black;
+            leds[currentPixel + 7] = CRGB::Black;  // I hate this. One-off to get rid of the straggler when coming out of scan mode.
         }
 
         if (! isScanning) {
