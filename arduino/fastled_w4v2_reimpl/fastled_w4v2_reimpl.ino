@@ -269,9 +269,9 @@ class W8V1ScannerDebrisV1Sprite : public Sprite {
             SetNextInflection();
             this->scanCount = 0;
             this->scanCountTotal = GetNewScanCountTotal();
-            leds[currentPixel - 20] = CRGB::White;
+            // leds[currentPixel - 20] = CRGB::White;
             leds[currentPixel - 6] = CRGB::Black;
-            leds[currentPixel - 5] = CRGB::Black;  // I hate this. One-off to get rid of the straggler when coming out of scan mode.
+            leds[currentPixel - 9] = CRGB::Black;  // I hate this. One-off to get rid of the straggler when coming out of scan mode.
         }
 
         if (! isScanning) {
@@ -372,9 +372,9 @@ class W8V1ScannerDebrisV1ReverseSprite : public Sprite {
             SetNextInflection();
             this->scanCount = 0;
             this->scanCountTotal = GetNewScanCountTotal();
-            leds[currentPixel + 20] = CRGB::White;
+            // leds[currentPixel + 20] = CRGB::White;
             leds[currentPixel + 6] = CRGB::Black;
-            leds[currentPixel + 5] = CRGB::Black;  // I hate this. One-off to get rid of the straggler when coming out of scan mode.
+            leds[currentPixel + 9] = CRGB::Black;  // I hate this. One-off to get rid of the straggler when coming out of scan mode.
         }
 
         if (! isScanning) {
@@ -466,9 +466,9 @@ class ScannerSprite : public Sprite {
             currentPixel += 8;
             SetNextInflection();
             scanCount = GetNewScanCountTotal();
-            leds[currentPixel - 20] = CRGB::White;
+            // leds[currentPixel - 20] = CRGB::White;
             leds[currentPixel - 6] = CRGB::Black;
-            leds[currentPixel - 5] = CRGB::Black;  // I hate this. One-off to get rid of the straggler when coming out of scan mode.
+            leds[currentPixel - 9] = CRGB::Black;  // I hate this. One-off to get rid of the straggler when coming out of scan mode.
         }
 
         if (! isScanning) {
@@ -561,9 +561,9 @@ class ReverseScannerSprite : public Sprite {
             currentPixel += 2;
             SetNextInflection();
             scanCount = GetNewScanCountTotal();
-            leds[currentPixel + 20] = CRGB::White;
+            // leds[currentPixel + 20] = CRGB::White; // mark a reference to find the dead pixel
             leds[currentPixel + 6] = CRGB::Black;
-            leds[currentPixel + 5] = CRGB::Black;  // I hate this. One-off to get rid of the straggler when coming out of scan mode.
+            leds[currentPixel + 9] = CRGB::Black;  // I hate this. One-off to get rid of the straggler when coming out of scan mode.
             leds[currentPixel + 12] = CRGB::Black; // I hate this too. Why is this necessary when going backwards but not forwards?
         }
 
