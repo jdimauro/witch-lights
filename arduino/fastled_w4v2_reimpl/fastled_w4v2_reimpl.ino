@@ -4,18 +4,17 @@
 #define PSTR // Make Arduino Due happy
 #endif
 
-#define NUM_LEDS            750
+#define NUM_LEDS            30
 #define MAXSPRITES           10
 
 #define NUM_COLORSETS         5
 #define NUM_COLORS_PER_SET    9
 
-#define PIR_SENSOR_1_PIN     2
-#define PIR_SENSOR_2_PIN     3
-#define PUSHBUTTON_PIN       13
+#define PIR_SENSOR_1_PIN     3
+#define PIR_SENSOR_2_PIN     4
 #define NEOPIXEL_DATA_PIN    6                // Pin for neopixels
 
-#define INFRARED_SENSOR_TIMEOUT_IN_MS   30000
+#define INFRARED_SENSOR_TIMEOUT_IN_MS   2000
 
 #define SCANNER_SPRITE_FRAME_DELAY_IN_MS     5
 #define TEST_PATTERN_FRAME_DELAY_IN_MS      10
@@ -23,7 +22,7 @@
 #define SCANNER_MIN_SCANS    2
 #define SCANNER_MAX_SCANS    5
 
-#define SCANNER_MIN_STOP_DISTANCE    20
+#define SCANNER_MIN_STOP_DISTANCE    40   // This probably shouldn't be smaller than 40. If it is scanners may get stuck in place if they don't have enough "exit velocity".
 #define SCANNER_MAX_STOP_DISTANCE    80
 
 #define ANIMATION_FRAME_WIDTH     23
@@ -63,65 +62,39 @@ void stripcpy(CRGB *, CRGB *, int, int, int);
 void createColorsets(void);
 void createAnimationFrames(void);
 
-
-class InputDevice {
-  public:
-    virtual bool IsActuated() = 0;
-    uint32_t lastPollTime;
-    
-protected:
+class InfraredSensor {
+private:
     int _pinNumber;
-};
-
-class InfraredSensor : public InputDevice {
+    uint32_t lastPollTime;
+  
 public:
     InfraredSensor(int pinNumber) {
         this->_pinNumber = pinNumber;
+        this->lastPollTime = millis();
     }
 
     // Put sensor read code here. Return true if triggered, false otherwise.
     bool IsActuated() {
         if (millis() - this->lastPollTime < INFRARED_SENSOR_TIMEOUT_IN_MS) {
-            return false;
+            return 0;
         }
+
+        leds[NUM_LEDS - 1] = CRGB::Purple;
+        FastLED.show();
 
         // Josh: put whatever sensor check you need in the "if" condition here.
         // TODO Should this be analogRead?
-        if (digitalRead(this->_pinNumber) == HIGH) {
-            // Test pixel to indicate when the button's been pressed. Feel free to remove this when you like.
+        if (/*digitalRead(this->_pinNumber) == HIGH*/ true) {
+            // Test pixel to indicate when the sensor's been actuated. Feel free to remove this when you like.
             leds[29] = CRGB::Red;
-
-            
 
             // Make sure these stay at the end of the sensor "if" block. This will set the last polling time to 
             // ensure that the sensor is properly "debounced".
             this->lastPollTime = millis();
-            return true;
+            return 1;
         }        
 
-        return false;
-    }
-};
-
-class Pushbutton : public InputDevice {
-  public:
-    Pushbutton(int pinNumber) {
-        this->_pinNumber = pinNumber;
-    }
-
-    bool IsActuated() {
-        if (millis() - this->lastPollTime < 1000) {
-            return false;
-        }
-
-        if (digitalRead(this->_pinNumber) == HIGH) {
-            leds[12] = CRGB::Red;
-
-            this->lastPollTime = millis();
-            return true;
-        }
-
-        return false;
+        return 1;
     }
 };
 
@@ -715,7 +688,6 @@ class SpriteManager {
 
 InfraredSensor *sensor1;
 InfraredSensor *sensor2;
-Pushbutton *pushbutton;
 
 SpriteManager *spriteManager;
 
@@ -737,12 +709,12 @@ void setup() {
     
     sensor1 = new InfraredSensor(PIR_SENSOR_1_PIN);
     sensor2 = new InfraredSensor(PIR_SENSOR_2_PIN);
-    pushbutton = new Pushbutton(PUSHBUTTON_PIN);
   
     resetStrip();
 }
 
 int counter = 0;
+int sensor1LastPollTime = millis();
 
 void loop() {
     if (! isBooted) {
@@ -769,7 +741,7 @@ void loop() {
     }
 
     // (A) JOSH: Remove this when you have the switches working to your heart's content.
-/*  if (random(0, 2500) == 0) {
+/*    if (random(0, 2500000) == 0) {
         Sprite *s = new W8V1ScannerDebrisV1Sprite();
         
         bool added = spriteManager->Add(s);
@@ -780,13 +752,34 @@ void loop() {
     } */
     // End (A).
 
-    if (sensor1->IsActuated()) {
-        spriteManager->Add(new W8V1ScannerDebrisV1Sprite());
+        if (sensor1->IsActuated()) {
+            Sprite *s = new W8V1ScannerDebrisV1Sprite();
+    
+            if (! spriteManager->Add(s)) {
+                delete s;
+            }
+
+            sensor1LastPollTime = millis();
+        }
+
+
+/*
+    if (sensor1->IsActuated() == 1) {
+        Sprite *s = new W8V1ScannerDebrisV1Sprite();
+
+        if (! spriteManager->Add(s)) {
+            delete s;
+        }
     }
 
-    if (sensor2->IsActuated()) {
-        spriteManager->Add(new W8V1ScannerDebrisV1ReverseSprite());
+    if (sensor2->IsActuated() == 1) {
+        Sprite *s = new W8V1ScannerDebrisV1ReverseSprite();
+
+        if (! spriteManager->Add(s)) {
+            delete s;
+        }
     }
+    */
 
     spriteManager->Update();
 
