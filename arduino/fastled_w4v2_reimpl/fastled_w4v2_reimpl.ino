@@ -25,6 +25,8 @@
 #define SCANNER_MIN_STOP_DISTANCE    40   // This probably shouldn't be smaller than 40. If it is scanners may get stuck in place if they don't have enough "exit velocity".
 #define SCANNER_MAX_STOP_DISTANCE    120
 
+#define SPRITE_STARTING_DELAY_INTERVAL_IN_MS   40
+
 #define ANIMATION_FRAME_WIDTH     23
 #define ANIMATION_FRAMES          28
 
@@ -107,8 +109,13 @@ class Sprite {
 
     virtual bool Update() = 0;
 
+
+    void SetUpdateInterval(int i) {
+        this->interval = i;
+    }
+
     boolean UpdateNow() {
-      if (millis() - lastUpdateTime >= SCANNER_SPRITE_FRAME_DELAY_IN_MS) {
+      if (millis() - lastUpdateTime >= this->interval) {
         lastUpdateTime = millis();
         return true;
       } else {
@@ -126,6 +133,7 @@ class Sprite {
 
   protected:
     uint32_t lastUpdateTime;
+    int interval;
     boolean done;
 };
 
@@ -206,7 +214,7 @@ class W8V1ScannerDebrisV1Sprite : public Sprite {
     int nextInflection;
     int scanCount;
     int scanCountTotal;
-    int velocity;
+    int delayInterval;
 
     // pattern is one black pixel plus remaining pixels in order of increasing brightness with brightest pixel doubled.
     CRGB pattern[NUM_COLORS_PER_SET + 1];
@@ -228,9 +236,9 @@ class W8V1ScannerDebrisV1Sprite : public Sprite {
         this->isScanning = false;
         this->nextInflection = 0;
         SetNextInflection();
-        this->velocity = 1;
         this->scanCount = 0;
         this->scanCountTotal = GetNewScanCountTotal();
+        this->SetUpdateInterval(SPRITE_STARTING_DELAY_INTERVAL_IN_MS);
 
         // Choose a random color palette from the palettes available.
         int colorPalette = random(0, NUM_COLORSETS);
@@ -257,6 +265,15 @@ class W8V1ScannerDebrisV1Sprite : public Sprite {
     ~W8V1ScannerDebrisV1Sprite() {
     }
 
+    boolean UpdateNow() {
+      if (millis() - lastUpdateTime >= this->delayInterval) {
+        lastUpdateTime = millis();
+        return true;
+      } else {
+        return false;
+      }
+    }
+
     bool Update() {
         if (! this->UpdateNow()) {
             return false;
@@ -270,11 +287,15 @@ class W8V1ScannerDebrisV1Sprite : public Sprite {
             this->scanCount = 0;
             this->scanCountTotal = GetNewScanCountTotal();
             leds[currentPixel - 6] = CRGB::Black;  // I hate this. One-off to get rid of the straggler when coming out of scan mode.
+            this->delayInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
         }
 
         if (! isScanning) {
             stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
-            currentPixel += velocity;
+            currentPixel += 1;
+            if (--this->delayInterval < 1) {
+                this->delayInterval = 1;
+            }
 
             if (currentPixel >= nextInflection) {
                 isScanning = true;
@@ -492,99 +513,6 @@ class ScannerSprite : public Sprite {
 };
 
 
-class ReverseScannerSprite : public Sprite {
-  private:
-    int currentPixel;
-    bool isScanning;
-    int scanningFrame;
-    int nextInflection;
-    int scanCount;
-    int scanCountTotal;
-    int velocity;
-
-    // pattern is two black pixels plus remaining pixels in order of increasing brightness
-    CRGB pattern[NUM_COLORS_PER_SET + 1];
-    int patternLength = NUM_COLORS_PER_SET + 1;
-
-    void SetNextInflection() {
-        nextInflection -= random(SCANNER_MIN_STOP_DISTANCE, SCANNER_MAX_STOP_DISTANCE + 1);
-    }
-
-    int GetNewScanCountTotal() {
-        return random(SCANNER_MIN_SCANS, SCANNER_MAX_SCANS + 1);
-    }
-    
-  public:
-    ReverseScannerSprite() : Sprite() {
-        // Initial state.
-        this->currentPixel = NUM_LEDS + 1;  // Both of the first two pixels of the pattern are black.
-        this->scanningFrame = 0;
-        this->isScanning = false;
-        this->nextInflection = NUM_LEDS + 1;
-        SetNextInflection();
-        this->velocity = 2;
-        this->scanCount = 0;
-        this->scanCountTotal = GetNewScanCountTotal();
-
-        // Choose a random color palette from the palettes available.
-        int colorPalette = random(0, NUM_COLORSETS);
-
-        // Set the colors in the pattern.
-        this->pattern[5] = this->pattern[4] = colorSets[colorPalette][0];
-        this->pattern[3] = colorSets[colorPalette][1];
-        this->pattern[2] = colorSets[colorPalette][2];
-        this->pattern[1] = colorSets[colorPalette][3];
-        this->pattern[0] = colorSets[colorPalette][4];
-
-        for (int i = 0; i < ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES; i++) {
-            animationFramesReverse[i] = animationFramesCharsReverse[i] > ' ' ? colorSets[colorPalette][animationFramesChars[i] - '0'] : CRGB::Black;
-        }
-    }
-
-    ~ReverseScannerSprite() {
-    }
-
-    bool Update() {
-        if (! this->UpdateNow()) {
-            return false;
-        }
-        
-        if (isScanning && scanCount == scanCountTotal) {
-            isScanning = false;
-            scanCount = 0;
-            currentPixel += 2;
-            SetNextInflection();
-            scanCount = GetNewScanCountTotal();
-            leds[currentPixel + 6] = CRGB::Black;  // I hate this. One-off to get rid of the straggler when coming out of scan mode.
-            leds[currentPixel + 12] = CRGB::Black; // I hate this too. Why is this necessary when going backwards but not forwards?
-        }
-
-        if (! isScanning) {
-            stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
-            currentPixel -= velocity;
-
-            if (currentPixel <= nextInflection) {
-                isScanning = true;
-                scanningFrame = 0;
-                currentPixel -= 3;
-            }
-
-            if (currentPixel <= -6) {
-               this->MarkDone();
-            }
-        } else {
-            stripcpy(leds, animationFramesReverse + ANIMATION_FRAME_WIDTH * scanningFrame, currentPixel, ANIMATION_FRAME_WIDTH, ANIMATION_FRAME_WIDTH);
-            if (++scanningFrame == ANIMATION_FRAMES) {
-                scanningFrame = 0;
-                ++scanCount;
-                SetNextInflection();
-            }
-        }
-
-        return true;
-    }
-};
-
 
 
 class W1V1Sprite : public Sprite {
@@ -738,7 +666,7 @@ void loop() {
     }
 
     // (A) JOSH: Remove this when you have the switches working to your heart's content.
-/*    if (random(0, 2500000) == 0) {
+    if (random(0, 25000) == 0) {
         Sprite *s = new W8V1ScannerDebrisV1Sprite();
         
         bool added = spriteManager->Add(s);
@@ -746,7 +674,7 @@ void loop() {
         if (! added) {
             delete s;  
         }
-    } */
+    }
     // End (A).
 
     if (sensor1->IsActuated()) {
