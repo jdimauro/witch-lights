@@ -66,11 +66,14 @@ class InfraredSensor {
 private:
     int _pinNumber;
     uint32_t lastPollTime;
+    int state;
+    
   
 public:
     InfraredSensor(int pinNumber) {
         this->_pinNumber = pinNumber;
         this->lastPollTime = millis();
+        this->state = LOW;
     }
 
     // Put sensor read code here. Return true if triggered, false otherwise.
@@ -82,7 +85,7 @@ public:
         leds[NUM_LEDS - 2] = CRGB::Purple;
         FastLED.show();
 
-        if (digitalRead(this->_pinNumber) == HIGH) {
+        if (state == HIGH) {
             // Test pixel to indicate when the sensor's been actuated. Feel free to remove this when you like.
             leds[29] = CRGB::Red;
 
@@ -91,6 +94,8 @@ public:
             this->lastPollTime = millis();
             return true;
         }        
+
+        state = digitalRead(this->_pinNumber);
 
         return false;
     }
@@ -738,10 +743,10 @@ void loop() {
         return;
     }
 
-if (digitalRead(3) == HIGH) {
-             leds[1] = CRGB::Red;
-             FastLED.show();
-       }
+    if (digitalRead(3) == HIGH) {
+         leds[1] = CRGB::Red;
+         FastLED.show();
+   }
 
 
     // (A) JOSH: Remove this when you have the switches working to your heart's content.
