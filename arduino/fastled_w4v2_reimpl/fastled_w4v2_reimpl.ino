@@ -83,7 +83,7 @@ public:
 
         if (digitalRead(this->_pinNumber) == HIGH) {
             // Test pixel to indicate when the sensor's been actuated. Feel free to remove this when you like.
-            leds[29] = CRGB::Red;
+            // leds[29] = CRGB::Red;
 
             // Make sure these stay at the end of the sensor "if" block. This will set the last polling time to 
             // ensure that the sensor is properly "debounced".
