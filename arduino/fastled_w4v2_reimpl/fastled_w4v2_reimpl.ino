@@ -464,7 +464,8 @@ class ScannerSprite : public Sprite {
             currentPixel += 8;
             SetNextInflection();
             scanCount = GetNewScanCountTotal();
-            leds[currentPixel - 6] = CRGB::Black;  // I hate this. One-off to get rid of the straggler when coming out of scan mode.
+            leds[currentPixel - 6] = CRGB::Black;
+            leds[currentPixel - 7] = CRGB::Black;  // I hate this. One-off to get rid of the straggler when coming out of scan mode.
         }
 
         if (! isScanning) {
@@ -557,7 +558,8 @@ class ReverseScannerSprite : public Sprite {
             currentPixel += 2;
             SetNextInflection();
             scanCount = GetNewScanCountTotal();
-            leds[currentPixel + 6] = CRGB::Black;  // I hate this. One-off to get rid of the straggler when coming out of scan mode.
+            leds[currentPixel + 6] = CRGB::Black;
+            leds[currentPixel + 7] = CRGB::Black;  // I hate this. One-off to get rid of the straggler when coming out of scan mode.
             leds[currentPixel + 12] = CRGB::Black; // I hate this too. Why is this necessary when going backwards but not forwards?
         }
 
