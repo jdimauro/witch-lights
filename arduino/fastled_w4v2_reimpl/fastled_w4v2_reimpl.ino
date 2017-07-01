@@ -262,12 +262,13 @@ class W8V1ScannerDebrisV1Sprite : public Sprite {
             return false;
         }
 
+        // Going from scanning to travel mode.
         if (isScanning && scanCount == scanCountTotal) {
             isScanning = false;
-            scanCount = 0;
             currentPixel += 8;
             SetNextInflection();
-            scanCount = GetNewScanCountTotal();
+            this->scanCount = 0;
+            this->scanCountTotal = GetNewScanCountTotal();
             leds[currentPixel - 6] = CRGB::Black;  // I hate this. One-off to get rid of the straggler when coming out of scan mode.
         }
 
