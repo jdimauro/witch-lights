@@ -87,7 +87,7 @@ public:
         leds[NUM_LEDS - 2] = CRGB::Purple;
         FastLED.show();
 
-        if (state == HIGH) {
+        if (digitalRead(this->_pinNumber) == HIGH) {
             // Test pixel to indicate when the sensor's been actuated. Feel free to remove this when you like.
             leds[29] = CRGB::Red;
 
@@ -96,8 +96,6 @@ public:
             this->lastPollTime = millis();
             return true;
         }        
-
-        state = digitalRead(this->_pinNumber);
 
         return false;
     }
@@ -763,15 +761,13 @@ void loop() {
     } */
     // End (A).
 
-        if (sensor1->IsActuated()) {
-            Sprite *s = new W8V1ScannerDebrisV1Sprite();
-    
-            if (! spriteManager->Add(s)) {
-                delete s;
-            }
-        }
+    if (sensor1->IsActuated()) {
+        Sprite *s = new W8V1ScannerDebrisV1Sprite();
 
-/*
+        if (! spriteManager->Add(s)) {
+            delete s;
+        }
+    }
 
     if (sensor2->IsActuated()) {
         Sprite *s = new W8V1ScannerDebrisV1ReverseSprite();
@@ -780,7 +776,6 @@ void loop() {
             delete s;
         }
     }
-    */
 
     spriteManager->Update();
 
