@@ -269,6 +269,7 @@ class W8V1ScannerDebrisV1Sprite : public Sprite {
             SetNextInflection();
             this->scanCount = 0;
             this->scanCountTotal = GetNewScanCountTotal();
+            leds[currentPixel - 20] = CRGB::White;
             leds[currentPixel - 6] = CRGB::Black;
             leds[currentPixel - 5] = CRGB::Black;  // I hate this. One-off to get rid of the straggler when coming out of scan mode.
         }
@@ -371,6 +372,7 @@ class W8V1ScannerDebrisV1ReverseSprite : public Sprite {
             SetNextInflection();
             this->scanCount = 0;
             this->scanCountTotal = GetNewScanCountTotal();
+            leds[currentPixel + 20] = CRGB::White;
             leds[currentPixel + 6] = CRGB::Black;
             leds[currentPixel + 5] = CRGB::Black;  // I hate this. One-off to get rid of the straggler when coming out of scan mode.
         }
@@ -464,6 +466,7 @@ class ScannerSprite : public Sprite {
             currentPixel += 8;
             SetNextInflection();
             scanCount = GetNewScanCountTotal();
+            leds[currentPixel - 20] = CRGB::White;
             leds[currentPixel - 6] = CRGB::Black;
             leds[currentPixel - 5] = CRGB::Black;  // I hate this. One-off to get rid of the straggler when coming out of scan mode.
         }
@@ -558,6 +561,7 @@ class ReverseScannerSprite : public Sprite {
             currentPixel += 2;
             SetNextInflection();
             scanCount = GetNewScanCountTotal();
+            leds[currentPixel + 20] = CRGB::White;
             leds[currentPixel + 6] = CRGB::Black;
             leds[currentPixel + 5] = CRGB::Black;  // I hate this. One-off to get rid of the straggler when coming out of scan mode.
             leds[currentPixel + 12] = CRGB::Black; // I hate this too. Why is this necessary when going backwards but not forwards?
