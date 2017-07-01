@@ -74,6 +74,8 @@ public:
         this->_pinNumber = pinNumber;
         this->lastPollTime = millis();
         this->state = LOW;
+
+        pinMode(this->_pinNumber, INPUT);
     }
 
     // Put sensor read code here. Return true if triggered, false otherwise.
