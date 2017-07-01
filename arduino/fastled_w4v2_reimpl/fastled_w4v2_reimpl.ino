@@ -76,25 +76,23 @@ public:
     // Put sensor read code here. Return true if triggered, false otherwise.
     bool IsActuated() {
         if (millis() - this->lastPollTime < INFRARED_SENSOR_TIMEOUT_IN_MS) {
-            return 0;
+            return false;
         }
 
         leds[NUM_LEDS - 2] = CRGB::Purple;
         FastLED.show();
 
-        // Josh: put whatever sensor check you need in the "if" condition here.
-        // TODO Should this be analogRead?
-        if (/* digitalRead(this->_pinNumber) == HIGH */ true) {
+        if (/*digitalRead(this->_pinNumber) == HIGH*/ false) {
             // Test pixel to indicate when the sensor's been actuated. Feel free to remove this when you like.
             leds[29] = CRGB::Red;
 
             // Make sure these stay at the end of the sensor "if" block. This will set the last polling time to 
             // ensure that the sensor is properly "debounced".
             this->lastPollTime = millis();
-            return 1;
+            return true;
         }        
 
-        return 1;
+        return false;
     }
 };
 
@@ -760,22 +758,9 @@ void loop() {
             }
         }
 
-
-        if (digitalRead(3) == HIGH) {
-            leds[1] = CRGB::Red;
-            FastLED.show();
-        }
-
 /*
-    if (sensor1->IsActuated() == 1) {
-        Sprite *s = new W8V1ScannerDebrisV1Sprite();
 
-        if (! spriteManager->Add(s)) {
-            delete s;
-        }
-    }
-
-    if (sensor2->IsActuated() == 1) {
+    if (sensor2->IsActuated()) {
         Sprite *s = new W8V1ScannerDebrisV1ReverseSprite();
 
         if (! spriteManager->Add(s)) {
