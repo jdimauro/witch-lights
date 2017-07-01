@@ -270,7 +270,7 @@ class W8V1ScannerDebrisV1Sprite : public Sprite {
             this->scanCount = 0;
             this->scanCountTotal = GetNewScanCountTotal();
             leds[currentPixel - 6] = CRGB::Black;
-            leds[currentPixel - 7] = CRGB::Black;  // I hate this. One-off to get rid of the straggler when coming out of scan mode.
+            leds[currentPixel - 5] = CRGB::Black;  // I hate this. One-off to get rid of the straggler when coming out of scan mode.
         }
 
         if (! isScanning) {
@@ -372,7 +372,7 @@ class W8V1ScannerDebrisV1ReverseSprite : public Sprite {
             this->scanCount = 0;
             this->scanCountTotal = GetNewScanCountTotal();
             leds[currentPixel + 6] = CRGB::Black;
-            leds[currentPixel + 7] = CRGB::Black;  // I hate this. One-off to get rid of the straggler when coming out of scan mode.
+            leds[currentPixel + 5] = CRGB::Black;  // I hate this. One-off to get rid of the straggler when coming out of scan mode.
         }
 
         if (! isScanning) {
@@ -465,7 +465,7 @@ class ScannerSprite : public Sprite {
             SetNextInflection();
             scanCount = GetNewScanCountTotal();
             leds[currentPixel - 6] = CRGB::Black;
-            leds[currentPixel - 7] = CRGB::Black;  // I hate this. One-off to get rid of the straggler when coming out of scan mode.
+            leds[currentPixel - 5] = CRGB::Black;  // I hate this. One-off to get rid of the straggler when coming out of scan mode.
         }
 
         if (! isScanning) {
@@ -559,7 +559,7 @@ class ReverseScannerSprite : public Sprite {
             SetNextInflection();
             scanCount = GetNewScanCountTotal();
             leds[currentPixel + 6] = CRGB::Black;
-            leds[currentPixel + 7] = CRGB::Black;  // I hate this. One-off to get rid of the straggler when coming out of scan mode.
+            leds[currentPixel + 5] = CRGB::Black;  // I hate this. One-off to get rid of the straggler when coming out of scan mode.
             leds[currentPixel + 12] = CRGB::Black; // I hate this too. Why is this necessary when going backwards but not forwards?
         }
 
