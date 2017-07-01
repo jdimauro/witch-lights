@@ -79,12 +79,12 @@ public:
             return 0;
         }
 
-        leds[NUM_LEDS - 1] = CRGB::Purple;
+        leds[NUM_LEDS - 2] = CRGB::Purple;
         FastLED.show();
 
         // Josh: put whatever sensor check you need in the "if" condition here.
         // TODO Should this be analogRead?
-        if (/*digitalRead(this->_pinNumber) == HIGH*/ true) {
+        if (/* digitalRead(this->_pinNumber) == HIGH */ true) {
             // Test pixel to indicate when the sensor's been actuated. Feel free to remove this when you like.
             leds[29] = CRGB::Red;
 
@@ -758,10 +758,13 @@ void loop() {
             if (! spriteManager->Add(s)) {
                 delete s;
             }
-
-            sensor1LastPollTime = millis();
         }
 
+
+        if (digitalRead(3) == HIGH) {
+            leds[1] = CRGB::Red;
+            FastLED.show();
+        }
 
 /*
     if (sensor1->IsActuated() == 1) {
