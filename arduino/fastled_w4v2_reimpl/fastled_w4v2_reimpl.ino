@@ -4,7 +4,7 @@
 #define PSTR // Make Arduino Due happy
 #endif
 
-#define NUM_LEDS            30
+#define NUM_LEDS            750
 #define MAXSPRITES           10
 
 #define NUM_COLORSETS         5
@@ -16,8 +16,8 @@
 
 #define INFRARED_SENSOR_TIMEOUT_IN_MS   2000
 
-#define SCANNER_SPRITE_FRAME_DELAY_IN_MS     5
-#define TEST_PATTERN_FRAME_DELAY_IN_MS      10
+#define SCANNER_SPRITE_FRAME_DELAY_IN_MS     1
+#define TEST_PATTERN_FRAME_DELAY_IN_MS       1
 
 #define SCANNER_MIN_SCANS    2
 #define SCANNER_MAX_SCANS    5
@@ -66,14 +66,11 @@ class InfraredSensor {
 private:
     int _pinNumber;
     uint32_t lastPollTime;
-    int state;
-    
   
 public:
     InfraredSensor(int pinNumber) {
         this->_pinNumber = pinNumber;
         this->lastPollTime = millis();
-        this->state = LOW;
 
         pinMode(this->_pinNumber, INPUT);
     }
@@ -83,9 +80,6 @@ public:
         if (millis() - this->lastPollTime < INFRARED_SENSOR_TIMEOUT_IN_MS) {
             return false;
         }
-
-        leds[NUM_LEDS - 2] = CRGB::Purple;
-        FastLED.show();
 
         if (digitalRead(this->_pinNumber) == HIGH) {
             // Test pixel to indicate when the sensor's been actuated. Feel free to remove this when you like.
@@ -734,20 +728,12 @@ void loop() {
 
         spriteManager->Update();
 
-        // debug(spriteManager->SpriteCount());
-
         if (spriteManager->SpriteCount() == 0) {
             isBooted = true;
         }
 
         return;
     }
-
-    if (digitalRead(3) == HIGH) {
-         leds[1] = CRGB::Red;
-         FastLED.show();
-   }
-
 
     // (A) JOSH: Remove this when you have the switches working to your heart's content.
 /*    if (random(0, 2500000) == 0) {
@@ -762,24 +748,22 @@ void loop() {
     // End (A).
 
     if (sensor1->IsActuated()) {
-        Sprite *s = new W8V1ScannerDebrisV1Sprite();
+        Sprite *s1 = new W8V1ScannerDebrisV1Sprite();
 
-        if (! spriteManager->Add(s)) {
-            delete s;
+        if (! spriteManager->Add(s1)) {
+            delete s1;
         }
     }
 
     if (sensor2->IsActuated()) {
-        Sprite *s = new W8V1ScannerDebrisV1ReverseSprite();
+        Sprite *s2 = new W8V1ScannerDebrisV1ReverseSprite();
 
-        if (! spriteManager->Add(s)) {
-            delete s;
+        if (! spriteManager->Add(s2)) {
+            delete s2;
         }
     }
 
     spriteManager->Update();
-
-    // debug(spriteManager->SpriteCount());
 }
 
 
