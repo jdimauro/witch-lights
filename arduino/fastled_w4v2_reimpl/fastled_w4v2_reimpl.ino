@@ -109,13 +109,8 @@ class Sprite {
 
     virtual bool Update() = 0;
 
-
-    void SetUpdateInterval(int i) {
-        this->interval = i;
-    }
-
     boolean UpdateNow() {
-      if (millis() - lastUpdateTime >= this->interval) {
+      if (millis() - lastUpdateTime >= updateInterval) {
         lastUpdateTime = millis();
         return true;
       } else {
@@ -133,7 +128,7 @@ class Sprite {
 
   protected:
     uint32_t lastUpdateTime;
-    int interval;
+    int updateInterval;
     boolean done;
 };
 
@@ -197,31 +192,25 @@ class SpriteVector {
         }
 };
 
-/*
- *   0 1 2 3 4 5 6     count = 7
- *   x 1 2 3 4 5 6
- *   
- * 
- * 
- *
- */
-
 class W8V1ScannerDebrisV1Sprite : public Sprite {
   private:
     int currentPixel;
     bool isScanning;
     int scanningFrame;
+    int lastInflection;
     int nextInflection;
     int scanCount;
     int scanCountTotal;
-    int delayInterval;
 
     // pattern is one black pixel plus remaining pixels in order of increasing brightness with brightest pixel doubled.
     CRGB pattern[NUM_COLORS_PER_SET + 1];
     int patternLength = NUM_COLORS_PER_SET + 1;
 
     void SetNextInflection() {
-        nextInflection += random(SCANNER_MIN_STOP_DISTANCE, SCANNER_MAX_STOP_DISTANCE + 1);
+        // TODO Remove
+        lastInflection = nextInflection;
+        nextInflection += 20;
+        // nextInflection += random(SCANNER_MIN_STOP_DISTANCE, SCANNER_MAX_STOP_DISTANCE + 1);
     }
 
     int GetNewScanCountTotal() {
@@ -231,14 +220,15 @@ class W8V1ScannerDebrisV1Sprite : public Sprite {
   public:
     W8V1ScannerDebrisV1Sprite() : Sprite() {
         // Initial state.
-        this->currentPixel = -1;  // The first pixel of the pattern is black.
+        this->currentPixel = -8;  // The first pixel of the pattern is black.
         this->scanningFrame = 0;
         this->isScanning = false;
+        this->lastInflection = -1;
         this->nextInflection = 0;
         SetNextInflection();
         this->scanCount = 0;
         this->scanCountTotal = GetNewScanCountTotal();
-        this->SetUpdateInterval(SPRITE_STARTING_DELAY_INTERVAL_IN_MS);
+        this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS - nextInflection;
 
         // Choose a random color palette from the palettes available.
         int colorPalette = random(0, NUM_COLORSETS);
@@ -266,7 +256,7 @@ class W8V1ScannerDebrisV1Sprite : public Sprite {
     }
 
     boolean UpdateNow() {
-      if (millis() - lastUpdateTime >= this->delayInterval) {
+      if (millis() - lastUpdateTime >= updateInterval) {
         lastUpdateTime = millis();
         return true;
       } else {
@@ -286,8 +276,7 @@ class W8V1ScannerDebrisV1Sprite : public Sprite {
             SetNextInflection();
             this->scanCount = 0;
             this->scanCountTotal = GetNewScanCountTotal();
-            // leds[currentPixel - 20] = CRGB::White;
-            this->delayInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
+            this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
             leds[currentPixel - 6] = CRGB::Black;
             leds[currentPixel - 8] = CRGB::Black;
             leds[currentPixel - 9] = CRGB::Black;  // I hate this. One-off to get rid of the straggler when coming out of scan mode.
@@ -295,13 +284,18 @@ class W8V1ScannerDebrisV1Sprite : public Sprite {
         }
 
         if (! isScanning) {
+            // Traveling and continuing to travel.
             stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
             currentPixel += 1;
-            if (--this->delayInterval < 1) {
-                this->delayInterval = 1;
-            }
 
+            // Are we nearer the last inflection than the next inflection? If so, speed up. Otherwise, slow down.
+            updateInterval = (currentPixel >= (lastInflection + nextInflection) / 2) ? (updateInterval - 1) : (updateInterval + 1);
+
+            // Transition from travel mode to scanning.
             if (currentPixel >= nextInflection) {
+                // Safety. Since I don't trust my math, once we enter scanning mode, ALWAYS go back to the constant speed for scanning
+                // regardless of what the math said.
+                updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
                 isScanning = true;
                 scanningFrame = 0;
                 currentPixel -= 8;
@@ -349,7 +343,7 @@ class W8V1ScannerDebrisV1ReverseSprite : public Sprite {
   public:
     W8V1ScannerDebrisV1ReverseSprite() : Sprite() {
         // Initial state.
-        this->currentPixel = NUM_LEDS;  // The first pixel of the pattern is black.
+        this->currentPixel = NUM_LEDS + 7;  // The first pixel of the pattern is black.
         this->scanningFrame = 0;
         this->isScanning = false;
         this->nextInflection = NUM_LEDS;
@@ -676,7 +670,7 @@ void loop() {
     }
 
     // (A) JOSH: Remove this when you have the switches working to your heart's content.
-    if (random(0, 25000) == 0) {
+    if (random(0, 1000) == 0) {
         Sprite *s = new W8V1ScannerDebrisV1Sprite();
         
         bool added = spriteManager->Add(s);
