@@ -27,6 +27,9 @@
 
 #define SPRITE_STARTING_DELAY_INTERVAL_IN_MS   40
 
+// For testing use only. In production, set this equal to 1. Use this to exaggerate the acceleration effects. 10-20 is good for testing.
+#define ACCELERATION_DELAY_OBVIOUSNESS_FACTOR        1
+
 #define ANIMATION_FRAME_WIDTH     23
 #define ANIMATION_FRAMES          28
 
@@ -209,7 +212,7 @@ class W8V1ScannerDebrisV1Sprite : public Sprite {
     void SetNextInflection() {
         // TODO Remove
         lastInflection = nextInflection;
-        nextInflection += 20;
+        nextInflection += 15;
         // nextInflection += random(SCANNER_MIN_STOP_DISTANCE, SCANNER_MAX_STOP_DISTANCE + 1);
     }
 
@@ -256,7 +259,7 @@ class W8V1ScannerDebrisV1Sprite : public Sprite {
     }
 
     boolean UpdateNow() {
-      if (millis() - lastUpdateTime >= updateInterval) {
+      if (millis() - lastUpdateTime >= ACCELERATION_DELAY_OBVIOUSNESS_FACTOR * updateInterval) {
         lastUpdateTime = millis();
         return true;
       } else {
