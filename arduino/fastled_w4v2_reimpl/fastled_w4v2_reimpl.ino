@@ -213,8 +213,8 @@ class W8V1ScannerDebrisV1Sprite : public Sprite {
 
     void SetNextInflection() {
         lastInflection = nextInflection;
-        nextInflection += 25;
-        // nextInflection += random(SCANNER_MIN_STOP_DISTANCE, SCANNER_MAX_STOP_DISTANCE + 1);
+        // nextInflection += 25;
+        nextInflection += random(SCANNER_MIN_STOP_DISTANCE, SCANNER_MAX_STOP_DISTANCE + 1);
     }
 
     int GetNewScanCountTotal() {
