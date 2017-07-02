@@ -669,13 +669,13 @@ int sensor1LastPollTime = millis();
 void loop() {
     if (! isBooted) {
         if (! testSpritesCreated) {
- /*           spriteManager->Add(new W1V1Sprite(10, 0x750787));
+            spriteManager->Add(new W1V1Sprite(10, 0x750787));
             spriteManager->Add(new W1V1Sprite( 8, 0x004dff));
             spriteManager->Add(new W1V1Sprite( 6, 0x008026));
             spriteManager->Add(new W1V1Sprite( 4, 0xffed00));
             spriteManager->Add(new W1V1Sprite( 2, 0xff8c00));
             spriteManager->Add(new W1V1Sprite( 0, 0xe40303));
-*/
+
             testSpritesCreated = true;
         }
 
