@@ -433,7 +433,7 @@ class W8V1ScannerDebrisV1ReverseSprite : public Sprite {
             currentPixel -= velocity;
 
             // Are we nearer the last inflection than the next inflection? If so, speed up. Otherwise, slow down.
-            if (currentPixel <= (lastInflection + nextInflection) / 2) {
+            if (currentPixel <= nextInflection - (SCANNER_DELAY_INTERVAL_IN_MS - 1)) {
                 updateInterval += 1;
             } else {
                 updateInterval -= 1;              
@@ -448,7 +448,7 @@ class W8V1ScannerDebrisV1ReverseSprite : public Sprite {
             if (currentPixel <= nextInflection) {
                 // Safety. Since I don't trust my math, once we enter scanning mode, ALWAYS go back to the constant speed for scanning
                 // regardless of what the math said.
-                updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
+                updateInterval = SCANNER_DELAY_INTERVAL_IN_MS;
                 isScanning = true;
                 scanningFrame = 0;
                 currentPixel -= 3;
