@@ -231,7 +231,7 @@ class W8V1ScannerDebrisV1Sprite : public Sprite {
         SetNextInflection();
         this->scanCount = 0;
         this->scanCountTotal = GetNewScanCountTotal();
-        this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS - nextInflection;
+        this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
 
         // Choose a random color palette from the palettes available.
         int colorPalette = random(0, NUM_COLORSETS);
