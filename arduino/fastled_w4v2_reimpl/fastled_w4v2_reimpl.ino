@@ -26,7 +26,7 @@
 #define SCANNER_MAX_STOP_DISTANCE    120
 
 #define SPRITE_STARTING_DELAY_INTERVAL_IN_MS   60
-#define ACCELERATION_RATE_IN_MS_PER_PIXEL       1
+#define SCANNER_DELAY_INTERVAL_IN_MS           10
 
 // For testing use only. In production, set this equal to 1. Use this to exaggerate the acceleration effects. 10-20 is good for testing.
 #define ACCELERATION_DELAY_OBVIOUSNESS_FACTOR        1
@@ -295,10 +295,10 @@ class W8V1ScannerDebrisV1Sprite : public Sprite {
 /*            int updateInterval = (currentPixel >= (lastInflection + nextInflection) / 2) 
                                                       ? (updateInterval + ACCELERATION_RATE_IN_MS_PER_PIXEL) 
                                                       : (updateInterval - ACCELERATION_RATE_IN_MS_PER_PIXEL); */
-            if (currentPixel >= (lastInflection + nextInflection) / 2) {
-                updateInterval += ACCELERATION_RATE_IN_MS_PER_PIXEL;
+            if (currentPixel >= nextInflection - (SCANNER_DELAY_INTERVAL_IN_MS - 1)) {
+                updateInterval += 1;
             } else {
-                updateInterval -= ACCELERATION_RATE_IN_MS_PER_PIXEL;              
+                updateInterval -= 1;              
             }
             
             if (updateInterval < 1) {
@@ -311,7 +311,7 @@ class W8V1ScannerDebrisV1Sprite : public Sprite {
             if (currentPixel >= nextInflection) {
                 // Safety. Since I don't trust my math, once we enter scanning mode, ALWAYS go back to the constant speed for scanning
                 // regardless of what the math said.
-                updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
+                updateInterval = SCANNER_DELAY_INTERVAL_IN_MS;
                 isScanning = true;
                 scanningFrame = 0;
                 currentPixel -= 8;
@@ -433,13 +433,10 @@ class W8V1ScannerDebrisV1ReverseSprite : public Sprite {
             currentPixel -= velocity;
 
             // Are we nearer the last inflection than the next inflection? If so, speed up. Otherwise, slow down.
-/*            int updateInterval = (currentPixel >= (lastInflection + nextInflection) / 2) 
-                                                      ? (updateInterval + ACCELERATION_RATE_IN_MS_PER_PIXEL) 
-                                                      : (updateInterval - ACCELERATION_RATE_IN_MS_PER_PIXEL); */
             if (currentPixel <= (lastInflection + nextInflection) / 2) {
-                updateInterval += ACCELERATION_RATE_IN_MS_PER_PIXEL;
+                updateInterval += 1;
             } else {
-                updateInterval -= ACCELERATION_RATE_IN_MS_PER_PIXEL;              
+                updateInterval -= 1;              
             }
             
             if (updateInterval < 1) {
