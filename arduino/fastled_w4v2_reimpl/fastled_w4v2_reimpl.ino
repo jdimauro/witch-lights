@@ -25,7 +25,7 @@
 #define SCANNER_MIN_STOP_DISTANCE    40   // This probably shouldn't be smaller than 40. If it is scanners may get stuck in place if they don't have enough "exit velocity".
 #define SCANNER_MAX_STOP_DISTANCE    120
 
-#define SPRITE_STARTING_DELAY_INTERVAL_IN_MS   40
+#define SPRITE_STARTING_DELAY_INTERVAL_IN_MS   60
 #define ACCELERATION_RATE_IN_MS_PER_PIXEL       1
 
 // For testing use only. In production, set this equal to 1. Use this to exaggerate the acceleration effects. 10-20 is good for testing.
@@ -232,7 +232,7 @@ class W8V1ScannerDebrisV1Sprite : public Sprite {
         SetNextInflection();
         this->scanCount = 0;
         this->scanCountTotal = GetNewScanCountTotal();
-        this->updateInterval = 40;
+        this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
 
         // Choose a random color palette from the palettes available.
         int colorPalette = random(0, NUM_COLORSETS);
@@ -272,6 +272,8 @@ class W8V1ScannerDebrisV1Sprite : public Sprite {
         if (! this->UpdateNow()) {
             return false;
         }
+
+        // debug(updateInterval / 5);
 
         // Going from scanning to travel mode.
         if (isScanning && scanCount == scanCountTotal) {
@@ -683,6 +685,7 @@ void loop() {
             isBooted = true;
         }
 
+/*
         Sprite *s = new W8V1ScannerDebrisV1Sprite();
         
         bool added = spriteManager->Add(s);
@@ -690,7 +693,7 @@ void loop() {
         if (! added) {
             delete s;  
         }
-
+*/
         return;
     }
 
