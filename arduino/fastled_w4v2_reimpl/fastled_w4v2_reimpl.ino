@@ -26,6 +26,7 @@
 #define SCANNER_MAX_STOP_DISTANCE    120
 
 #define SPRITE_STARTING_DELAY_INTERVAL_IN_MS   40
+#define ACCELERATION_RATE_IN_MS_PER_PIXEL       5
 
 // For testing use only. In production, set this equal to 1. Use this to exaggerate the acceleration effects. 10-20 is good for testing.
 #define ACCELERATION_DELAY_OBVIOUSNESS_FACTOR        1
@@ -292,7 +293,7 @@ class W8V1ScannerDebrisV1Sprite : public Sprite {
             currentPixel += 1;
 
             // Are we nearer the last inflection than the next inflection? If so, speed up. Otherwise, slow down.
-            int nextUpdateInterval = (currentPixel >= (lastInflection + nextInflection) / 2) ? (updateInterval + 1) : (updateInterval - 1);
+            int nextUpdateInterval = (currentPixel >= (lastInflection + nextInflection) / 2) ? (updateInterval + ACCELERATION_RATE_IN_MS_PER_PIXEL) : (updateInterval - ACCELERATION_RATE_IN_MS_PER_PIXEL);
             if (updateInterval < 1) {
                 updateInterval = 1;
             } else if (updateInterval > SPRITE_STARTING_DELAY_INTERVAL_IN_MS) {
