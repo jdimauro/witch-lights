@@ -292,7 +292,7 @@ class W8V1ScannerDebrisV1Sprite : public Sprite {
             currentPixel += 1;
 
             // Are we nearer the last inflection than the next inflection? If so, speed up. Otherwise, slow down.
-            updateInterval = (currentPixel >= (lastInflection + nextInflection) / 2) ? (updateInterval - 1) : (updateInterval + 1);
+            updateInterval = (currentPixel >= (lastInflection + nextInflection) / 2) ? (updateInterval + 1) : (updateInterval - 1);
 
             // Transition from travel mode to scanning.
             if (currentPixel >= nextInflection) {
