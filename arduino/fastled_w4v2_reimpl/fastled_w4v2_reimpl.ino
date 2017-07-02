@@ -26,7 +26,7 @@
 #define SCANNER_MAX_STOP_DISTANCE    120
 
 #define SPRITE_STARTING_DELAY_INTERVAL_IN_MS   40
-#define ACCELERATION_RATE_IN_MS_PER_PIXEL       5
+#define ACCELERATION_RATE_IN_MS_PER_PIXEL       1
 
 // For testing use only. In production, set this equal to 1. Use this to exaggerate the acceleration effects. 10-20 is good for testing.
 #define ACCELERATION_DELAY_OBVIOUSNESS_FACTOR        1
@@ -198,6 +198,7 @@ class SpriteVector {
 
 class W8V1ScannerDebrisV1Sprite : public Sprite {
   private:
+    int updateInterval;
     int currentPixel;
     bool isScanning;
     int scanningFrame;
@@ -211,9 +212,9 @@ class W8V1ScannerDebrisV1Sprite : public Sprite {
     int patternLength = NUM_COLORS_PER_SET + 1;
 
     void SetNextInflection() {
-        // TODO Remove
         lastInflection = nextInflection;
-        nextInflection += random(SCANNER_MIN_STOP_DISTANCE, SCANNER_MAX_STOP_DISTANCE + 1);
+        nextInflection += 25;
+        // nextInflection += random(SCANNER_MIN_STOP_DISTANCE, SCANNER_MAX_STOP_DISTANCE + 1);
     }
 
     int GetNewScanCountTotal() {
@@ -226,12 +227,12 @@ class W8V1ScannerDebrisV1Sprite : public Sprite {
         this->currentPixel = -8;  // The first pixel of the pattern is black.
         this->scanningFrame = 0;
         this->isScanning = false;
-        this->lastInflection = -1;
+        this->lastInflection = 0;
         this->nextInflection = 0;
         SetNextInflection();
         this->scanCount = 0;
         this->scanCountTotal = GetNewScanCountTotal();
-        this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
+        this->updateInterval = 40;
 
         // Choose a random color palette from the palettes available.
         int colorPalette = random(0, NUM_COLORSETS);
@@ -289,17 +290,23 @@ class W8V1ScannerDebrisV1Sprite : public Sprite {
         if (! isScanning) {
             // Traveling and continuing to travel.
             stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
-            currentPixel += 1;
+            ++currentPixel;
 
             // Are we nearer the last inflection than the next inflection? If so, speed up. Otherwise, slow down.
-            int nextUpdateInterval = (currentPixel >= (lastInflection + nextInflection) / 2) ? (updateInterval + ACCELERATION_RATE_IN_MS_PER_PIXEL) : (updateInterval - ACCELERATION_RATE_IN_MS_PER_PIXEL);
+/*            int updateInterval = (currentPixel >= (lastInflection + nextInflection) / 2) 
+                                                      ? (updateInterval + ACCELERATION_RATE_IN_MS_PER_PIXEL) 
+                                                      : (updateInterval - ACCELERATION_RATE_IN_MS_PER_PIXEL); */
+            if (currentPixel >= (lastInflection + nextInflection) / 2) {
+                updateInterval += ACCELERATION_RATE_IN_MS_PER_PIXEL;
+            } else {
+                updateInterval -= ACCELERATION_RATE_IN_MS_PER_PIXEL;              
+            }
+            
             if (updateInterval < 1) {
                 updateInterval = 1;
             } else if (updateInterval > SPRITE_STARTING_DELAY_INTERVAL_IN_MS) {
                 updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
             }
-            
-            updateInterval = updateInterval >= 1 ? updateInterval : 1;
 
             // Transition from travel mode to scanning.
             if (currentPixel >= nextInflection) {
@@ -660,13 +667,13 @@ int sensor1LastPollTime = millis();
 void loop() {
     if (! isBooted) {
         if (! testSpritesCreated) {
-            spriteManager->Add(new W1V1Sprite(10, 0x750787));
+ /*           spriteManager->Add(new W1V1Sprite(10, 0x750787));
             spriteManager->Add(new W1V1Sprite( 8, 0x004dff));
             spriteManager->Add(new W1V1Sprite( 6, 0x008026));
             spriteManager->Add(new W1V1Sprite( 4, 0xffed00));
             spriteManager->Add(new W1V1Sprite( 2, 0xff8c00));
             spriteManager->Add(new W1V1Sprite( 0, 0xe40303));
-
+*/
             testSpritesCreated = true;
         }
 
@@ -676,11 +683,6 @@ void loop() {
             isBooted = true;
         }
 
-        return;
-    }
-
-    // (A) JOSH: Remove this when you have the switches working to your heart's content.
-    if (random(0, 1000) == 0) {
         Sprite *s = new W8V1ScannerDebrisV1Sprite();
         
         bool added = spriteManager->Add(s);
@@ -688,7 +690,20 @@ void loop() {
         if (! added) {
             delete s;  
         }
+
+        return;
     }
+
+    // (A) JOSH: Remove this when you have the switches working to your heart's content.
+/*    if (random(0, 1000) == 0) {
+        Sprite *s = new W8V1ScannerDebrisV1Sprite();
+        
+        bool added = spriteManager->Add(s);
+
+        if (! added) {
+            delete s;  
+        }
+    } */
     // End (A).
 
     if (sensor1->IsActuated()) {
