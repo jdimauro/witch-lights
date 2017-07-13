@@ -5,7 +5,7 @@
 #endif
 
 #define NUM_LEDS            750
-#define MAXSPRITES           10
+#define MAXSPRITES            4
 
 #define NUM_COLORSETS         5
 #define NUM_COLORS_PER_SET    9
@@ -25,7 +25,7 @@
 #define SCANNER_MIN_STOP_DISTANCE    40   // This probably shouldn't be smaller than 40. If it is scanners may get stuck in place if they don't have enough "exit velocity".
 #define SCANNER_MAX_STOP_DISTANCE    120
 
-#define SPRITE_STARTING_DELAY_INTERVAL_IN_MS   60
+#define SPRITE_STARTING_DELAY_INTERVAL_IN_MS   40
 #define SCANNER_DELAY_INTERVAL_IN_MS           10
 
 // For testing use only. In production, set this equal to 1. Use this to exaggerate the acceleration effects. 10-20 is good for testing.
