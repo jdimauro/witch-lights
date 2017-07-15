@@ -10,7 +10,7 @@ The documentation and code are currently under construction, so they may change 
 
 This project creates a set of [ghostly lights][vid0], which come out of the woods when you approach them and jump from tree to tree. 
 
-![Firefly 2017](https://media.giphy.com/media/ZFvRUdy5KhUXu/giphy.gif)
+![Firefly 2017](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-firefly2017-0.gif)
 
 ![Animation Demo 1](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/witchlights_firefly2016.gif)
 
