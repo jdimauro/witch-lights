@@ -39,21 +39,37 @@ At the beginning and end of the installation are passive infrared (PIR) motion s
 
 At Firefly 2017, I deployed two sets of Witch Lights along half the length of _John from Train St._, a dark and windy path in the Bethel, VT woods. 
 
+### Documentation
+
+[Here is a video of the Witch Lights in action at Firefly 2017][vid3].
+
+[vid3]: https://vimeo.com/225143068
+
+All credit for photos and video go to Steve Pomeroy, who graciously agreed to help document the project this year. 
+
+![No Parking in the woods](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-firefly2017-0.jpg)
+
+![Firefly 2017](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-firefly2017-1.jpg)
+
+![More Firefly 2017](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-firefly2017-3.jpg)
+
+![Further Firefly 2017](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-firefly2017-6.jpg)
+
 ### Improvements
 
-This installation of the lights included an all-new, object-oriented build of the software, which allowed for animating an arbitrary number of faerie sprites at once. Also, in the year since Firefly 2016, I hunted down and fixed the bug that caused the motion sensors to malfunction that year. 
+This installation of the lights included an all-new, object-oriented build of the software, which allowed for animating an arbitrary number of faerie sprites at once, in a range of five colors. Also, in the year since Firefly 2016, I hunted down and fixed the bug that caused the motion sensors to malfunction that year. 
 
 The result was that, as you walked down the path, a faerie sprite would pace you, sometimes zipping ahead, and then pausing to flicker while you caught up. The effect was magical. 
+
+### Challenges
+
+The weather forecast for Bethel, VT was for rain all night on two nights of the festival, at times when I really wanted the Witch Lights running. So the week prior to Firefly, I applied waterproofing putty to all of the 3D-printed joints. I am proud to say that the weatherproofing was successful, and the Witch Lights continued to run for their usual 6 hours (the length of a battery charge) in the rain, with no leaks or short circuits. 
 
 ### Reception
 
 I admit to being a royal pest at Firefly, starting conversations by asking if people had seen the lights. By way of apology, I can only say that after the year's hard work paid off with an installation that matched the original vision of the project, I wanted to share that vision with everyone I could. 
 
-My favorite 
-
-[Here is a video of the Witch Lights in action at Firefly 2017][vid3].
-
-[vid3]: https://vimeo.com/225143068
+My favorite story of an experience with the Witch Lights was an acquaintance who told me she had lucid dreams of the faerie light sprites leading her through the woods at night. 
 
 ## Firefly 2016
 
@@ -68,6 +84,7 @@ The Witch Lights were exhibited at the Firefly Art Festival in Vermont, from Jun
 The lights were installed on a winding path through the woods, near the rear entrance to Library Camp. 
 
 ![Electronics package and beginning of LED strips](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-firefly2016-0.jpg)
+
 
 The lights wound up around a tree, and then snaked through a tree stump.
 
@@ -91,10 +108,6 @@ The reaction to the Witch Lights was hugely enthusiastic and positive. Many atte
 
 This is an advanced project. It involves building a weather resistant wire rig with 3D-printed sensor housings, which itself requires a great deal of soldering, assembly, cable pulling, and testing. The modular nature of the design means you will have to take your intended installation environment into account and make your own decisions about the length and number of LED strips and connectors you plan to use. 
 
-### Important Caveat
-
-Even though the rig is designed to be weather resistant, it has not yet been tested in heavy rain or other wet conditions! Please take care and consider that this project uses electricity outdoors. **Proceed at your own risk.** 
-
 ## Bill of Materials
 
 Components: 
@@ -103,15 +116,19 @@ Components:
 * [Heat-Shrink, 1/4"](http://www.mouser.com/ProductDetail/3M-Electronic-Specialty/EPS300-1-4-48-Black-Bulk/)
 * [Heat-Shrink, 1/2" (optional)](http://www.mouser.com/ProductDetail/3M/FP301-1-2-48-Clear-Bulk/)
 * [Ribbon Cable, 100' spool](http://www.mouser.com/ProductDetail/Amphenol-Spectra-Strip/135-2801-010/)
+* [Hookup wire, 18AWG solid-core, red](https://smile.amazon.com/Frey-Scientific-581181-Conductor-Coated/dp/B00FGDV8HU) and [black](https://smile.amazon.com/Remington-Industries-20UL1007SLDBLA-Hook-Up-Diameter/dp/B010T6075W/), 100' spool each
 * [Hookup wire, 22AWG, various colors](https://www.adafruit.com/products/1311)
 * [M3 socket-head machine screws, 8mm length](http://www.mcmaster.com/#socket-head-cap-screws/=10zugcn "McMaster-Carr") (box 100)
 * [Heyco 8452 3/4" conduit](http://amazon.com/Heyco-8452-BLACK-LIQUID-TUBING/dp/B001BQ029G/) (100' spool)
-* [PIR Motion Sensor](https://www.adafruit.com/products/189) (2)
-* [micro-USB power adapter](https://www.adafruit.com/products/1995)
+* [PIR Motion Sensor](https://www.adafruit.com/products/189) (1)
+* [Seeed Studio low-power Motion Sensor](http://wiki.seeed.cc/PIR_Motion_sensor_module/) (1)
+* 3D-Printed `wl-pir.STL` PIR sensor enclosure (1)
+* 3D-Printed `wl-nopir.STL` terminal board enclosures (varies according to the length of the installation you want to build)
+* 3D-Printed `wl-seeedpir-terminus.STL` PIR sensor enclosure (1)
 
 Arduino Enclosure components:
 
-* [Arduino Due](https://www.adafruit.com/products/1076)
+* [Arduino Due](https://www.adafruit.com/products/1076) Note: An Arduino Mega _will not_ work. The current build uses too much RAM for the Mega. 
 * [Waterproof Enclosure (Large)](https://www.adafruit.com/products/905)
 * 3D-Printed `wl-arduino-mount.STL` circuit board mount
 * M3 machine screw, 20mm (?)
@@ -211,7 +228,7 @@ Instead, I recommend a slightly more complex configuration as the simplest possi
 
 ![3D Printing Instructions Figure 2](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-3dprint-fig2.png)
 
-To make this configuration, you will need two `wl-pir.stl` enclosures, one `wl-nopir.stl` enclosure, and one `wl-terminus.stl` enclosure. This will space out the sensors and make it so that they trigger at the right times, making the lights chase back and forth between the sensors. 
+To make this configuration, you will need two `wl-pir.stl` enclosures, one `wl-nopir.stl` enclosure, and one `wl-seeedpir-terminus.stl` enclosure. This will space out the sensors and make it so that they trigger at the right times, making the lights chase back and forth between the sensors. 
 
 Please see the second video in the Overview section if you want to see what this configuration looks like in the wild. 
 
@@ -490,6 +507,8 @@ Once you've got your conduit set, it's time to pull ribbon cable through it. You
 
 Extend your cable snake into the conduit and keep unreeling it until it pokes through the far end of the conduit. Then your friend can pinch the cable and stuff it through the little hole on the end of the cable snake, or use tape to attach it. Now have your friend put your wooden dowel through the hole in the ribbon cable spool, and hold either end of the dowel as you _slowly and carefully_ reel in the cable, until the cable pokes out of the conduit on your end. Pull about 4-5 inches of ribbon past the end of the cable, and then cut the ribbon cable on the other end, also with about 4-5 inches of extra. 
 
+Repeat this process with the 20 AWG solid core red and black wires, for the power harness.
+
 Decide which way you plan to orient the conduit, and then use a label printer or tape and a marker to mark an arrow → pointing _away_ from the Arduino enclosure. 
 
 Since this is the first conduit, connect the PIR sensor housing to the far end. Slide the conduit and ribbon cable through one of the holes on the housing. Doesn't matter which one. Carefully thread the ribbon cable through the hole in one of the silicone washers and the screw-on cap, and use your fingers to tighten those down as hard as you can. You'll probably end up holding the connector in one hand and twisting the dome-like cap on the conduit connector in the other hand. 
@@ -502,7 +521,7 @@ The next conduit you want to assemble is the other PIR sensor. Give this one a g
 
 Now you may see how this is a modular system; these conduit segments may be arranged in any configuration, so long as they form an unbroken chain from the Arduino to the final PIR sensor. 
 
-Next, we will install terminal boards in the 3D-printed enclosures, and we will strip and attach the ribbon cable to the terminals on those boards. 
+Next, we will install terminal boards in the 3D-printed enclosures, and we will strip and attach the ribbon cable and power cables to the terminals on those boards. 
 
 ### Terminal boards
 
@@ -572,7 +591,7 @@ At the last terminal board, connect the yellow wire to the PIR sensor. Do a cont
 
 Final checks: 
 
-Check all the ground and power lines to make sure they aren't shorted anywhere down the line. Test the final terminal board against the arduino enclosure. If there are no shorts, turn on the power. Check the power terminals on the final board; it should show 5 volts. 
+Check all the ground and power lines to make sure they aren't shorted anywhere down the line. Test the final terminal board against the arduino enclosure. If there are no shorts, turn on the power. Check the power terminals on the final board; it should show between 5 and 3.5 volts. Preferably 5 if there are no NeoPixel strips attached yet. 
 
 ### Connect NeoPixels
 
