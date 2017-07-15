@@ -104,6 +104,12 @@ The lights terminated by ducking behind a tree, so that they appear to hide behi
 
 The reaction to the Witch Lights was hugely enthusiastic and positive. Many attendees reported stopping and watching the lights, entranced, on their way through the path. Firefly's location feels like a magical forest, and the addition of a purple faerie that leads you down one of the paths felt like a natural thing to encounter in the dark. 
 
+*** 
+
+# How-To
+
+What follows is as complete a set of documentation and assembly instructions as I have been able to compile so far. 
+
 ## Challenges
 
 This is an advanced project. It involves building a weather resistant wire rig with 3D-printed sensor housings, which itself requires a great deal of soldering, assembly, cable pulling, and testing. The modular nature of the design means you will have to take your intended installation environment into account and make your own decisions about the length and number of LED strips and connectors you plan to use. 
@@ -390,6 +396,8 @@ Use the reel tester after you solder cable to every NeoPixel strip, then roll up
 ## Software
 
 The current iteration of the software is in the directory marked `witch-lights-classic`. This code successfully handles two PIR sensors and will trigger a different sprite animation when one or the other sensor is tripped. 
+
+New software has been written by intrepid C++ coder James Cronen. It can be found on the `feature/2017-accel` branch. The sketch you will want is `fastled_w4v2_reimpl.ino`. I have not yet updated the documentation for this branch, as it is still experimental. The last commit to this branch occurred at midnight, less than a full day before I was due to leave for Firefly 2017. Feel free to check this build out and experiment with it. I will update the documentation when the bug hunting is farther along. 
 
 ### Required Libraries
 
