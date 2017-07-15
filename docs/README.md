@@ -411,6 +411,8 @@ If the Arduino is properly wired to its terminal board, you should be able to us
 
 Once you have an animation running, you can adjust the variables in the code to tune the speed and frequency of the animation. All of the variables you need to adjust are declared at the beginning of the file: 
 
+#### Disclaimer! The following documentation only applies to the `witch-lights-classic.ino` build of the software. The newest build uses different constants to perform much the same functions.
+
 `N_LEDS`: Each NeoPixel strip has 150 LEDs. Change this value to equal the total number of LEDs in your project. 
 IMPORTANT: As you increase the number of LEDs past 150, the animation speed will slow, and you will have to reduce the "interval" variable to compensate.
 
