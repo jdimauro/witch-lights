@@ -18,16 +18,12 @@ This project creates a set of [ghostly lights][vid0], which come out of the wood
 
 Imagine: as you walk through the unlit path, a tiny purple faerie jumps out of the underbrush, coiling about trees and floating overhead. It zips ahead of you, but pauses, flickering, while you catch up. It then takes off again, remaining always just out of reach, until you reach the end of their territory, where they vanish back into the woods. As you pass by where they disappeared, the lights jump out again, heading back the other way, daring you to chase them.
 
-<iframe src="https://player.vimeo.com/video/153011114" width="500" height="889" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe> 
-
 [Here is a video][vid1] of an installation of the lights using a single five-meter LED strip (taken at twilight so that the hardware is visible):
 
 [vid0]: https://vimeo.com/153011114#t=2s
 [vid1]: https://vimeo.com/153011829
 
 ![Proof of Concept - Firefly 2015](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-poc-firefly1.gif)
-
-<iframe src="https://player.vimeo.com/video/153011829" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe> 
 
 The design of the lighting system is modular, so it can be used with any length of NeoPixel strip. The current configuration of the project uses five 30 pixel-per-meter NeoPixel strips, each one five meters long, for a total of 750 pixels. 
 
