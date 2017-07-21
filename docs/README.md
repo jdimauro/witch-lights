@@ -12,22 +12,14 @@ This project creates a set of [ghostly lights][vid0], which come out of the wood
 
 ![Firefly 2017](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-firefly2017-1.gif)
 
-![Animation Demo 1](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/witchlights_firefly2016.gif)
-
-![Animation Demo 2](https://media.giphy.com/media/bTTCN5060PrCU/giphy.gif)
-
 Imagine: as you walk through the unlit path, a tiny purple faerie jumps out of the underbrush, coiling about trees and floating overhead. It zips ahead of you, but pauses, flickering, while you catch up. It then takes off again, remaining always just out of reach, until you reach the end of their territory, where they vanish back into the woods. As you pass by where they disappeared, the lights jump out again, heading back the other way, daring you to chase them.
-
-[Here is a video][vid1] of an installation of the lights using a single five-meter LED strip (taken at twilight so that the hardware is visible):
 
 [vid0]: https://vimeo.com/153011114#t=2s
 [vid1]: https://vimeo.com/153011829
 
-![Proof of Concept - Firefly 2015](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-poc-firefly1.gif)
-
 The design of the lighting system is modular, so it can be used with any length of NeoPixel strip. The current configuration of the project uses five 30 pixel-per-meter NeoPixel strips, each one five meters long, for a total of 750 pixels. 
 
-As you can see in the above video, the design uses waterproof conduit, connected to custom, modular connectors, which house the sensors and connect the NeoPixel strips to their power and data lines. 
+The design uses waterproof conduit, connected to custom, modular connectors, which house the sensors and connect the NeoPixel strips to their power and data lines. 
 
 At the beginning and end of the installation are passive infrared (PIR) motion sensors, which trigger the lights to appear and then zip away in the opposite direction of the triggered sensor. 
 
