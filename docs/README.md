@@ -240,7 +240,7 @@ If you want to lengthen the lights, just add another `wl-nopir.stl` enclosure to
 
 ![3D Printing Instructions Figure 3](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-3dprint-fig3.png)
 
-For each installation you build, you will want one `wl-pir.stl` enclosure, one `wl-terminus.stl` enclosure, and one more `wl-nopir.stl` enclosure than the number of NeoPixel strips. 
+For each installation you build, you will want one `wl-pir.stl` enclosure, one `wl-seeedpir-terminus.stl` enclosure, and one more `wl-nopir.stl` enclosure than the number of NeoPixel strips. 
 
 If you want to make things a bit more complex (why not?), you can space out the NeoPixel strips with areas of blank conduit, which will lengthen the area you can cover with the lights, like so: 
 
