@@ -90,6 +90,8 @@ void loop()                      // special function
       dir = -1;
       // we have just turned on
       chase(0x633051);
+      // chase(0x0A0AFF);
+
       // We only want to print on the output change, not state
       pir1State = HIGH;
       dir = 1;

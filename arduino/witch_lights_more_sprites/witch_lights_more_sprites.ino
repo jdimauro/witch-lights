@@ -7,7 +7,7 @@
 // JOSH: FEEL FREE TO EDIT CONSTANT VALUES HERE...
 
 // Hardware configuration.
-#define N_LEDS              750               // 30/meter test reel    
+#define N_LEDS              30               // 30/meter test reel    
 
 #define LED_PIN              13
 #define NEOPIXEL_DATA_PIN    6                // Pin for neopixels
