@@ -92,6 +92,26 @@ The lights terminated by ducking behind a tree, so that they appear to hide behi
 
 The reaction to the Witch Lights was hugely enthusiastic and positive. Many attendees reported stopping and watching the lights, entranced, on their way through the path. Firefly's location feels like a magical forest, and the addition of a purple faerie that leads you down one of the paths felt like a natural thing to encounter in the dark. 
 
+## Challenges Encountered
+
+The scale of the fully realized project pushed me to overcome a set of design problems at the level of electronics, manufacture, assembly, deployment, and software. Here are some examples of problems overcome in the progress of building the Witch Lights. 
+
+### Electronics Example: PIR Sensors
+
+When I first installed the first build of the Witch Lights, it was at less than half scale: I only had time to complete two segments of the harness. At that scale, both motion sensors plus 300 NeoPixels worked fine together, and the `witch-lights-classic.ino` software successfully animated a sprite that you could chase back and forth from sensor to sensor. 
+
+It turns out, however, that when you extend the length of the harness to 25 meters, and install five five-meter NeoPixel strips, the power requirements of the NeoPixels plus the resistance in the power lines I had used dropped the voltage available at the sensors from 5V to 3.5V. And the sensors malfunctioned at that voltage, registering a permanent `HIGH` on their data pins, and so the Witch Lights animated in a loop from one direction, over and over. The `witch-lights-classic.ino` software could only draw one sprite at a time, so at Firefly 2016 that's what attendees found: a single animated sprite, running over and over in one direction. Pretty, but not what I wanted. 
+
+At first, I blamed the cheap PIR sensors, and replaced the sensor I thought was malfunctioning. Afterwards, I made the mistake of testing the newly installed sensor with no LEDs connected. It worked fine. That mistake taught me to fully deploy the Witch Lights before testing motion sensors. 
+
+When the lights malfunctioned again in a full scale test (at which point they had taken over the stairs, hallway, and living room of my house), I decided to test the harness with a multimeter. That revealed the voltage drop for the PIR sensors. 
+
+The fix was a different PIR sensor, sourced from [SeeedStudio](https://www.seeedstudio.com), which runs fine at 3V. That, in turn, required a full redesign of the 3D-printed sensor housing to fit the unusual geometry of the new PIR sensor. 
+
+(Embarassingly, the new housing design failed at Firefly 2017, dropping the PIR sensor into the housing, forcing me to do some makeshift repairs in the woods, at night, using a flashlight and a multitool.) 
+
+The new PIR sensors were a complete success, and both the 25 meter and the 20 meter harnesses worked perfectly at Firefly 2017. 
+
 *** 
 
 # How-To
@@ -101,6 +121,12 @@ What follows is as complete a set of documentation and assembly instructions as 
 ## Challenges
 
 This is an advanced project. It involves building a weather resistant wire rig with 3D-printed sensor housings, which itself requires a great deal of soldering, assembly, cable pulling, and testing. The modular nature of the design means you will have to take your intended installation environment into account and make your own decisions about the length and number of LED strips and connectors you plan to use. 
+
+
+
+### Important Caveat
+
+Please take care and consider that this project uses electricity outdoors. **Proceed at your own risk.** 
 
 ## Bill of Materials
 
