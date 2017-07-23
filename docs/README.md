@@ -102,7 +102,7 @@ When I first installed the first build of the Witch Lights, it was at less than 
 
 It turns out, however, that when you extend the length of the harness to 25 meters, and install five five-meter NeoPixel strips, the power requirements of the NeoPixels plus the resistance in the power lines I had used dropped the voltage available at the sensors from 5V to 3.5V. And the sensors malfunctioned at that voltage, registering a permanent `HIGH` on their data pins, and so the Witch Lights animated in a loop from one direction, over and over. The `witch-lights-classic.ino` software could only draw one sprite at a time, so at Firefly 2016 that's what attendees found: a single animated sprite, running over and over in one direction. Pretty, but not what I wanted. 
 
-At first, I blamed the cheap PIR sensors, and replaced the sensor I thought was malfunctioning. Afterwards, I made the mistake of testing the newly installed sensor with no LEDs connected. It worked fine. That mistake taught me to fully deploy the Witch Lights before testing motion sensors. 
+At first, I blamed the cheap PIR sensors, and replaced the sensor I thought was malfunctioning. Afterwards, I made the mistake of testing the newly installed sensor with no LEDs connected. It worked fine. (That mistake, only revealed later, taught me to fully deploy the Witch Lights before testing motion sensors.)
 
 When the lights malfunctioned again in a full scale test (at which point they had taken over the stairs, hallway, and living room of my house), I decided to test the harness with a multimeter. That revealed the voltage drop for the PIR sensors. 
 
