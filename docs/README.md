@@ -122,8 +122,6 @@ What follows is as complete a set of documentation and assembly instructions as 
 
 This is an advanced project. It involves building a weather resistant wire rig with 3D-printed sensor housings, which itself requires a great deal of soldering, assembly, cable pulling, and testing. The modular nature of the design means you will have to take your intended installation environment into account and make your own decisions about the length and number of LED strips and connectors you plan to use. 
 
-
-
 ### Important Caveat
 
 Please take care and consider that this project uses electricity outdoors. **Proceed at your own risk.** 
