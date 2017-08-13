@@ -315,11 +315,26 @@ The 74AHCT125 chip is installed so that the little "U" cutout faces to the right
 
 (TODO: detail shot of 74HCT125 chip)
 
+
+### Power
+
+Once the Perma-Proto board is wired up like in the photo above, it's time to attach the 4700uF capacitor, and the 2.1mm power connector. 
+
+(TODO: Get current photo of capacitor and power connector on perma-proto board)
+
+Wire up the 5V power supply from the battery board to the 2.1mm connector on the arduino circuit board. Optional power switch installed in the side would go between the power line from the battery board and the arduino circuit board. 
+
+### Connect Arduino Due to Interface Board
+
 It's time to connect the Arduino Interface Board with the Arduino Due itself. We're going to use the 20" M3 screw and stand-offs to mount the board underneath the Arduino. 
 
-(TODO: detail shots of the Arduino mounted to the interface board)
+Install hookup wire into the interface board's screw terminals as shown: 
 
-Use hookup wire to connect the arduino's headers to the top part of the circuit board as follows:
+![Arduino Due attached to the interface board with wires installed](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-ard-proto2.jpg)
+
+Once the wires are installed in the terminal board, rotate the arduino, and use your wire strippers to trim the wires to length and insert stripped ends into the Arduino's headers: 
+
+![Arduino Due with wires installed in the headers](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-ard-proto3.jpg)
 
 * Connect the *red* terminal (power) to the "5V" pin
 * Connect the *rightmost white* terminal (NeoPixel data) to digital pin 6 (refer to the detail photo above)
@@ -329,15 +344,6 @@ Use hookup wire to connect the arduino's headers to the top part of the circuit 
 
 **Be certain to wire the data line from pin 6 to the indicated terminal in the photo, and connect the white data line cable to the other indicated terminal on the other side; if you hook them up incorrectly, the NeoPixels will light up erratically or not at all.** 
 
-(TODO: detail shot of the Arduino hooked up to the circuit board)
-
-### Power
-
-Once the Perma-Proto board is wired up like in the photo above, it's time to attach the 4700uF capacitor, and the 2.1mm power connector. 
-
-(TODO: Get current photo of capacitor and power connector on perma-proto board)
-
-Wire up the 5V power supply from the battery board to the 2.1mm connector on the arduino circuit board. Optional power switch installed in the side would go between the power line from the battery board and the arduino circuit board. 
 
 ### Terminal Boards
 
