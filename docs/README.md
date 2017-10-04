@@ -303,12 +303,12 @@ This part of the project has four steps:
 
 The Arduino Due is a 3.3v microcontroller, but the NeoPixels need 5v on the data line. So we'll need to use a logic level shifter, which will take the data signals sent by pin 6 of the arduino and amp them up to 5 volts. 
 
-And since we're using ribbon cable to send the power and data signals down the length of the installation, we probably want to use screw terminals to connect those wires to the arduino. 
+And since we're using hookup wire and ribbon cable to send the power and data signals down the length of the installation, we probably want to use screw terminals to connect those wires to the arduino. 
 
 Therefore, you're going to need to make a circuit board for the Arduino Due so it can talk to the NeoPixels and hook up to the ribbon cable. 
 
 ![Witch Lights - Arduino Interface Board](https://raw.githubusercontent.com/jdimauro/witch-lights/master/docs/wl-ard-proto.png)
-
+	1
 Use an Adafruit Perma-Proto Half-Size board and solder a pair of 10-pin screw terminals to it, and wire it up as shown in the photograph above. 
 
 The 74AHCT125 chip is installed so that the little "U" cutout faces to the right of the board, matching the little "U" cutout in the socket. 
@@ -343,6 +343,8 @@ Once the wires are installed in the terminal board, rotate the arduino, and use 
 * Connect the *black* terminal (ground) to the "GND" pin
 
 **Be certain to wire the data line from pin 6 to the indicated terminal in the photo, and connect the white data line cable to the other indicated terminal on the other side; if you hook them up incorrectly, the NeoPixels will light up erratically or not at all.** 
+
+The Arduino Due and Interface Board assembly is ready to be installed in the enclosure. Set the assembly aside for now. 
 
 
 ### Terminal Boards
