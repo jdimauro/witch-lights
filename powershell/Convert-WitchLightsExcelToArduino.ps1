@@ -8,6 +8,20 @@
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
+Param
+(
+    # Specifies path to excel file
+    [Parameter(ValueFromPipelineByPropertyName=$true,
+                Position=0,
+                Mandatory=$true)]
+    [alias('Excel','File')]
+    $PathToFile,
+
+    # Specifies a name for the animation pattern generated
+    [Parameter(Mandatory=$true)]
+    [string]$animationName
+)
+
 function Convert-ExcelToArduino
 {
     [CmdletBinding()]
@@ -16,13 +30,14 @@ function Convert-ExcelToArduino
     (
         # Specifies path to excel file
         [Parameter(ValueFromPipelineByPropertyName=$true,
-                   Position=0)]
+                   Position=0,
+                   Mandatory=$true)]
         [alias('Excel','File')]
-        $PathToFile = "C:\Users\jdimauro\Documents\GitHub\witch-lights\animations\1-classic-scanner.xlsx",
+        $PathToFile,
 
-        # Param2 help description
-        [int]
-        $Param2
+        # Specifies a name for the animation pattern generated
+        [Parameter(Mandatory=$true)]
+        [string]$animationName
     )
 
     Begin
@@ -42,29 +57,116 @@ function Convert-ExcelToArduino
     {
         # Loop through the rows of $animationImport and for each row, use $animationImport[3].$property by looping from 1 to
         # $AnimationFrameWidth and making $property = "P$i"
-        $animationValues = Foreach ($animationFrame in $animationImport)
+
+        # Array to hold a list of animation frame arrays
+        [array]$animationArray
+
+        Foreach ($animationFrame in $animationImport)
         {
-            # add strcpy and strcat to beginnings of strings
+            # Array to hold each animation frame
+            $animationFrameArray = New-Object System.Collections.Generic.List[System.Object]
 
-            # 
-
-            # loop through each property of the animation frame, starting at row 2 (the first row with animation data)
-            for ($i = 2; $i -le $AnimationFrameWidth; $i++)
+            # loop through each property of the animation frame
+            for ($i = 1; $i -le $AnimationFrameWidth; $i++)
             {
-                $property = "P$i"
-                $animationFrame.$property
 
+                $property = "P$i"
+
+                # Use an if statement to check if the property is blank. If so, return a space " "
+
+                if ($animationFrame.$property -eq $null)
+                {
+                    # Write-Host "`'$($animationFrame.$property)`'"
+                    $animationFrameArray.Add(" ")
+                    # pause
+                } 
+                else 
+                {
+                    $animationFrameArray.Add($animationFrame.$property.tostring())
+                }
             }
+
+            # Check that the return array does have the correct number of values
+            if ($animationFrameArray.count -ne $AnimationFrameWidth)
+            {
+                Write-Error "`$animationFrameArray should have $animationFrameWidth entries, but instead it has $($animationFrameArray.count)."
+                break
+            }
+            else
+            {
+                # Append the animation array to the full output array
+                $animationArray += , $animationFrameArray
+            }
+
+            # Debug entries
+            # $animationArray.count
+            # pause
+            # $animationArray
+            # pause
         }
-        $animationValues
+
+        # $animationArray
+
+        if ($animationArray.Count -ne $AnimationFrameCount)
+        {
+            Write-Error "`$animationArray should contain $AnimationFrameCount entries, but instead contains $($animationArray.Count) entries"
+            break
+        }
+
+        [array]$animationOutputArray
+        
+        Foreach ($array in $animationArray)
+        {
+            [string]$animationOutputFrameString = $array -join ""
+            $animationOutputArray += , $animationOutputFrameString
+        }
+
+        # $animationOutputArray
+        # pause
+
+        $animationOutputArrayIndex = 0
+        
+        [array]$animationArduinoOutputArray
+
+        Foreach ($string in $animationOutputArray)
+        {
+            if ($animationOutputArrayIndex -eq 0)
+            {
+                $stringSpacePrepend = (" " * $animationName.Length)
+
+                # Prepend "//                     " to string
+                $string = "//                 " + $stringSpacePrepend + $string
+
+                $animationArduinoOutputArray += , $string.tostring()
+
+                $animationOutputArrayIndex++
+            } 
+            elseif ($animationOutputArrayIndex -eq 1)
+            {
+                # Prepend '     strcpy(afc_w8v1, "' to string
+                # Append  '");' to string
+                $string = "     strcpy(afc_$animationName, `"" + $string + "`");"
+
+                $animationArduinoOutputArray += , $string.tostring()
+                $animationOutputArrayIndex++
+            }
+            else
+            {
+                $string = "     strcat(afc_$animationName, `"" + $string + "`");"
+                $animationArduinoOutputArray += , $string.tostring()
+            }
+
+        }
+        $animationArduinoOutputArray
+
     }
     End
     {
-        #
+        # 
     }
 }
 
-Convert-ExcelToArduino
+Convert-ExcelToArduino $PathToFile -animationName $animationName
 
 <#
     Scanner animation example:
@@ -92,6 +194,7 @@ Convert-ExcelToArduino
     strcat(afc_w8v1, "1   456788             ");
     strcat(afc_w8v1, "    3456788            ");
     strcat(afc_w8v1, "    23456788           ");
+
     strcat(afc_w8v1, "    123456788          ");
     strcat(afc_w8v1, "     123456788         ");
     strcat(afc_w8v1, "      123456788        ");
