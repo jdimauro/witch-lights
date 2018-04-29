@@ -199,6 +199,8 @@ class SpriteVector {
 
 // TODO: create new Sprite class with input functions for color (select which entry in the color array), acceleration factor (0-5; 1 means subtract 1ms per animation frame, ask Jim if this takex floats?), scanner min and max distance, start speed (like delay function), start position?
 
+// TODO: maybe just create named sprites with different scanner patterns first?
+
 class W8V1ScannerDebrisV1Sprite : public Sprite {
   private:
     int updateInterval;
