@@ -1,4 +1,4 @@
-//                            12345678901234567890
+//                            ﻿12345678901234567890
 strcpy(afc_2-matrix-sparkle, "          8         ");
 strcat(afc_2-matrix-sparkle, "          7         ");
 strcat(afc_2-matrix-sparkle, "          6 8       ");
