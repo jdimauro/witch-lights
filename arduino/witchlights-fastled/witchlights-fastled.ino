@@ -34,6 +34,20 @@
 #define ANIMATION_FRAME_WIDTH     23
 #define ANIMATION_FRAMES          28
 
+// this is obviously a temporary hack, we don't want to have to specify constants for every single animation at the start, do we?
+
+#define SPARKLE_ANIMATION_FRAME_WIDTH 23
+#define SPARKLE_ANIMATION_FRAMES      46
+
+#define ZOOMIE_ANIMATION_FRAME_WIDTH  200
+#define ZOOMIE_ANIMATION_FRAMES       37
+
+#define TIMINGTEST_ANIMATION_FRAME_WIDTH  58
+#define TIMINGTEST_ANIMATION_FRAMES       26
+
+
+
+
 // ...TO HERE.
 
 // Array representing the strip.
@@ -58,6 +72,17 @@ CRGB af_w8v1[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
 
 char afc_w8v1r[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
 CRGB af_w8v1r[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
+
+char afc_timing_test[TIMINGTEST_ANIMATION_FRAME_WIDTH * TIMINGTEST_ANIMATION_FRAMES];
+CRGB af_timing_test[TIMINGTEST_ANIMATION_FRAME_WIDTH * TIMINGTEST_ANIMATION_FRAMES];
+
+char afc_2_sparkle_a[SPARKLE_ANIMATION_FRAME_WIDTH * SPARKLE_ANIMATION_FRAMES];
+CRGB af_2_sparkle_a[SPARKLE_ANIMATION_FRAME_WIDTH * SPARKLE_ANIMATION_FRAMES];
+
+char afc_zoomie_intro[ZOOMIE_ANIMATION_FRAME_WIDTH * ZOOMIE_ANIMATION_FRAMES];
+CRGB af_zoomie_intro[ZOOMIE_ANIMATION_FRAME_WIDTH * ZOOMIE_ANIMATION_FRAMES];
+
+
 
 // Function prototypes.
 void resetStrip(void);
@@ -200,6 +225,8 @@ class SpriteVector {
 // TODO: create new Sprite class with input functions for color (select which entry in the color array), acceleration factor (0-5; 1 means subtract 1ms per animation frame, ask Jim if this takex floats?), scanner min and max distance, start speed (like delay function), start position?
 
 // TODO: maybe just create named sprites with different scanner patterns first?
+
+
 
 class W8V1ScannerDebrisV1Sprite : public Sprite {
   private:
@@ -951,118 +978,118 @@ void createAnimationFrames() {
     strcat(afc_w8v1r, "     887654321         ");
 
     //                       1234567890123456789012345678901234567890123456012345678901
-    strcpy(afc_timing-test, "123456788                                                 ");
-    strcat(afc_timing-test, "1234567888                                                ");
-    strcat(afc_timing-test, "  1234567888                                              ");
-    strcat(afc_timing-test, "     1234567888                                           ");
-    strcat(afc_timing-test, "       123456677888                                       ");
-    strcat(afc_timing-test, "        1223344556667788                                  ");
-    strcat(afc_timing-test, "         111122233344556667788                            ");
-    strcat(afc_timing-test, "              11111222233344556667788                     ");
-    strcat(afc_timing-test, "                   11111222333444555666788                ");
-    strcat(afc_timing-test, "                          1111112223344556788             ");
-    strcat(afc_timing-test, "                                 11111223456788           ");
-    strcat(afc_timing-test, "                                     11123456788          ");
-    strcat(afc_timing-test, "                                        1123467831        ");
-    strcat(afc_timing-test, "                                            12468531      ");
-    strcat(afc_timing-test, "                                             11386421     ");
-    strcat(afc_timing-test, "                                              1287543211  ");
-    strcat(afc_timing-test, "                                               18865432211");
-    strcat(afc_timing-test, "                                               886443211  ");
-    strcat(afc_timing-test, "                                              88765431    ");
-    strcat(afc_timing-test, "                                            4887654321    ");
-    strcat(afc_timing-test, "                                            4886421       ");
-    strcat(afc_timing-test, "                                            138831        ");
-    strcat(afc_timing-test, "                                            138831        ");
-    strcat(afc_timing-test, "                                            138831        ");
-    strcat(afc_timing-test, "                                            138831        ");
-    strcat(afc_timing-test, "                                            138831        ");
+    strcpy(afc_timing_test, "123456788                                                 ");
+    strcat(afc_timing_test, "1234567888                                                ");
+    strcat(afc_timing_test, "  1234567888                                              ");
+    strcat(afc_timing_test, "     1234567888                                           ");
+    strcat(afc_timing_test, "       123456677888                                       ");
+    strcat(afc_timing_test, "        1223344556667788                                  ");
+    strcat(afc_timing_test, "         111122233344556667788                            ");
+    strcat(afc_timing_test, "              11111222233344556667788                     ");
+    strcat(afc_timing_test, "                   11111222333444555666788                ");
+    strcat(afc_timing_test, "                          1111112223344556788             ");
+    strcat(afc_timing_test, "                                 11111223456788           ");
+    strcat(afc_timing_test, "                                     11123456788          ");
+    strcat(afc_timing_test, "                                        1123467831        ");
+    strcat(afc_timing_test, "                                            12468531      ");
+    strcat(afc_timing_test, "                                             11386421     ");
+    strcat(afc_timing_test, "                                              1287543211  ");
+    strcat(afc_timing_test, "                                               18865432211");
+    strcat(afc_timing_test, "                                               886443211  ");
+    strcat(afc_timing_test, "                                              88765431    ");
+    strcat(afc_timing_test, "                                            4887654321    ");
+    strcat(afc_timing_test, "                                            4886421       ");
+    strcat(afc_timing_test, "                                            138831        ");
+    strcat(afc_timing_test, "                                            138831        ");
+    strcat(afc_timing_test, "                                            138831        ");
+    strcat(afc_timing_test, "                                            138831        ");
+    strcat(afc_timing_test, "                                            138831        ");
     
     //                       12345678901234567890123
-    strcpy(afc_2-sparkle-a, "123456788              ");
-    strcat(afc_2-sparkle-a, " 123456788             ");
-    strcat(afc_2-sparkle-a, "  123456788            ");
-    strcat(afc_2-sparkle-a, "    12345677           ");
-    strcat(afc_2-sparkle-a, "     1234566           ");
-    strcat(afc_2-sparkle-a, "       123455          ");
-    strcat(afc_2-sparkle-a, "        12344          ");
-    strcat(afc_2-sparkle-a, "          1233         ");
-    strcat(afc_2-sparkle-a, "           122         ");
-    strcat(afc_2-sparkle-a, "             11        ");
-    strcat(afc_2-sparkle-a, "                       ");
-    strcat(afc_2-sparkle-a, "                1      ");
-    strcat(afc_2-sparkle-a, "                1  1   ");
-    strcat(afc_2-sparkle-a, "             1  21 2   ");
-    strcat(afc_2-sparkle-a, "             1  1  3   ");
-    strcat(afc_2-sparkle-a, "             21  1 4   ");
-    strcat(afc_2-sparkle-a, "             31 11 5   ");
-    strcat(afc_2-sparkle-a, "             42122 6   ");
-    strcat(afc_2-sparkle-a, "             51213 7   ");
-    strcat(afc_2-sparkle-a, "                       ");
-    strcat(afc_2-sparkle-a, "           1 71414 2  1");
-    strcat(afc_2-sparkle-a, "           2 51626271 1");
-    strcat(afc_2-sparkle-a, "        1  1 42837422 1");
-    strcat(afc_2-sparkle-a, "        2  2131428681  ");
-    strcat(afc_2-sparkle-a, "          13222813472  ");
-    strcat(afc_2-sparkle-a, "        2  2313428623 1");
-    strcat(afc_2-sparkle-a, "       1 1 14 2833472 2");
-    strcat(afc_2-sparkle-a, "        2   5 1628681 3");
-    strcat(afc_2-sparkle-a, "           16  41342  2");
-    strcat(afc_2-sparkle-a, "        2 127 122367  1");
-    strcat(afc_2-sparkle-a, "        1 23811 4846   ");
-    strcat(afc_2-sparkle-a, "       1  1262  6325  1");
-    strcat(afc_2-sparkle-a, "       1   183  62 4  2");
-    strcat(afc_2-sparkle-a, "        1   641 8123  3");
-    strcat(afc_2-sparkle-a, "        2  185143242  4");
-    strcat(afc_2-sparkle-a, "            64168161  5");
-    strcat(afc_2-sparkle-a, "           185 8314   4");
-    strcat(afc_2-sparkle-a, "           274 46 6   5");
-    strcat(afc_2-sparkle-a, "           36218614   4");
-    strcat(afc_2-sparkle-a, "           254244262  2");
-    strcat(afc_2-sparkle-a, "           147382144  1");
-    strcat(afc_2-sparkle-a, "           235261262   ");
-    strcat(afc_2-sparkle-a, "           327141145   ");
-    strcat(afc_2-sparkle-a, "           215 2 122   ");
-    strcat(afc_2-sparkle-a, "           1 7   216   ");
+    strcpy(afc_2_sparkle_a, "123456788              ");
+    strcat(afc_2_sparkle_a, " 123456788             ");
+    strcat(afc_2_sparkle_a, "  123456788            ");
+    strcat(afc_2_sparkle_a, "    12345677           ");
+    strcat(afc_2_sparkle_a, "     1234566           ");
+    strcat(afc_2_sparkle_a, "       123455          ");
+    strcat(afc_2_sparkle_a, "        12344          ");
+    strcat(afc_2_sparkle_a, "          1233         ");
+    strcat(afc_2_sparkle_a, "           122         ");
+    strcat(afc_2_sparkle_a, "             11        ");
+    strcat(afc_2_sparkle_a, "                       ");
+    strcat(afc_2_sparkle_a, "                1      ");
+    strcat(afc_2_sparkle_a, "                1  1   ");
+    strcat(afc_2_sparkle_a, "             1  21 2   ");
+    strcat(afc_2_sparkle_a, "             1  1  3   ");
+    strcat(afc_2_sparkle_a, "             21  1 4   ");
+    strcat(afc_2_sparkle_a, "             31 11 5   ");
+    strcat(afc_2_sparkle_a, "             42122 6   ");
+    strcat(afc_2_sparkle_a, "             51213 7   ");
+    strcat(afc_2_sparkle_a, "                       ");
+    strcat(afc_2_sparkle_a, "           1 71414 2  1");
+    strcat(afc_2_sparkle_a, "           2 51626271 1");
+    strcat(afc_2_sparkle_a, "        1  1 42837422 1");
+    strcat(afc_2_sparkle_a, "        2  2131428681  ");
+    strcat(afc_2_sparkle_a, "          13222813472  ");
+    strcat(afc_2_sparkle_a, "        2  2313428623 1");
+    strcat(afc_2_sparkle_a, "       1 1 14 2833472 2");
+    strcat(afc_2_sparkle_a, "        2   5 1628681 3");
+    strcat(afc_2_sparkle_a, "           16  41342  2");
+    strcat(afc_2_sparkle_a, "        2 127 122367  1");
+    strcat(afc_2_sparkle_a, "        1 23811 4846   ");
+    strcat(afc_2_sparkle_a, "       1  1262  6325  1");
+    strcat(afc_2_sparkle_a, "       1   183  62 4  2");
+    strcat(afc_2_sparkle_a, "        1   641 8123  3");
+    strcat(afc_2_sparkle_a, "        2  185143242  4");
+    strcat(afc_2_sparkle_a, "            64168161  5");
+    strcat(afc_2_sparkle_a, "           185 8314   4");
+    strcat(afc_2_sparkle_a, "           274 46 6   5");
+    strcat(afc_2_sparkle_a, "           36218614   4");
+    strcat(afc_2_sparkle_a, "           254244262  2");
+    strcat(afc_2_sparkle_a, "           147382144  1");
+    strcat(afc_2_sparkle_a, "           235261262   ");
+    strcat(afc_2_sparkle_a, "           327141145   ");
+    strcat(afc_2_sparkle_a, "           215 2 122   ");
+    strcat(afc_2_sparkle_a, "           1 7   216   ");
     
     //                        12345678901234567890123456789012345678901234560123456789012345678901234567890123456789012345601234567890123456789012345678901234567890123456012345678901234567890123456789012345678901234560123456789012
-    strcpy(afc_zoomie-intro, "123456788                                                                                                                                                                                               ");
-    strcat(afc_zoomie-intro, " 123456788                                                                                                                                                                                              ");
-    strcat(afc_zoomie-intro, "  123456788                                                                                                                                                                                             ");
-    strcat(afc_zoomie-intro, "   1 23456788                                                                                                                                                                                           ");
-    strcat(afc_zoomie-intro, "     1 23456788                                                                                                                                                                                         ");
-    strcat(afc_zoomie-intro, "       1 23456788                                                                                                                                                                                       ");
-    strcat(afc_zoomie-intro, "         1 2 3456788                                                                                                                                                                                    ");
-    strcat(afc_zoomie-intro, "           1 2  3456788                                                                                                                                                                                 ");
-    strcat(afc_zoomie-intro, "              1 2  3456788                                                                                                                                                                              ");
-    strcat(afc_zoomie-intro, "                 1 2  3 456788                                                                                                                                                                          ");
-    strcat(afc_zoomie-intro, "                    1 2  3  456788                                                                                                                                                                      ");
-    strcat(afc_zoomie-intro, "                       1 2  3   456788                                                                                                                                                                  ");
-    strcat(afc_zoomie-intro, "                           1 2  3   456788                                                                                                                                                              ");
-    strcat(afc_zoomie-intro, "                               1 2  3   456788                                                                                                                                                          ");
-    strcat(afc_zoomie-intro, "                                   1 2  3   4 56788                                                                                                                                                     ");
-    strcat(afc_zoomie-intro, "                                       1 2  3   4  56788                                                                                                                                                ");
-    strcat(afc_zoomie-intro, "                                           1 2  3   4   56788                                                                                                                                           ");
-    strcat(afc_zoomie-intro, "                                               1 2  3   4    56788                                                                                                                                      ");
-    strcat(afc_zoomie-intro, "                                                    1 2  3   4    5 6788                                                                                                                                ");
-    strcat(afc_zoomie-intro, "                                                         1 2  3   4    5  6788                                                                                                                          ");
-    strcat(afc_zoomie-intro, "                                                              1 2  3   4    5   6788                                                                                                                    ");
-    strcat(afc_zoomie-intro, "                                                                   1 2  3   4    5    6788                                                                                                              ");
-    strcat(afc_zoomie-intro, "                                                                        1 2  3   4    5     6788                                                                                                        ");
-    strcat(afc_zoomie-intro, "                                                                              1 2  3   4    5     6788                                                                                                  ");
-    strcat(afc_zoomie-intro, "                                                                                    1 2  3   4    5     6 788                                                                                           ");
-    strcat(afc_zoomie-intro, "                                                                                          1 2  3   4    5     6  788                                                                                    ");
-    strcat(afc_zoomie-intro, "                                                                                                1 2  3   4    5     6   788                                                                             ");
-    strcat(afc_zoomie-intro, "                                                                                                      1 2  3   4    5     6    788                                                                      ");
-    strcat(afc_zoomie-intro, "                                                                                                            1 2  3   4    5     6     788                                                               ");
-    strcat(afc_zoomie-intro, "                                                                                                                  1 2  3   4    5     6      788                                                        ");
-    strcat(afc_zoomie-intro, "                                                                                                                         1 2  3   4    5     6      7 88                                                ");
-    strcat(afc_zoomie-intro, "                                                                                                                                1 2  3   4    5     6      7  88                                        ");
-    strcat(afc_zoomie-intro, "                                                                                                                                       1 2  3   4    5     6      7   88                                ");
-    strcat(afc_zoomie-intro, "                                                                                                                                              1 2  3   4    5     6      7    88                        ");
-    strcat(afc_zoomie-intro, "                                                                                                                                                     1 2  3   4    5     6      7     88                ");
-    strcat(afc_zoomie-intro, "                                                                                                                                                            1 2  3   4    5     6      7      88        ");
-    strcat(afc_zoomie-intro, "                                                                                                                                                                   1 2  3   4    5     6      7       88");
+    strcpy(afc_zoomie_intro, "123456788                                                                                                                                                                                               ");
+    strcat(afc_zoomie_intro, " 123456788                                                                                                                                                                                              ");
+    strcat(afc_zoomie_intro, "  123456788                                                                                                                                                                                             ");
+    strcat(afc_zoomie_intro, "   1 23456788                                                                                                                                                                                           ");
+    strcat(afc_zoomie_intro, "     1 23456788                                                                                                                                                                                         ");
+    strcat(afc_zoomie_intro, "       1 23456788                                                                                                                                                                                       ");
+    strcat(afc_zoomie_intro, "         1 2 3456788                                                                                                                                                                                    ");
+    strcat(afc_zoomie_intro, "           1 2  3456788                                                                                                                                                                                 ");
+    strcat(afc_zoomie_intro, "              1 2  3456788                                                                                                                                                                              ");
+    strcat(afc_zoomie_intro, "                 1 2  3 456788                                                                                                                                                                          ");
+    strcat(afc_zoomie_intro, "                    1 2  3  456788                                                                                                                                                                      ");
+    strcat(afc_zoomie_intro, "                       1 2  3   456788                                                                                                                                                                  ");
+    strcat(afc_zoomie_intro, "                           1 2  3   456788                                                                                                                                                              ");
+    strcat(afc_zoomie_intro, "                               1 2  3   456788                                                                                                                                                          ");
+    strcat(afc_zoomie_intro, "                                   1 2  3   4 56788                                                                                                                                                     ");
+    strcat(afc_zoomie_intro, "                                       1 2  3   4  56788                                                                                                                                                ");
+    strcat(afc_zoomie_intro, "                                           1 2  3   4   56788                                                                                                                                           ");
+    strcat(afc_zoomie_intro, "                                               1 2  3   4    56788                                                                                                                                      ");
+    strcat(afc_zoomie_intro, "                                                    1 2  3   4    5 6788                                                                                                                                ");
+    strcat(afc_zoomie_intro, "                                                         1 2  3   4    5  6788                                                                                                                          ");
+    strcat(afc_zoomie_intro, "                                                              1 2  3   4    5   6788                                                                                                                    ");
+    strcat(afc_zoomie_intro, "                                                                   1 2  3   4    5    6788                                                                                                              ");
+    strcat(afc_zoomie_intro, "                                                                        1 2  3   4    5     6788                                                                                                        ");
+    strcat(afc_zoomie_intro, "                                                                              1 2  3   4    5     6788                                                                                                  ");
+    strcat(afc_zoomie_intro, "                                                                                    1 2  3   4    5     6 788                                                                                           ");
+    strcat(afc_zoomie_intro, "                                                                                          1 2  3   4    5     6  788                                                                                    ");
+    strcat(afc_zoomie_intro, "                                                                                                1 2  3   4    5     6   788                                                                             ");
+    strcat(afc_zoomie_intro, "                                                                                                      1 2  3   4    5     6    788                                                                      ");
+    strcat(afc_zoomie_intro, "                                                                                                            1 2  3   4    5     6     788                                                               ");
+    strcat(afc_zoomie_intro, "                                                                                                                  1 2  3   4    5     6      788                                                        ");
+    strcat(afc_zoomie_intro, "                                                                                                                         1 2  3   4    5     6      7 88                                                ");
+    strcat(afc_zoomie_intro, "                                                                                                                                1 2  3   4    5     6      7  88                                        ");
+    strcat(afc_zoomie_intro, "                                                                                                                                       1 2  3   4    5     6      7   88                                ");
+    strcat(afc_zoomie_intro, "                                                                                                                                              1 2  3   4    5     6      7    88                        ");
+    strcat(afc_zoomie_intro, "                                                                                                                                                     1 2  3   4    5     6      7     88                ");
+    strcat(afc_zoomie_intro, "                                                                                                                                                            1 2  3   4    5     6      7      88        ");
+    strcat(afc_zoomie_intro, "                                                                                                                                                                   1 2  3   4    5     6      7       88");
 }
 
 
