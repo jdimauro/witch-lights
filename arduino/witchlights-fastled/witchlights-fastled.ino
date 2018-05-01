@@ -22,8 +22,9 @@
 #define SCANNER_MIN_SCANS    2
 #define SCANNER_MAX_SCANS    5
 
-#define SCANNER_MIN_STOP_DISTANCE    40   // This probably shouldn't be smaller than 40. If it is scanners may get stuck in place if they don't have enough "exit velocity".
-#define SCANNER_MAX_STOP_DISTANCE    120
+// currently set this to be consistent for animation design
+#define SCANNER_MIN_STOP_DISTANCE    50   // This probably shouldn't be smaller than 40. If it is scanners may get stuck in place if they don't have enough "exit velocity". // 40
+#define SCANNER_MAX_STOP_DISTANCE    60   // 120
 
 #define SPRITE_STARTING_DELAY_INTERVAL_IN_MS   40
 #define SCANNER_DELAY_INTERVAL_IN_MS           10
@@ -44,6 +45,9 @@
 
 #define TIMINGTEST_ANIMATION_FRAME_WIDTH  58
 #define TIMINGTEST_ANIMATION_FRAMES       26
+
+#define afc_3_pulse_ANIMATION_FRAME_WIDTH   87
+#define afc_3_pulse_ANIMATION_FRAMES   268
 
 
 
@@ -82,7 +86,8 @@ CRGB af_2_sparkle_a[SPARKLE_ANIMATION_FRAME_WIDTH * SPARKLE_ANIMATION_FRAMES];
 char afc_zoomie_intro[ZOOMIE_ANIMATION_FRAME_WIDTH * ZOOMIE_ANIMATION_FRAMES];
 CRGB af_zoomie_intro[ZOOMIE_ANIMATION_FRAME_WIDTH * ZOOMIE_ANIMATION_FRAMES];
 
-
+char afc_3_pulse[afc_3_pulse_ANIMATION_FRAME_WIDTH * afc_3_pulse_ANIMATION_FRAMES];
+CRGB af_3_pulse[afc_3_pulse_ANIMATION_FRAME_WIDTH * afc_3_pulse_ANIMATION_FRAMES];
 
 // Function prototypes.
 void resetStrip(void);
@@ -226,6 +231,142 @@ class SpriteVector {
 
 // TODO: maybe just create named sprites with different scanner patterns first?
 
+class AnimationTestSprite : public Sprite {
+  private:
+    int updateInterval;
+    int currentPixel;
+    bool isScanning;
+    int scanningFrame;
+    int lastInflection;
+    int nextInflection;
+    int scanCount;
+    int scanCountTotal;
+
+    // pattern is one black pixel plus remaining pixels in order of increasing brightness with brightest pixel doubled.
+    CRGB pattern[NUM_COLORS_PER_SET + 1];
+    int patternLength = NUM_COLORS_PER_SET + 1;
+
+    void SetNextInflection() {
+        lastInflection = nextInflection;
+        nextInflection += random(SCANNER_MIN_STOP_DISTANCE, SCANNER_MAX_STOP_DISTANCE + 1);
+    }
+
+    int GetNewScanCountTotal() {
+        return random(SCANNER_MIN_SCANS, SCANNER_MAX_SCANS + 1);
+    }
+    
+  public:
+    AnimationTestSprite() : Sprite() {
+        // Initial state.
+        this->currentPixel = -8;  // The first pixel of the pattern is black.
+        this->scanningFrame = 0;
+        this->isScanning = false;
+        this->lastInflection = 0;
+        this->nextInflection = 0;
+        SetNextInflection();
+        this->scanCount = 0;
+        this->scanCountTotal = GetNewScanCountTotal();
+        this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
+
+        // Choose a random color palette from the palettes available.
+        int colorPalette = random(0, NUM_COLORSETS);
+
+        // Set the colors in the pattern.
+        this->pattern[0] = colorSets[colorPalette][0];
+        this->pattern[1] = colorSets[colorPalette][1];
+        this->pattern[2] = colorSets[colorPalette][2];
+        this->pattern[3] = colorSets[colorPalette][3];
+        this->pattern[4] = colorSets[colorPalette][4];
+        this->pattern[5] = colorSets[colorPalette][5];
+        this->pattern[6] = colorSets[colorPalette][6];
+        this->pattern[7] = colorSets[colorPalette][7];
+        this->pattern[8] = colorSets[colorPalette][8];
+        this->pattern[9] = colorSets[colorPalette][8];
+
+        this->patternLength = 10;
+
+        for (int i = 0; i < ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES; i++) {
+            afc_timing_test[i] = afc_timing_test[i] > ' ' ? colorSets[colorPalette][afc_timing_test[i] - '0'] : CRGB::Black;
+        }
+    }
+
+    ~AnimationTestSprite() {
+    }
+
+    boolean UpdateNow() {
+      if (millis() - lastUpdateTime >= ACCELERATION_DELAY_OBVIOUSNESS_FACTOR * updateInterval) {
+        lastUpdateTime = millis();
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    bool Update() {
+        if (! this->UpdateNow()) {
+            return false;
+        }
+
+        // Going from scanning to travel mode.
+        if (isScanning && scanCount == scanCountTotal) {
+            isScanning = false;
+            currentPixel += 8;
+            SetNextInflection();
+            this->scanCount = 0;
+            this->scanCountTotal = GetNewScanCountTotal();
+            this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
+            leds[currentPixel - 6] = CRGB::Black;
+            leds[currentPixel - 8] = CRGB::Black;
+            leds[currentPixel - 9] = CRGB::Black;  // I hate this. One-off to get rid of the straggler when coming out of scan mode.
+            leds[currentPixel - 10] = CRGB::Black;
+        }
+
+        if (! isScanning) {
+            // Traveling and continuing to travel.
+            stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
+            ++currentPixel;
+
+            // Are we nearer the last inflection than the next inflection? If so, speed up. Otherwise, slow down.
+/*            int updateInterval = (currentPixel >= (lastInflection + nextInflection) / 2) 
+                                                      ? (updateInterval + ACCELERATION_RATE_IN_MS_PER_PIXEL) 
+                                                      : (updateInterval - ACCELERATION_RATE_IN_MS_PER_PIXEL); */
+            if (currentPixel >= nextInflection - (SCANNER_DELAY_INTERVAL_IN_MS - 1)) {
+                updateInterval += 1;
+            } else {
+                updateInterval -= 1;              
+            }
+            
+            if (updateInterval < 1) {
+                updateInterval = 1;
+            } else if (updateInterval > SPRITE_STARTING_DELAY_INTERVAL_IN_MS) {
+                updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
+            }
+
+            // Transition from travel mode to scanning.
+            if (currentPixel >= nextInflection) {
+                // Safety. Since I don't trust my math, once we enter scanning mode, ALWAYS go back to the constant speed for scanning
+                // regardless of what the math said.
+                updateInterval = SCANNER_DELAY_INTERVAL_IN_MS;
+                isScanning = true;
+                scanningFrame = 0;
+                currentPixel -= 8;
+            }
+
+            if (currentPixel > NUM_LEDS) {
+               this->MarkDone();
+            }
+        } else {
+            stripcpy(leds, af_timing_test + ANIMATION_FRAME_WIDTH * scanningFrame, currentPixel, ANIMATION_FRAME_WIDTH, ANIMATION_FRAME_WIDTH);
+            if (++scanningFrame == ANIMATION_FRAMES) {
+                scanningFrame = 0;
+                ++scanCount;
+                SetNextInflection();
+            }
+        }
+
+        return true;
+    }
+};
 
 
 class W8V1ScannerDebrisV1Sprite : public Sprite {
@@ -977,6 +1118,10 @@ void createAnimationFrames() {
     strcat(afc_w8v1r, "      887654321        ");
     strcat(afc_w8v1r, "     887654321         ");
 
+    // TODO: a "reverse direction for animation" animation fragment to play to turn sprites going the other way back once, and gets lined up to play the "forwards" animation
+    // (For example, if I want to animate a scanner but the animation loaded into memory starts going in the other direction, you can have the sprite reverse once, then spin around
+    //  and execute that animation, which always ends with the sprite in the right position for frame 1 of the scanner animation. Which presumes they all start off in the same position on the same start pixel? Note to self.)
+
     //                       1234567890123456789012345678901234567890123456012345678901
     strcpy(afc_timing_test, "123456788                                                 ");
     strcat(afc_timing_test, "1234567888                                                ");
@@ -1052,6 +1197,7 @@ void createAnimationFrames() {
     strcat(afc_2_sparkle_a, "           215 2 122   ");
     strcat(afc_2_sparkle_a, "           1 7   216   ");
     
+    // Zoomie Intro
     //                        12345678901234567890123456789012345678901234560123456789012345678901234567890123456789012345601234567890123456789012345678901234567890123456012345678901234567890123456789012345678901234560123456789012
     strcpy(afc_zoomie_intro, "123456788                                                                                                                                                                                               ");
     strcat(afc_zoomie_intro, " 123456788                                                                                                                                                                                              ");
@@ -1090,6 +1236,279 @@ void createAnimationFrames() {
     strcat(afc_zoomie_intro, "                                                                                                                                                     1 2  3   4    5     6      7     88                ");
     strcat(afc_zoomie_intro, "                                                                                                                                                            1 2  3   4    5     6      7      88        ");
     strcat(afc_zoomie_intro, "                                                                                                                                                                   1 2  3   4    5     6      7       88");
+
+    // 3_pulse
+//                       123456789012345678901234567890123456789012345678901234567890123456789012345678901234567
+    strcpy(afc_3_pulse, "       88                                                                              ");
+    strcat(afc_3_pulse, "       88                                                                              ");
+    strcat(afc_3_pulse, "       77                                                                              ");
+    strcat(afc_3_pulse, "       66                                                                              ");
+    strcat(afc_3_pulse, "       55                                                                              ");
+    strcat(afc_3_pulse, "       44                                                                              ");
+    strcat(afc_3_pulse, "       44                                                                              ");
+    strcat(afc_3_pulse, "       44                                                                              ");
+    strcat(afc_3_pulse, "       55                                                                              ");
+    strcat(afc_3_pulse, "       66                                                                              ");
+    strcat(afc_3_pulse, "       77                                                                              ");
+    strcat(afc_3_pulse, "       88                                                                              ");
+    strcat(afc_3_pulse, "       88                                                                              ");
+    strcat(afc_3_pulse, "       788                                                                             ");
+    strcat(afc_3_pulse, "       788                                                                             ");
+    strcat(afc_3_pulse, "       788                                                                             ");
+    strcat(afc_3_pulse, "       6788                                                                            ");
+    strcat(afc_3_pulse, "       6788                                                                            ");
+    strcat(afc_3_pulse, "       56788                                                                           ");
+    strcat(afc_3_pulse, "       456788                                                                          ");
+    strcat(afc_3_pulse, "       23456788                                                                        ");
+    strcat(afc_3_pulse, "        123456788                                                                      ");
+    strcat(afc_3_pulse, "           123456788                                                                   ");
+    strcat(afc_3_pulse, "              123456788                                                                ");
+    strcat(afc_3_pulse, "                  123456788                                                            ");
+    strcat(afc_3_pulse, "                      123456788                                                        ");
+    strcat(afc_3_pulse, "                        123456788                                                      ");
+    strcat(afc_3_pulse, "                         123456788                                                     ");
+    strcat(afc_3_pulse, "                          123456788                                                    ");
+    strcat(afc_3_pulse, "                           12345688                                                    ");
+    strcat(afc_3_pulse, "                            1234588                                                    ");
+    strcat(afc_3_pulse, "                             123488                                                    ");
+    strcat(afc_3_pulse, "                              12388                                                    ");
+    strcat(afc_3_pulse, "                               1277                                                    ");
+    strcat(afc_3_pulse, "                                166                                                    ");
+    strcat(afc_3_pulse, "                                 55                                                    ");
+    strcat(afc_3_pulse, "                                 44                                                    ");
+    strcat(afc_3_pulse, "                                 44                                                    ");
+    strcat(afc_3_pulse, "                                 44                                                    ");
+    strcat(afc_3_pulse, "                                 55                                                    ");
+    strcat(afc_3_pulse, "                                 66                                                    ");
+    strcat(afc_3_pulse, "                                 77                                                    ");
+    strcat(afc_3_pulse, "                                 88                                                    ");
+    strcat(afc_3_pulse, "                                 88                                                    ");
+    strcat(afc_3_pulse, "                                 88                                                    ");
+    strcat(afc_3_pulse, "                                 77                                                    ");
+    strcat(afc_3_pulse, "                                 66                                                    ");
+    strcat(afc_3_pulse, "                                 55                                                    ");
+    strcat(afc_3_pulse, "                                 44                                                    ");
+    strcat(afc_3_pulse, "                                 44                                                    ");
+    strcat(afc_3_pulse, "                                 44                                                    ");
+    strcat(afc_3_pulse, "                                 55                                                    ");
+    strcat(afc_3_pulse, "                                 66                                                    ");
+    strcat(afc_3_pulse, "                                 77                                                    ");
+    strcat(afc_3_pulse, "                                 88                                                    ");
+    strcat(afc_3_pulse, "                                 88                                                    ");
+    strcat(afc_3_pulse, "                                887                                                    ");
+    strcat(afc_3_pulse, "                                887                                                    ");
+    strcat(afc_3_pulse, "                               8876                                                    ");
+    strcat(afc_3_pulse, "                              88765                                                    ");
+    strcat(afc_3_pulse, "                            8876543                                                    ");
+    strcat(afc_3_pulse, "                         887654321                                                     ");
+    strcat(afc_3_pulse, "                     887654321                                                         ");
+    strcat(afc_3_pulse, "                   887654321                                                           ");
+    strcat(afc_3_pulse, "                  887654321                                                            ");
+    strcat(afc_3_pulse, "                  88654321                                                             ");
+    strcat(afc_3_pulse, "                  8854321                                                              ");
+    strcat(afc_3_pulse, "                  774321                                                               ");
+    strcat(afc_3_pulse, "                  66321                                                                ");
+    strcat(afc_3_pulse, "                  5521                                                                 ");
+    strcat(afc_3_pulse, "                  441                                                                  ");
+    strcat(afc_3_pulse, "                  44                                                                   ");
+    strcat(afc_3_pulse, "                  44                                                                   ");
+    strcat(afc_3_pulse, "                  55                                                                   ");
+    strcat(afc_3_pulse, "                  66                                                                   ");
+    strcat(afc_3_pulse, "                  77                                                                   ");
+    strcat(afc_3_pulse, "                  88                                                                   ");
+    strcat(afc_3_pulse, "                  88                                                                   ");
+    strcat(afc_3_pulse, "                  88                                                                   ");
+    strcat(afc_3_pulse, "                  788                                                                  ");
+    strcat(afc_3_pulse, "                  788                                                                  ");
+    strcat(afc_3_pulse, "                  6788                                                                 ");
+    strcat(afc_3_pulse, "                  456788                                                               ");
+    strcat(afc_3_pulse, "                  123456788                                                            ");
+    strcat(afc_3_pulse, "                      123456788                                                        ");
+    strcat(afc_3_pulse, "                          123456788                                                    ");
+    strcat(afc_3_pulse, "                              123456788                                                ");
+    strcat(afc_3_pulse, "                                 123456788                                             ");
+    strcat(afc_3_pulse, "                                   123456788                                           ");
+    strcat(afc_3_pulse, "                                    123456788                                          ");
+    strcat(afc_3_pulse, "                                     12345688                                          ");
+    strcat(afc_3_pulse, "                                      1234588                                          ");
+    strcat(afc_3_pulse, "                                       123477                                          ");
+    strcat(afc_3_pulse, "                                        12366                                          ");
+    strcat(afc_3_pulse, "                                         1255                                          ");
+    strcat(afc_3_pulse, "                                          144                                          ");
+    strcat(afc_3_pulse, "                                           44                                          ");
+    strcat(afc_3_pulse, "                                           44                                          ");
+    strcat(afc_3_pulse, "                                           55                                          ");
+    strcat(afc_3_pulse, "                                           66                                          ");
+    strcat(afc_3_pulse, "                                           77                                          ");
+    strcat(afc_3_pulse, "                                           88                                          ");
+    strcat(afc_3_pulse, "                                           88                                          ");
+    strcat(afc_3_pulse, "                                           88                                          ");
+    strcat(afc_3_pulse, "                                           77                                          ");
+    strcat(afc_3_pulse, "                                           66                                          ");
+    strcat(afc_3_pulse, "                                           55                                          ");
+    strcat(afc_3_pulse, "                                           44                                          ");
+    strcat(afc_3_pulse, "                                           44                                          ");
+    strcat(afc_3_pulse, "                                           44                                          ");
+    strcat(afc_3_pulse, "                                           55                                          ");
+    strcat(afc_3_pulse, "                                           66                                          ");
+    strcat(afc_3_pulse, "                                           77                                          ");
+    strcat(afc_3_pulse, "                                           88                                          ");
+    strcat(afc_3_pulse, "                                           88                                          ");
+    strcat(afc_3_pulse, "                                           88                                          ");
+    strcat(afc_3_pulse, "                                          887                                          ");
+    strcat(afc_3_pulse, "                                        88765                                          ");
+    strcat(afc_3_pulse, "                                     88765432                                          ");
+    strcat(afc_3_pulse, "                                 887654321                                             ");
+    strcat(afc_3_pulse, "                              887654321                                                ");
+    strcat(afc_3_pulse, "                             887654321                                                 ");
+    strcat(afc_3_pulse, "                            887654321                                                  ");
+    strcat(afc_3_pulse, "                            88654321                                                   ");
+    strcat(afc_3_pulse, "                            8854321                                                    ");
+    strcat(afc_3_pulse, "                            774321                                                     ");
+    strcat(afc_3_pulse, "                            66321                                                      ");
+    strcat(afc_3_pulse, "                            5521                                                       ");
+    strcat(afc_3_pulse, "                            441                                                        ");
+    strcat(afc_3_pulse, "                            33                                                         ");
+    strcat(afc_3_pulse, "                           1441                                                        ");
+    strcat(afc_3_pulse, "                           2552                                                        ");
+    strcat(afc_3_pulse, "                           4664                                                        ");
+    strcat(afc_3_pulse, "                          157751                                                       ");
+    strcat(afc_3_pulse, "                          268862                                                       ");
+    strcat(afc_3_pulse, "                          368863                                                       ");
+    strcat(afc_3_pulse, "                         13688631                                                      ");
+    strcat(afc_3_pulse, "                         13688631                                                      ");
+    strcat(afc_3_pulse, "                          368863                                                       ");
+    strcat(afc_3_pulse, "                          268862                                                       ");
+    strcat(afc_3_pulse, "                          157751                                                       ");
+    strcat(afc_3_pulse, "                           4664                                                        ");
+    strcat(afc_3_pulse, "                           2552                                                        ");
+    strcat(afc_3_pulse, "                           1441                                                        ");
+    strcat(afc_3_pulse, "                            44                                                         ");
+    strcat(afc_3_pulse, "                           1441                                                        ");
+    strcat(afc_3_pulse, "                           2552                                                        ");
+    strcat(afc_3_pulse, "                           4664                                                        ");
+    strcat(afc_3_pulse, "                          157751                                                       ");
+    strcat(afc_3_pulse, "                          268862                                                       ");
+    strcat(afc_3_pulse, "                          368863                                                       ");
+    strcat(afc_3_pulse, "                         13688631                                                      ");
+    strcat(afc_3_pulse, "                         13688631                                                      ");
+    strcat(afc_3_pulse, "                          368863                                                       ");
+    strcat(afc_3_pulse, "                          268862                                                       ");
+    strcat(afc_3_pulse, "                          157751                                                       ");
+    strcat(afc_3_pulse, "                           4664                                                        ");
+    strcat(afc_3_pulse, "                           2552                                                        ");
+    strcat(afc_3_pulse, "                           2552                                                        ");
+    strcat(afc_3_pulse, "                           1661                                                        ");
+    strcat(afc_3_pulse, "                            77                                                         ");
+    strcat(afc_3_pulse, "                            88                                                         ");
+    strcat(afc_3_pulse, "                            88                                                         ");
+    strcat(afc_3_pulse, "                            88                                                         ");
+    strcat(afc_3_pulse, "                            788                                                        ");
+    strcat(afc_3_pulse, "                            788                                                        ");
+    strcat(afc_3_pulse, "                            788                                                        ");
+    strcat(afc_3_pulse, "                            6788                                                       ");
+    strcat(afc_3_pulse, "                            6788                                                       ");
+    strcat(afc_3_pulse, "                            56788                                                      ");
+    strcat(afc_3_pulse, "                            456788                                                     ");
+    strcat(afc_3_pulse, "                            23456788                                                   ");
+    strcat(afc_3_pulse, "                             123456788                                                 ");
+    strcat(afc_3_pulse, "                                123456788                                              ");
+    strcat(afc_3_pulse, "                                   123456788                                           ");
+    strcat(afc_3_pulse, "                                       123456788                                       ");
+    strcat(afc_3_pulse, "                                            123456788                                  ");
+    strcat(afc_3_pulse, "                                                  123456788                            ");
+    strcat(afc_3_pulse, "                                                        123456788                      ");
+    strcat(afc_3_pulse, "                                                              123456788                ");
+    strcat(afc_3_pulse, "                                                                   123456788           ");
+    strcat(afc_3_pulse, "                                                                       123456788       ");
+    strcat(afc_3_pulse, "                                                                          123456788    ");
+    strcat(afc_3_pulse, "                                                                            123456788  ");
+    strcat(afc_3_pulse, "                                                                             123456788 ");
+    strcat(afc_3_pulse, "                                                                              12345688 ");
+    strcat(afc_3_pulse, "                                                                                1234588");
+    strcat(afc_3_pulse, "                                                                                 123488");
+    strcat(afc_3_pulse, "                                                                                  12388");
+    strcat(afc_3_pulse, "                                                                                   1277");
+    strcat(afc_3_pulse, "                                                                                    166");
+    strcat(afc_3_pulse, "                                                                                     55");
+    strcat(afc_3_pulse, "                                                                                     44");
+    strcat(afc_3_pulse, "                                                                                     44");
+    strcat(afc_3_pulse, "                                                                                     44");
+    strcat(afc_3_pulse, "                                                                                     55");
+    strcat(afc_3_pulse, "                                                                                     66");
+    strcat(afc_3_pulse, "                                                                                     77");
+    strcat(afc_3_pulse, "                                                                                     88");
+    strcat(afc_3_pulse, "                                                                                     88");
+    strcat(afc_3_pulse, "                                                                                     88");
+    strcat(afc_3_pulse, "                                                                                     77");
+    strcat(afc_3_pulse, "                                                                                     66");
+    strcat(afc_3_pulse, "                                                                                     55");
+    strcat(afc_3_pulse, "                                                                                     44");
+    strcat(afc_3_pulse, "                                                                                     44");
+    strcat(afc_3_pulse, "                                                                                     44");
+    strcat(afc_3_pulse, "                                                                                     55");
+    strcat(afc_3_pulse, "                                                                                     66");
+    strcat(afc_3_pulse, "                                                                                     77");
+    strcat(afc_3_pulse, "                                                                                     88");
+    strcat(afc_3_pulse, "                                                                                     88");
+    strcat(afc_3_pulse, "                                                                                     88");
+    strcat(afc_3_pulse, "                                                                                     77");
+    strcat(afc_3_pulse, "                                                                                     66");
+    strcat(afc_3_pulse, "                                                                                     55");
+    strcat(afc_3_pulse, "                                                                                     33");
+    strcat(afc_3_pulse, "                                                                                     11");
+    strcat(afc_3_pulse, "                                                                                     33");
+    strcat(afc_3_pulse, "                                                                                     55");
+    strcat(afc_3_pulse, "                                                                                     66");
+    strcat(afc_3_pulse, "                                                                                     77");
+    strcat(afc_3_pulse, "                                                                                     88");
+    strcat(afc_3_pulse, "                                                                                     88");
+    strcat(afc_3_pulse, "                                                                                     88");
+    strcat(afc_3_pulse, "                                                                                     77");
+    strcat(afc_3_pulse, "                                                                                     66");
+    strcat(afc_3_pulse, "                                                                                     55");
+    strcat(afc_3_pulse, "                                                                                     44");
+    strcat(afc_3_pulse, "                                                                                     44");
+    strcat(afc_3_pulse, "                                                                                     44");
+    strcat(afc_3_pulse, "                                                                                     55");
+    strcat(afc_3_pulse, "                                                                                     66");
+    strcat(afc_3_pulse, "                                                                                     77");
+    strcat(afc_3_pulse, "                                                                                     88");
+    strcat(afc_3_pulse, "                                                                                     88");
+    strcat(afc_3_pulse, "                                                                                     88");
+    strcat(afc_3_pulse, "                                                                                    887");
+    strcat(afc_3_pulse, "                                                                                    887");
+    strcat(afc_3_pulse, "                                                                                    887");
+    strcat(afc_3_pulse, "                                                                                   8876");
+    strcat(afc_3_pulse, "                                                                                   8876");
+    strcat(afc_3_pulse, "                                                                                  88765");
+    strcat(afc_3_pulse, "                                                                                 887654");
+    strcat(afc_3_pulse, "                                                                              887654321");
+    strcat(afc_3_pulse, "                                                                           887654321   ");
+    strcat(afc_3_pulse, "                                                                       887654321       ");
+    strcat(afc_3_pulse, "                                                                  887654321            ");
+    strcat(afc_3_pulse, "                                                            887654321                  ");
+    strcat(afc_3_pulse, "                                                     887654321                         ");
+    strcat(afc_3_pulse, "                                               8876654321                              ");
+    strcat(afc_3_pulse, "                                         887654321                                     ");
+    strcat(afc_3_pulse, "                                   887654321                                           ");
+    strcat(afc_3_pulse, "                              887654321                                                ");
+    strcat(afc_3_pulse, "                         887654321                                                     ");
+    strcat(afc_3_pulse, "                    887654321                                                          ");
+    strcat(afc_3_pulse, "                887654321                                                              ");
+    strcat(afc_3_pulse, "             887654321                                                                 ");
+    strcat(afc_3_pulse, "           887654321                                                                   ");
+    strcat(afc_3_pulse, "          887654321                                                                    ");
+    strcat(afc_3_pulse, "         887654321                                                                     ");
+    strcat(afc_3_pulse, "         88654321                                                                      ");
+    strcat(afc_3_pulse, "        8854321                                                                        ");
+    strcat(afc_3_pulse, "        884321                                                                         ");
+    strcat(afc_3_pulse, "        88321                                                                          ");
+    strcat(afc_3_pulse, "        8821                                                                           ");
+    strcat(afc_3_pulse, "       881                                                                             ");
+    strcat(afc_3_pulse, "       88                                                                              ");
+
+
 }
 
 
