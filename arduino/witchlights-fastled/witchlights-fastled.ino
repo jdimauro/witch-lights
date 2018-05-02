@@ -105,7 +105,7 @@ class InfraredSensor {
 private:
     int _pinNumber;
     uint32_t lastPollTime;
-  
+
 public:
     InfraredSensor(int pinNumber) {
         this->_pinNumber = pinNumber;
@@ -124,11 +124,11 @@ public:
             // Test pixel to indicate when the sensor's been actuated. Feel free to remove this when you like.
             // leds[29] = CRGB::Red;
 
-            // Make sure these stay at the end of the sensor "if" block. This will set the last polling time to 
+            // Make sure these stay at the end of the sensor "if" block. This will set the last polling time to
             // ensure that the sensor is properly "debounced".
             this->lastPollTime = millis();
             return true;
-        }        
+        }
 
         return false;
     }
@@ -161,7 +161,7 @@ class Sprite {
 
     bool IsDone() {
         return this->done;
-    } 
+    }
 
   protected:
     uint32_t lastUpdateTime;
@@ -219,7 +219,7 @@ class SpriteVector {
             delete ptr;
 
             for (int j = i + 1; j < count; j++) {
-                sprites[j - 1] = sprites[j];              
+                sprites[j - 1] = sprites[j];
             }
             sprites[count - 1] = NULL;
 
@@ -260,7 +260,7 @@ class AnimationTestSprite : public Sprite {
     int GetNewScanCountTotal() {
         return random(SCANNER_MIN_SCANS, SCANNER_MAX_SCANS + 1);
     }
-    
+
   public:
     AnimationTestSprite() : Sprite() {
         // Initial state.
@@ -333,15 +333,15 @@ class AnimationTestSprite : public Sprite {
             ++currentPixel;
 
             // Are we nearer the last inflection than the next inflection? If so, speed up. Otherwise, slow down.
-/*            int updateInterval = (currentPixel >= (lastInflection + nextInflection) / 2) 
-                                                      ? (updateInterval + ACCELERATION_RATE_IN_MS_PER_PIXEL) 
+/*            int updateInterval = (currentPixel >= (lastInflection + nextInflection) / 2)
+                                                      ? (updateInterval + ACCELERATION_RATE_IN_MS_PER_PIXEL)
                                                       : (updateInterval - ACCELERATION_RATE_IN_MS_PER_PIXEL); */
             if (currentPixel >= nextInflection - (SCANNER_DELAY_INTERVAL_IN_MS - 1)) {
                 updateInterval += 1;
             } else {
-                updateInterval -= 1;              
+                updateInterval -= 1;
             }
-            
+
             if (updateInterval < 1) {
                 updateInterval = 1;
             } else if (updateInterval > SPRITE_STARTING_DELAY_INTERVAL_IN_MS) {
@@ -398,7 +398,7 @@ class W8V1ScannerDebrisV1Sprite : public Sprite {
     int GetNewScanCountTotal() {
         return random(SCANNER_MIN_SCANS, SCANNER_MAX_SCANS + 1);
     }
-    
+
   public:
     W8V1ScannerDebrisV1Sprite() : Sprite() {
         // Initial state.
@@ -471,15 +471,15 @@ class W8V1ScannerDebrisV1Sprite : public Sprite {
             ++currentPixel;
 
             // Are we nearer the last inflection than the next inflection? If so, speed up. Otherwise, slow down.
-/*            int updateInterval = (currentPixel >= (lastInflection + nextInflection) / 2) 
-                                                      ? (updateInterval + ACCELERATION_RATE_IN_MS_PER_PIXEL) 
+/*            int updateInterval = (currentPixel >= (lastInflection + nextInflection) / 2)
+                                                      ? (updateInterval + ACCELERATION_RATE_IN_MS_PER_PIXEL)
                                                       : (updateInterval - ACCELERATION_RATE_IN_MS_PER_PIXEL); */
             if (currentPixel >= nextInflection - (SCANNER_DELAY_INTERVAL_IN_MS - 1)) {
                 updateInterval += 1;
             } else {
-                updateInterval -= 1;              
+                updateInterval -= 1;
             }
-            
+
             if (updateInterval < 1) {
                 updateInterval = 1;
             } else if (updateInterval > SPRITE_STARTING_DELAY_INTERVAL_IN_MS) {
@@ -537,7 +537,7 @@ class W8V1ScannerDebrisV1ReverseSprite : public Sprite {
     int GetNewScanCountTotal() {
         return random(SCANNER_MIN_SCANS, SCANNER_MAX_SCANS + 1);
     }
-    
+
   public:
     W8V1ScannerDebrisV1ReverseSprite() : Sprite() {
         // Initial state.
@@ -615,9 +615,9 @@ class W8V1ScannerDebrisV1ReverseSprite : public Sprite {
             if (currentPixel <= nextInflection - (SCANNER_DELAY_INTERVAL_IN_MS - 1)) {
                 updateInterval += 1;
             } else {
-                updateInterval -= 1;              
+                updateInterval -= 1;
             }
-            
+
             if (updateInterval < 1) {
                 updateInterval = 1;
             } else if (updateInterval > SPRITE_STARTING_DELAY_INTERVAL_IN_MS) {
@@ -671,7 +671,7 @@ class ScannerSprite : public Sprite {
     int GetNewScanCountTotal() {
         return random(SCANNER_MIN_SCANS, SCANNER_MAX_SCANS + 1);
     }
-    
+
   public:
     ScannerSprite() : Sprite() {
         // Initial state.
@@ -705,7 +705,7 @@ class ScannerSprite : public Sprite {
         if (! this->UpdateNow()) {
             return false;
         }
-        
+
         if (isScanning && scanCount == scanCountTotal) {
             isScanning = false;
             scanCount = 0;
@@ -759,7 +759,7 @@ class W1V1Sprite : public Sprite {
 
     W1V1Sprite(int startPixel, CRGB startColor) {
         // Minus one because we'll increment it as the first step in Update().
-        this->currentPixel = startPixel - 1;  
+        this->currentPixel = startPixel - 1;
         this->color = startColor;
     }
 
@@ -778,17 +778,17 @@ class W1V1Sprite : public Sprite {
     bool Update() {
       if (this->UpdateNow()) {
         currentPixel++;
-        
+
         if (currentPixel >= NUM_LEDS) {
             leds[currentPixel - 1] = CRGB::Black;
             this->MarkDone();
         }
-        
+
         leds[currentPixel] = this->color;
         if (currentPixel > 0) {
             leds[currentPixel - 1] = CRGB::Black;
         }
-        
+
         return true;
       }
 
@@ -816,11 +816,11 @@ class SpriteManager {
 
     void Update() {
         updatedSomething = false;
-      
+
         for (int i = 0; i < this->SpriteCount(); i++) {
             updatedSomething |= spriteVector->Get(i)->Update();
         }
-    
+
         if (updatedSomething) {
             FastLED.show();
         }
@@ -855,19 +855,22 @@ bool testSpritesCreated;
 int starttime = millis();
 
 void setup() {
+    debug(1);
     createColorsets();
+    debug(2);
     createAnimationFrames();
+    debug(3);
 
     isBooted = false;
     testSpritesCreated = false;
-  
+
     randomSeed(analogRead(0));
-   
+
     spriteManager = new SpriteManager();
-    
+
     sensor1 = new InfraredSensor(PIR_SENSOR_1_PIN);
     sensor2 = new InfraredSensor(PIR_SENSOR_2_PIN);
-  
+
     resetStrip();
 }
 
@@ -899,11 +902,11 @@ void loop() {
     // (A) JOSH: Remove this when you have the switches working to your heart's content.
 /*    if (random(0, 1000) == 0) {
         Sprite *s = new W8V1ScannerDebrisV1Sprite();
-        
+
         bool added = spriteManager->Add(s);
 
         if (! added) {
-            delete s;  
+            delete s;
         }
     } */
     // End (A).
@@ -1515,5 +1518,3 @@ void createAnimationFrames() {
 
 
 }
-
-
