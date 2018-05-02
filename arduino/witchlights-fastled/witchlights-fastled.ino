@@ -37,11 +37,11 @@
 
 // this is obviously a temporary hack, we don't want to have to specify constants for every single animation at the start, do we?
 
-// #define SPARKLE_ANIMATION_FRAME_WIDTH 23
-// #define SPARKLE_ANIMATION_FRAMES      46
-//
-// #define ZOOMIE_ANIMATION_FRAME_WIDTH  200
-// #define ZOOMIE_ANIMATION_FRAMES       37
+#define SPARKLE_ANIMATION_FRAME_WIDTH 23
+#define SPARKLE_ANIMATION_FRAMES      46
+
+#define ZOOMIE_ANIMATION_FRAME_WIDTH  200
+#define ZOOMIE_ANIMATION_FRAMES       37
 
 #define TIMINGTEST_ANIMATION_FRAME_WIDTH  58
 #define TIMINGTEST_ANIMATION_FRAMES       26
@@ -79,10 +79,13 @@ CRGB af_w8v1r[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
 
 char afc_timing_test[TIMINGTEST_ANIMATION_FRAME_WIDTH * TIMINGTEST_ANIMATION_FRAMES];
 CRGB af_timing_test[TIMINGTEST_ANIMATION_FRAME_WIDTH * TIMINGTEST_ANIMATION_FRAMES];
-//
-// char afc_2_sparkle_a[SPARKLE_ANIMATION_FRAME_WIDTH * SPARKLE_ANIMATION_FRAMES];
-// CRGB af_2_sparkle_a[SPARKLE_ANIMATION_FRAME_WIDTH * SPARKLE_ANIMATION_FRAMES];
-//
+
+char afc_2_sparkle_a[SPARKLE_ANIMATION_FRAME_WIDTH * SPARKLE_ANIMATION_FRAMES];
+CRGB af_2_sparkle_a[SPARKLE_ANIMATION_FRAME_WIDTH * SPARKLE_ANIMATION_FRAMES];
+
+// char afc_3_sparkle_a[SPARKLE_ANIMATION_FRAME_WIDTH * SPARKLE_ANIMATION_FRAMES];
+// CRGB af_3_sparkle_a[SPARKLE_ANIMATION_FRAME_WIDTH * SPARKLE_ANIMATION_FRAMES];
+
 // char afc_zoomie_intro[ZOOMIE_ANIMATION_FRAME_WIDTH * ZOOMIE_ANIMATION_FRAMES];
 // CRGB af_zoomie_intro[ZOOMIE_ANIMATION_FRAME_WIDTH * ZOOMIE_ANIMATION_FRAMES];
 //
@@ -231,7 +234,7 @@ class SpriteVector {
 
 // TODO: maybe just create named sprites with different scanner patterns first?
 
-/*
+
   
 
 class AnimationTestSprite : public Sprite {
@@ -332,7 +335,7 @@ class AnimationTestSprite : public Sprite {
             // Are we nearer the last inflection than the next inflection? If so, speed up. Otherwise, slow down.
 /*            int updateInterval = (currentPixel >= (lastInflection + nextInflection) / 2) 
                                                       ? (updateInterval + ACCELERATION_RATE_IN_MS_PER_PIXEL) 
-                                                      : (updateInterval - ACCELERATION_RATE_IN_MS_PER_PIXEL); *//*
+                                                      : (updateInterval - ACCELERATION_RATE_IN_MS_PER_PIXEL); */
             if (currentPixel >= nextInflection - (SCANNER_DELAY_INTERVAL_IN_MS - 1)) {
                 updateInterval += 1;
             } else {
@@ -370,7 +373,7 @@ class AnimationTestSprite : public Sprite {
         return true;
     }
 };
-*/
+
 
 class W8V1ScannerDebrisV1Sprite : public Sprite {
   private:
@@ -852,11 +855,8 @@ bool testSpritesCreated;
 int starttime = millis();
 
 void setup() {
-    debug(1);
     createColorsets();
-    debug(2);
     createAnimationFrames();
-    debug(3);
 
     isBooted = false;
     testSpritesCreated = false;
@@ -1128,118 +1128,80 @@ void createAnimationFrames() {
     // (For example, if I want to animate a scanner but the animation loaded into memory starts going in the other direction, you can have the sprite reverse once, then spin around
     //  and execute that animation, which always ends with the sprite in the right position for frame 1 of the scanner animation. Which presumes they all start off in the same position on the same start pixel? Note to self.)
 
-    //                       1234567890123456789012345678901234567890123456012345678901
-    // strcat(afc_3_pulse, "                                                                                     77");
-//     strcat(afc_3_pulse, "                                                                                     88");
-//     strcat(afc_3_pulse, "                                                                                     88");
-//     strcat(afc_3_pulse, "                                                                                     88");
-//     strcat(afc_3_pulse, "                                                                                    887");
-//     strcat(afc_3_pulse, "                                                                                    887");
-//     strcat(afc_3_pulse, "                                                                                    887");
-//     strcat(afc_3_pulse, "                                                                                   8876");
-//     strcat(afc_3_pulse, "                                                                                   8876");
-//     strcat(afc_3_pulse, "                                                                                  88765");
-//     strcat(afc_3_pulse, "                                                                                 887654");
-//     strcat(afc_3_pulse, "                                                                              887654321");
-//     strcat(afc_3_pulse, "                                                                           887654321   ");
-//     strcat(afc_3_pulse, "                                                                       887654321       ");
-//     strcat(afc_3_pulse, "                                                                  887654321            ");
-//     strcat(afc_3_pulse, "                                                            887654321                  ");
-//     strcat(afc_3_pulse, "                                                     887654321                         ");
-//     strcat(afc_3_pulse, "                                               8876654321                              ");
-//     strcat(afc_3_pulse, "                                         887654321                                     ");
-//     strcat(afc_3_pulse, "                                   887654321                                           ");
-//     strcat(afc_3_pulse, "                              887654321                                                ");
-//     strcat(afc_3_pulse, "                         887654321                                                     ");
-//     strcat(afc_3_pulse, "                    887654321                                                          ");
-//     strcat(afc_3_pulse, "                887654321                                                              ");
-//     strcat(afc_3_pulse, "             887654321                                                                 ");
-//     strcat(afc_3_pulse, "           887654321                                                                   ");
-//     strcat(afc_3_pulse, "          887654321                                                                    ");
-//     strcat(afc_3_pulse, "         887654321                                                                     ");
-//     strcat(afc_3_pulse, "         88654321                                                                      ");
-//     strcat(afc_3_pulse, "        8854321                                                                        ");
-//     strcat(afc_3_pulse, "        884321                                                                         ");
-//     strcat(afc_3_pulse, "        88321                                                                          ");
-//     strcat(afc_3_pulse, "        8821                                                                           ");
-//     strcat(afc_3_pulse, "       881                                                                             ");
-//     strcat(afc_3_pulse, "       88                                                                              ");
-    
+    strcpy(afc_timing_test, "123456788                                                 ");
+    strcat(afc_timing_test, "1234567888                                                ");
+    strcat(afc_timing_test, "  1234567888                                              ");
+    strcat(afc_timing_test, "     1234567888                                           ");
+    strcat(afc_timing_test, "       123456677888                                       ");
+    strcat(afc_timing_test, "        1223344556667788                                  ");
+    strcat(afc_timing_test, "         111122233344556667788                            ");
+    strcat(afc_timing_test, "              11111222233344556667788                     ");
+    strcat(afc_timing_test, "                   11111222333444555666788                ");
+    strcat(afc_timing_test, "                          1111112223344556788             ");
+    strcat(afc_timing_test, "                                 11111223456788           ");
+    strcat(afc_timing_test, "                                     11123456788          ");
+    strcat(afc_timing_test, "                                        1123467831        ");
+    strcat(afc_timing_test, "                                            12468531      ");
+    strcat(afc_timing_test, "                                             11386421     ");
+    strcat(afc_timing_test, "                                              1287543211  ");
+    strcat(afc_timing_test, "                                               18865432211");
+    strcat(afc_timing_test, "                                               886443211  ");
+    strcat(afc_timing_test, "                                              88765431    ");
+    strcat(afc_timing_test, "                                            4887654321    ");
+    strcat(afc_timing_test, "                                            4886421       ");
+    strcat(afc_timing_test, "                                            138831        ");
+    strcat(afc_timing_test, "                                            138831        ");
+    strcat(afc_timing_test, "                                            138831        ");
+    strcat(afc_timing_test, "                                            138831        ");
+    strcat(afc_timing_test, "                                            138831        ");
 
-//     strcpy(afc_timing_test, "123456788                                                 ");
-//     strcat(afc_timing_test, "1234567888                                                ");
-//     strcat(afc_timing_test, "  1234567888                                              ");
-//     strcat(afc_timing_test, "     1234567888                                           ");
-//     strcat(afc_timing_test, "       123456677888                                       ");
-//     strcat(afc_timing_test, "        1223344556667788                                  ");
-//     strcat(afc_timing_test, "         111122233344556667788                            ");
-//     strcat(afc_timing_test, "              11111222233344556667788                     ");
-//     strcat(afc_timing_test, "                   11111222333444555666788                ");
-//     strcat(afc_timing_test, "                          1111112223344556788             ");
-//     strcat(afc_timing_test, "                                 11111223456788           ");
-//     strcat(afc_timing_test, "                                     11123456788          ");
-//     strcat(afc_timing_test, "                                        1123467831        ");
-//     strcat(afc_timing_test, "                                            12468531      ");
-//     strcat(afc_timing_test, "                                             11386421     ");
-//     strcat(afc_timing_test, "                                              1287543211  ");
-//     strcat(afc_timing_test, "                                               18865432211");
-//     strcat(afc_timing_test, "                                               886443211  ");
-//     strcat(afc_timing_test, "                                              88765431    ");
-//     strcat(afc_timing_test, "                                            4887654321    ");
-//     strcat(afc_timing_test, "                                            4886421       ");
-//     strcat(afc_timing_test, "                                            138831        ");
-//     strcat(afc_timing_test, "                                            138831        ");
-//     strcat(afc_timing_test, "                                            138831        ");
-//     strcat(afc_timing_test, "                                            138831        ");
-//     strcat(afc_timing_test, "                                            138831        ");
-//
-//     //                       12345678901234567890123
-//     strcpy(afc_2_sparkle_a, "123456788              ");
-//     strcat(afc_2_sparkle_a, " 123456788             ");
-//     strcat(afc_2_sparkle_a, "  123456788            ");
-//     strcat(afc_2_sparkle_a, "    12345677           ");
-//     strcat(afc_2_sparkle_a, "     1234566           ");
-//     strcat(afc_2_sparkle_a, "       123455          ");
-//     strcat(afc_2_sparkle_a, "        12344          ");
-//     strcat(afc_2_sparkle_a, "          1233         ");
-//     strcat(afc_2_sparkle_a, "           122         ");
-//     strcat(afc_2_sparkle_a, "             11        ");
-//     strcat(afc_2_sparkle_a, "                       ");
-//     strcat(afc_2_sparkle_a, "                1      ");
-//     strcat(afc_2_sparkle_a, "                1  1   ");
-//     strcat(afc_2_sparkle_a, "             1  21 2   ");
-//     strcat(afc_2_sparkle_a, "             1  1  3   ");
-//     strcat(afc_2_sparkle_a, "             21  1 4   ");
-//     strcat(afc_2_sparkle_a, "             31 11 5   ");
-//     strcat(afc_2_sparkle_a, "             42122 6   ");
-//     strcat(afc_2_sparkle_a, "             51213 7   ");
-//     strcat(afc_2_sparkle_a, "                       ");
-//     strcat(afc_2_sparkle_a, "           1 71414 2  1");
-//     strcat(afc_2_sparkle_a, "           2 51626271 1");
-//     strcat(afc_2_sparkle_a, "        1  1 42837422 1");
-//     strcat(afc_2_sparkle_a, "        2  2131428681  ");
-//     strcat(afc_2_sparkle_a, "          13222813472  ");
-//     strcat(afc_2_sparkle_a, "        2  2313428623 1");
-//     strcat(afc_2_sparkle_a, "       1 1 14 2833472 2");
-//     strcat(afc_2_sparkle_a, "        2   5 1628681 3");
-//     strcat(afc_2_sparkle_a, "           16  41342  2");
-//     strcat(afc_2_sparkle_a, "        2 127 122367  1");
-//     strcat(afc_2_sparkle_a, "        1 23811 4846   ");
-//     strcat(afc_2_sparkle_a, "       1  1262  6325  1");
-//     strcat(afc_2_sparkle_a, "       1   183  62 4  2");
-//     strcat(afc_2_sparkle_a, "        1   641 8123  3");
-//     strcat(afc_2_sparkle_a, "        2  185143242  4");
-//     strcat(afc_2_sparkle_a, "            64168161  5");
-//     strcat(afc_2_sparkle_a, "           185 8314   4");
-//     strcat(afc_2_sparkle_a, "           274 46 6   5");
-//     strcat(afc_2_sparkle_a, "           36218614   4");
-//     strcat(afc_2_sparkle_a, "           254244262  2");
-//     strcat(afc_2_sparkle_a, "           147382144  1");
-//     strcat(afc_2_sparkle_a, "           235261262   ");
-//     strcat(afc_2_sparkle_a, "           327141145   ");
-//     strcat(afc_2_sparkle_a, "           215 2 122   ");
-//     strcat(afc_2_sparkle_a, "           1 7   216   ");
-//
+    //                       12345678901234567890123
+    strcpy(afc_2_sparkle_a, "123456788              ");
+    strcat(afc_2_sparkle_a, " 123456788             ");
+    strcat(afc_2_sparkle_a, "  123456788            ");
+    strcat(afc_2_sparkle_a, "    12345677           ");
+    strcat(afc_2_sparkle_a, "     1234566           ");
+    strcat(afc_2_sparkle_a, "       123455          ");
+    strcat(afc_2_sparkle_a, "        12344          ");
+    strcat(afc_2_sparkle_a, "          1233         ");
+    strcat(afc_2_sparkle_a, "           122         ");
+    strcat(afc_2_sparkle_a, "             11        ");
+    strcat(afc_2_sparkle_a, "                       ");
+    strcat(afc_2_sparkle_a, "                1      ");
+    strcat(afc_2_sparkle_a, "                1  1   ");
+    strcat(afc_2_sparkle_a, "             1  21 2   ");
+    strcat(afc_2_sparkle_a, "             1  1  3   ");
+    strcat(afc_2_sparkle_a, "             21  1 4   ");
+    strcat(afc_2_sparkle_a, "             31 11 5   ");
+    strcat(afc_2_sparkle_a, "             42122 6   ");
+    strcat(afc_2_sparkle_a, "             51213 7   ");
+    strcat(afc_2_sparkle_a, "                       ");
+    strcat(afc_2_sparkle_a, "           1 71414 2  1");
+    strcat(afc_2_sparkle_a, "           2 51626271 1");
+    strcat(afc_2_sparkle_a, "        1  1 42837422 1");
+    strcat(afc_2_sparkle_a, "        2  2131428681  ");
+    strcat(afc_2_sparkle_a, "          13222813472  ");
+    strcat(afc_2_sparkle_a, "        2  2313428623 1");
+    strcat(afc_2_sparkle_a, "       1 1 14 2833472 2");
+    strcat(afc_2_sparkle_a, "        2   5 1628681 3");
+    strcat(afc_2_sparkle_a, "           16  41342  2");
+    strcat(afc_2_sparkle_a, "        2 127 122367  1");
+    strcat(afc_2_sparkle_a, "        1 23811 4846   ");
+    strcat(afc_2_sparkle_a, "       1  1262  6325  1");
+    strcat(afc_2_sparkle_a, "       1   183  62 4  2");
+    strcat(afc_2_sparkle_a, "        1   641 8123  3");
+    strcat(afc_2_sparkle_a, "        2  185143242  4");
+    strcat(afc_2_sparkle_a, "            64168161  5");
+    strcat(afc_2_sparkle_a, "           185 8314   4");
+    strcat(afc_2_sparkle_a, "           274 46 6   5");
+    strcat(afc_2_sparkle_a, "           36218614   4");
+    strcat(afc_2_sparkle_a, "           254244262  2");
+    strcat(afc_2_sparkle_a, "           147382144  1");
+    strcat(afc_2_sparkle_a, "           235261262   ");
+    strcat(afc_2_sparkle_a, "           327141145   ");
+    strcat(afc_2_sparkle_a, "           215 2 122   ");
+    strcat(afc_2_sparkle_a, "           1 7   216   ");
+
 //     // Zoomie Intro
 //     //                        12345678901234567890123456789012345678901234560123456789012345678901234567890123456789012345601234567890123456789012345678901234567890123456012345678901234567890123456789012345678901234560123456789012
 //     strcpy(afc_zoomie_intro, "123456788                                                                                                                                                                                               ");
