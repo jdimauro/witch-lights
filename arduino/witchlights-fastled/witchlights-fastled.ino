@@ -23,8 +23,8 @@
 #define SCANNER_MAX_SCANS    5
 
 // currently set this to be consistent for animation design
-#define SCANNER_MIN_STOP_DISTANCE    50   // This probably shouldn't be smaller than 40. If it is scanners may get stuck in place if they don't have enough "exit velocity". // 40
-#define SCANNER_MAX_STOP_DISTANCE    60   // 120
+#define SCANNER_MIN_STOP_DISTANCE    30   // This probably shouldn't be smaller than 40. If it is scanners may get stuck in place if they don't have enough "exit velocity". // 40
+#define SCANNER_MAX_STOP_DISTANCE    50  // 120
 
 #define SPRITE_STARTING_DELAY_INTERVAL_IN_MS   40
 #define SCANNER_DELAY_INTERVAL_IN_MS           10
@@ -271,7 +271,7 @@ class AnimationTestSprite : public Sprite {
         this->nextInflection = 0;
         SetNextInflection();
         this->scanCount = 0;
-        this->scanCountTotal = GetNewScanCountTotal();
+        this->scanCountTotal = 1;
         this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
 
         // Choose a random color palette from the palettes available.
@@ -292,7 +292,7 @@ class AnimationTestSprite : public Sprite {
         this->patternLength = 10;
 
         for (int i = 0; i < TIMINGTEST_ANIMATION_FRAME_WIDTH * TIMINGTEST_ANIMATION_FRAMES; i++) {
-            afc_timing_test[i] = afc_timing_test[i] > ' ' ? colorSets[colorPalette][afc_timing_test[i] - '0'] : CRGB::Black;
+            af_timing_test[i] = afc_timing_test[i] > ' ' ? colorSets[colorPalette][afc_timing_test[i] - '0'] : CRGB::Black;
         }
     }
 
@@ -316,10 +316,10 @@ class AnimationTestSprite : public Sprite {
         // Going from scanning to travel mode.
         if (isScanning && scanCount == scanCountTotal) {
             isScanning = false;
-            currentPixel += 8;
+            currentPixel += TIMINGTEST_ANIMATION_FRAME_WIDTH; // 8
             SetNextInflection();
             this->scanCount = 0;
-            this->scanCountTotal = GetNewScanCountTotal();
+            this->scanCountTotal = 1;
             this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
             leds[currentPixel - 6] = CRGB::Black;
             leds[currentPixel - 8] = CRGB::Black;
@@ -355,7 +355,7 @@ class AnimationTestSprite : public Sprite {
                 updateInterval = SCANNER_DELAY_INTERVAL_IN_MS;
                 isScanning = true;
                 scanningFrame = 0;
-                currentPixel -= 8;
+                currentPixel -= 0; // -8 normally
             }
 
             if (currentPixel > NUM_LEDS) {
@@ -363,7 +363,7 @@ class AnimationTestSprite : public Sprite {
             }
         } else {
             stripcpy(leds, af_timing_test + TIMINGTEST_ANIMATION_FRAME_WIDTH * scanningFrame, currentPixel, TIMINGTEST_ANIMATION_FRAME_WIDTH, TIMINGTEST_ANIMATION_FRAME_WIDTH);
-            if (++scanningFrame == ANIMATION_FRAMES) {
+            if (++scanningFrame == TIMINGTEST_ANIMATION_FRAMES) {
                 scanningFrame = 0;
                 ++scanCount;
                 SetNextInflection();
@@ -912,7 +912,8 @@ void loop() {
     // End (A).
 
     if (sensor1->IsActuated()) {
-        Sprite *s1 = new W8V1ScannerDebrisV1Sprite();
+        // Sprite *s1 = new W8V1ScannerDebrisV1Sprite();
+        Sprite *s1 = new AnimationTestSprite();
 
         if (! spriteManager->Add(s1)) {
             delete s1;
