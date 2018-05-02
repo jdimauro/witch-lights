@@ -14,7 +14,7 @@
 #define PIR_SENSOR_2_PIN     4
 #define NEOPIXEL_DATA_PIN    6                // Pin for neopixels
 
-#define INFRARED_SENSOR_TIMEOUT_IN_MS   10000  // Ten seconds.
+#define INFRARED_SENSOR_TIMEOUT_IN_MS   1000  // Ten seconds.
 
 #define SCANNER_SPRITE_FRAME_DELAY_IN_MS     1
 #define TEST_PATTERN_FRAME_DELAY_IN_MS       1
@@ -23,8 +23,8 @@
 #define SCANNER_MAX_SCANS    5
 
 // currently set this to be consistent for animation design
-#define SCANNER_MIN_STOP_DISTANCE    35   // This probably shouldn't be smaller than 40. If it is scanners may get stuck in place if they don't have enough "exit velocity". // 40
-#define SCANNER_MAX_STOP_DISTANCE    35  // 120
+#define SCANNER_MIN_STOP_DISTANCE    25   // This probably shouldn't be smaller than 40. If it is scanners may get stuck in place if they don't have enough "exit velocity". // 40
+#define SCANNER_MAX_STOP_DISTANCE    25  // 120
 
 #define SPRITE_STARTING_DELAY_INTERVAL_IN_MS   45 // 40
 #define SCANNER_DELAY_INTERVAL_IN_MS           10
