@@ -23,10 +23,10 @@
 #define SCANNER_MAX_SCANS    5
 
 // currently set this to be consistent for animation design
-#define SCANNER_MIN_STOP_DISTANCE    30   // This probably shouldn't be smaller than 40. If it is scanners may get stuck in place if they don't have enough "exit velocity". // 40
-#define SCANNER_MAX_STOP_DISTANCE    50  // 120
+#define SCANNER_MIN_STOP_DISTANCE    35   // This probably shouldn't be smaller than 40. If it is scanners may get stuck in place if they don't have enough "exit velocity". // 40
+#define SCANNER_MAX_STOP_DISTANCE    35  // 120
 
-#define SPRITE_STARTING_DELAY_INTERVAL_IN_MS   40
+#define SPRITE_STARTING_DELAY_INTERVAL_IN_MS   45 // 40
 #define SCANNER_DELAY_INTERVAL_IN_MS           10
 
 // For testing use only. In production, set this equal to 1. Use this to exaggerate the acceleration effects. 10-20 is good for testing.
