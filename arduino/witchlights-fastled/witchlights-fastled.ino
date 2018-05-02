@@ -291,7 +291,7 @@ class AnimationTestSprite : public Sprite {
 
         this->patternLength = 10;
 
-        for (int i = 0; i < ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES; i++) {
+        for (int i = 0; i < TIMINGTEST_ANIMATION_FRAME_WIDTH * TIMINGTEST_ANIMATION_FRAMES; i++) {
             afc_timing_test[i] = afc_timing_test[i] > ' ' ? colorSets[colorPalette][afc_timing_test[i] - '0'] : CRGB::Black;
         }
     }
@@ -362,7 +362,7 @@ class AnimationTestSprite : public Sprite {
                this->MarkDone();
             }
         } else {
-            stripcpy(leds, af_timing_test + ANIMATION_FRAME_WIDTH * scanningFrame, currentPixel, ANIMATION_FRAME_WIDTH, ANIMATION_FRAME_WIDTH);
+            stripcpy(leds, af_timing_test + TIMINGTEST_ANIMATION_FRAME_WIDTH * scanningFrame, currentPixel, TIMINGTEST_ANIMATION_FRAME_WIDTH, TIMINGTEST_ANIMATION_FRAME_WIDTH);
             if (++scanningFrame == ANIMATION_FRAMES) {
                 scanningFrame = 0;
                 ++scanCount;
