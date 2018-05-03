@@ -14,3 +14,4 @@ I'll get into what caused it later, but I hunted down the cause and fixed it. So
 
 The frame rate is *much* faster than I thought. That's good. It can also be adjusted with an `UpdateInterval` variable, so that's also good. 
 
+I'll go into the cause of the crash at a later date, because it's going to affect my strategy and approach to the whole thing. But for now I'm happy with this progress.

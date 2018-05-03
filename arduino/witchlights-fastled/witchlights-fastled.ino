@@ -14,7 +14,7 @@
 #define PIR_SENSOR_2_PIN     4
 #define NEOPIXEL_DATA_PIN    6                // Pin for neopixels
 
-#define INFRARED_SENSOR_TIMEOUT_IN_MS   1000  // Ten seconds.
+#define INFRARED_SENSOR_TIMEOUT_IN_MS   10000  // Ten seconds.
 
 #define SCANNER_SPRITE_FRAME_DELAY_IN_MS     1
 #define TEST_PATTERN_FRAME_DELAY_IN_MS       1
@@ -23,11 +23,11 @@
 #define SCANNER_MAX_SCANS    5
 
 // currently set this to be consistent for animation design
-#define SCANNER_MIN_STOP_DISTANCE    25   // This probably shouldn't be smaller than 40. If it is scanners may get stuck in place if they don't have enough "exit velocity". // 40
-#define SCANNER_MAX_STOP_DISTANCE    25  // 120
+#define SCANNER_MIN_STOP_DISTANCE    30   // This probably shouldn't be smaller than 40. If it is scanners may get stuck in place if they don't have enough "exit velocity". // 40
+#define SCANNER_MAX_STOP_DISTANCE    60  // 120
 
-#define SPRITE_STARTING_DELAY_INTERVAL_IN_MS   45 // 40
-#define SCANNER_DELAY_INTERVAL_IN_MS           10
+#define SPRITE_STARTING_DELAY_INTERVAL_IN_MS   40 // 40
+#define SCANNER_DELAY_INTERVAL_IN_MS           20
 
 // For testing use only. In production, set this equal to 1. Use this to exaggerate the acceleration effects. 10-20 is good for testing.
 #define ACCELERATION_DELAY_OBVIOUSNESS_FACTOR        1
@@ -46,8 +46,8 @@
 #define TIMINGTEST_ANIMATION_FRAME_WIDTH  58
 #define TIMINGTEST_ANIMATION_FRAMES       26
 
-// #define afc_3_pulse_ANIMATION_FRAME_WIDTH   87
-// #define afc_3_pulse_ANIMATION_FRAMES   268
+#define afc_f_slow_stop_ANIMATION_FRAME_WIDTH   17
+#define afc_f_slow_stop_ANIMATION_FRAMES        65
 
 
 
@@ -80,17 +80,12 @@ CRGB af_w8v1r[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
 char afc_timing_test[TIMINGTEST_ANIMATION_FRAME_WIDTH * TIMINGTEST_ANIMATION_FRAMES];
 CRGB af_timing_test[TIMINGTEST_ANIMATION_FRAME_WIDTH * TIMINGTEST_ANIMATION_FRAMES];
 
-char afc_2_sparkle_a[SPARKLE_ANIMATION_FRAME_WIDTH * SPARKLE_ANIMATION_FRAMES];
-CRGB af_2_sparkle_a[SPARKLE_ANIMATION_FRAME_WIDTH * SPARKLE_ANIMATION_FRAMES];
+// char afc_2_sparkle_a[SPARKLE_ANIMATION_FRAME_WIDTH * SPARKLE_ANIMATION_FRAMES];
+// CRGB af_2_sparkle_a[SPARKLE_ANIMATION_FRAME_WIDTH * SPARKLE_ANIMATION_FRAMES];
 
-// char afc_3_sparkle_a[SPARKLE_ANIMATION_FRAME_WIDTH * SPARKLE_ANIMATION_FRAMES];
-// CRGB af_3_sparkle_a[SPARKLE_ANIMATION_FRAME_WIDTH * SPARKLE_ANIMATION_FRAMES];
+char afc_f_slow_stop[afc_f_slow_stop_ANIMATION_FRAME_WIDTH * afc_f_slow_stop_ANIMATION_FRAMES];
+CRGB af_f_slow_stop[afc_f_slow_stop_ANIMATION_FRAME_WIDTH * afc_f_slow_stop_ANIMATION_FRAMES];
 
-// char afc_zoomie_intro[ZOOMIE_ANIMATION_FRAME_WIDTH * ZOOMIE_ANIMATION_FRAMES];
-// CRGB af_zoomie_intro[ZOOMIE_ANIMATION_FRAME_WIDTH * ZOOMIE_ANIMATION_FRAMES];
-//
-// char afc_3_pulse[afc_3_pulse_ANIMATION_FRAME_WIDTH * afc_3_pulse_ANIMATION_FRAMES];
-// CRGB af_3_pulse[afc_3_pulse_ANIMATION_FRAME_WIDTH * afc_3_pulse_ANIMATION_FRAMES];
 
 // Function prototypes.
 void resetStrip(void);
@@ -364,6 +359,144 @@ class AnimationTestSprite : public Sprite {
         } else {
             stripcpy(leds, af_timing_test + TIMINGTEST_ANIMATION_FRAME_WIDTH * scanningFrame, currentPixel, TIMINGTEST_ANIMATION_FRAME_WIDTH, TIMINGTEST_ANIMATION_FRAME_WIDTH);
             if (++scanningFrame == TIMINGTEST_ANIMATION_FRAMES) {
+                scanningFrame = 0;
+                ++scanCount;
+                SetNextInflection();
+            }
+        }
+
+        return true;
+    }
+};
+
+class FragmentTestSprite : public Sprite {
+  private:
+    int updateInterval;
+    int currentPixel;
+    bool isScanning;
+    int scanningFrame;
+    int lastInflection;
+    int nextInflection;
+    int scanCount;
+    int scanCountTotal;
+
+    // pattern is one black pixel plus remaining pixels in order of increasing brightness with brightest pixel doubled.
+    CRGB pattern[NUM_COLORS_PER_SET + 1];
+    int patternLength = NUM_COLORS_PER_SET + 1;
+
+    void SetNextInflection() {
+        lastInflection = nextInflection;
+        nextInflection += random(SCANNER_MIN_STOP_DISTANCE, SCANNER_MAX_STOP_DISTANCE + 1);
+    }
+
+    int GetNewScanCountTotal() {
+        return random(SCANNER_MIN_SCANS, SCANNER_MAX_SCANS + 1);
+    }
+
+  public:
+    FragmentTestSprite() : Sprite() {
+        // Initial state.
+        this->currentPixel = -8;  // The first pixel of the pattern is black.
+        this->scanningFrame = 0;
+        this->isScanning = false;
+        this->lastInflection = 0;
+        this->nextInflection = 0;
+        SetNextInflection();
+        this->scanCount = 0;
+        this->scanCountTotal = 1;
+        this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
+
+        // Choose a random color palette from the palettes available.
+        int colorPalette = random(0, NUM_COLORSETS);
+
+        // Set the colors in the pattern.
+        this->pattern[0] = colorSets[colorPalette][0];
+        this->pattern[1] = colorSets[colorPalette][1];
+        this->pattern[2] = colorSets[colorPalette][2];
+        this->pattern[3] = colorSets[colorPalette][3];
+        this->pattern[4] = colorSets[colorPalette][4];
+        this->pattern[5] = colorSets[colorPalette][5];
+        this->pattern[6] = colorSets[colorPalette][6];
+        this->pattern[7] = colorSets[colorPalette][7];
+        this->pattern[8] = colorSets[colorPalette][8];
+        this->pattern[9] = colorSets[colorPalette][8];
+
+        this->patternLength = 10;
+
+        for (int i = 0; i < afc_f_slow_stop_ANIMATION_FRAME_WIDTH * afc_f_slow_stop_ANIMATION_FRAMES; i++) {
+            af_f_slow_stop[i] = afc_f_slow_stop[i] > ' ' ? colorSets[colorPalette][afc_f_slow_stop[i] - '0'] : CRGB::Black;
+        }
+    }
+
+    ~FragmentTestSprite() {
+    }
+
+    boolean UpdateNow() {
+      if (millis() - lastUpdateTime >= ACCELERATION_DELAY_OBVIOUSNESS_FACTOR * updateInterval) {
+        lastUpdateTime = millis();
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    bool Update() {
+        if (! this->UpdateNow()) {
+            return false;
+        }
+
+        // Going from scanning to travel mode.
+        if (isScanning && scanCount == scanCountTotal) {
+            isScanning = false;
+            currentPixel += afc_f_slow_stop_ANIMATION_FRAME_WIDTH; // 8
+            currentPixel -= 8;
+            SetNextInflection();
+            this->scanCount = 0;
+            this->scanCountTotal = 1;
+            this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
+            leds[currentPixel - 6] = CRGB::Black;
+            leds[currentPixel - 8] = CRGB::Black;
+            leds[currentPixel - 9] = CRGB::Black;  // I hate this. One-off to get rid of the straggler when coming out of scan mode.
+            leds[currentPixel - 10] = CRGB::Black;
+        }
+
+        if (! isScanning) {
+            // Traveling and continuing to travel.
+            stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
+            ++currentPixel;
+
+            // Are we nearer the last inflection than the next inflection? If so, speed up. Otherwise, slow down.
+/*            int updateInterval = (currentPixel >= (lastInflection + nextInflection) / 2)
+                                                      ? (updateInterval + ACCELERATION_RATE_IN_MS_PER_PIXEL)
+                                                      : (updateInterval - ACCELERATION_RATE_IN_MS_PER_PIXEL); */
+            if (currentPixel >= nextInflection - (SCANNER_DELAY_INTERVAL_IN_MS - 1)) {
+                updateInterval += 1;
+            } else {
+                updateInterval -= 1;
+            }
+
+            if (updateInterval < 1) {
+                updateInterval = 1;
+            } else if (updateInterval > SPRITE_STARTING_DELAY_INTERVAL_IN_MS) {
+                updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
+            }
+
+            // Transition from travel mode to scanning.
+            if (currentPixel >= nextInflection) {
+                // Safety. Since I don't trust my math, once we enter scanning mode, ALWAYS go back to the constant speed for scanning
+                // regardless of what the math said.
+                updateInterval = SCANNER_DELAY_INTERVAL_IN_MS;
+                isScanning = true;
+                scanningFrame = 0;
+                currentPixel += 1; // -8 normally
+            }
+
+            if (currentPixel > NUM_LEDS) {
+               this->MarkDone();
+            }
+        } else {
+            stripcpy(leds, af_f_slow_stop + afc_f_slow_stop_ANIMATION_FRAME_WIDTH * scanningFrame, currentPixel, afc_f_slow_stop_ANIMATION_FRAME_WIDTH, afc_f_slow_stop_ANIMATION_FRAME_WIDTH);
+            if (++scanningFrame == afc_f_slow_stop_ANIMATION_FRAMES) {
                 scanningFrame = 0;
                 ++scanCount;
                 SetNextInflection();
@@ -913,7 +1046,8 @@ void loop() {
 
     if (sensor1->IsActuated()) {
         // Sprite *s1 = new W8V1ScannerDebrisV1Sprite();
-        Sprite *s1 = new AnimationTestSprite();
+        // Sprite *s1 = new AnimationTestSprite();
+      Sprite *s1 = new FragmentTestSprite();
 
         if (! spriteManager->Add(s1)) {
             delete s1;
@@ -1159,6 +1293,9 @@ void createAnimationFrames() {
     strcat(afc_timing_test, "                                            138831        ");
     strcat(afc_timing_test, "                                            138831        ");
 
+/*
+  
+
     //                       12345678901234567890123
     strcpy(afc_2_sparkle_a, "123456788              ");
     strcat(afc_2_sparkle_a, " 123456788             ");
@@ -1205,317 +1342,72 @@ void createAnimationFrames() {
     strcat(afc_2_sparkle_a, "           327141145   ");
     strcat(afc_2_sparkle_a, "           215 2 122   ");
     strcat(afc_2_sparkle_a, "           1 7   216   ");
-
-//     // Zoomie Intro
-//     //                        12345678901234567890123456789012345678901234560123456789012345678901234567890123456789012345601234567890123456789012345678901234567890123456012345678901234567890123456789012345678901234560123456789012
-//     strcpy(afc_zoomie_intro, "123456788                                                                                                                                                                                               ");
-//     strcat(afc_zoomie_intro, " 123456788                                                                                                                                                                                              ");
-//     strcat(afc_zoomie_intro, "  123456788                                                                                                                                                                                             ");
-//     strcat(afc_zoomie_intro, "   1 23456788                                                                                                                                                                                           ");
-//     strcat(afc_zoomie_intro, "     1 23456788                                                                                                                                                                                         ");
-//     strcat(afc_zoomie_intro, "       1 23456788                                                                                                                                                                                       ");
-//     strcat(afc_zoomie_intro, "         1 2 3456788                                                                                                                                                                                    ");
-//     strcat(afc_zoomie_intro, "           1 2  3456788                                                                                                                                                                                 ");
-//     strcat(afc_zoomie_intro, "              1 2  3456788                                                                                                                                                                              ");
-//     strcat(afc_zoomie_intro, "                 1 2  3 456788                                                                                                                                                                          ");
-//     strcat(afc_zoomie_intro, "                    1 2  3  456788                                                                                                                                                                      ");
-//     strcat(afc_zoomie_intro, "                       1 2  3   456788                                                                                                                                                                  ");
-//     strcat(afc_zoomie_intro, "                           1 2  3   456788                                                                                                                                                              ");
-//     strcat(afc_zoomie_intro, "                               1 2  3   456788                                                                                                                                                          ");
-//     strcat(afc_zoomie_intro, "                                   1 2  3   4 56788                                                                                                                                                     ");
-//     strcat(afc_zoomie_intro, "                                       1 2  3   4  56788                                                                                                                                                ");
-//     strcat(afc_zoomie_intro, "                                           1 2  3   4   56788                                                                                                                                           ");
-//     strcat(afc_zoomie_intro, "                                               1 2  3   4    56788                                                                                                                                      ");
-//     strcat(afc_zoomie_intro, "                                                    1 2  3   4    5 6788                                                                                                                                ");
-//     strcat(afc_zoomie_intro, "                                                         1 2  3   4    5  6788                                                                                                                          ");
-//     strcat(afc_zoomie_intro, "                                                              1 2  3   4    5   6788                                                                                                                    ");
-//     strcat(afc_zoomie_intro, "                                                                   1 2  3   4    5    6788                                                                                                              ");
-//     strcat(afc_zoomie_intro, "                                                                        1 2  3   4    5     6788                                                                                                        ");
-//     strcat(afc_zoomie_intro, "                                                                              1 2  3   4    5     6788                                                                                                  ");
-//     strcat(afc_zoomie_intro, "                                                                                    1 2  3   4    5     6 788                                                                                           ");
-//     strcat(afc_zoomie_intro, "                                                                                          1 2  3   4    5     6  788                                                                                    ");
-//     strcat(afc_zoomie_intro, "                                                                                                1 2  3   4    5     6   788                                                                             ");
-//     strcat(afc_zoomie_intro, "                                                                                                      1 2  3   4    5     6    788                                                                      ");
-//     strcat(afc_zoomie_intro, "                                                                                                            1 2  3   4    5     6     788                                                               ");
-//     strcat(afc_zoomie_intro, "                                                                                                                  1 2  3   4    5     6      788                                                        ");
-//     strcat(afc_zoomie_intro, "                                                                                                                         1 2  3   4    5     6      7 88                                                ");
-//     strcat(afc_zoomie_intro, "                                                                                                                                1 2  3   4    5     6      7  88                                        ");
-//     strcat(afc_zoomie_intro, "                                                                                                                                       1 2  3   4    5     6      7   88                                ");
-//     strcat(afc_zoomie_intro, "                                                                                                                                              1 2  3   4    5     6      7    88                        ");
-//     strcat(afc_zoomie_intro, "                                                                                                                                                     1 2  3   4    5     6      7     88                ");
-//     strcat(afc_zoomie_intro, "                                                                                                                                                            1 2  3   4    5     6      7      88        ");
-//     strcat(afc_zoomie_intro, "                                                                                                                                                                   1 2  3   4    5     6      7       88");
-//
-//     // 3_pulse
-// //                       123456789012345678901234567890123456789012345678901234567890123456789012345678901234567
-//     strcpy(afc_3_pulse, "       88                                                                              ");
-//     strcat(afc_3_pulse, "       88                                                                              ");
-//     strcat(afc_3_pulse, "       77                                                                              ");
-//     strcat(afc_3_pulse, "       66                                                                              ");
-//     strcat(afc_3_pulse, "       55                                                                              ");
-//     strcat(afc_3_pulse, "       44                                                                              ");
-//     strcat(afc_3_pulse, "       44                                                                              ");
-//     strcat(afc_3_pulse, "       44                                                                              ");
-//     strcat(afc_3_pulse, "       55                                                                              ");
-//     strcat(afc_3_pulse, "       66                                                                              ");
-//     strcat(afc_3_pulse, "       77                                                                              ");
-//     strcat(afc_3_pulse, "       88                                                                              ");
-//     strcat(afc_3_pulse, "       88                                                                              ");
-//     strcat(afc_3_pulse, "       788                                                                             ");
-//     strcat(afc_3_pulse, "       788                                                                             ");
-//     strcat(afc_3_pulse, "       788                                                                             ");
-//     strcat(afc_3_pulse, "       6788                                                                            ");
-//     strcat(afc_3_pulse, "       6788                                                                            ");
-//     strcat(afc_3_pulse, "       56788                                                                           ");
-//     strcat(afc_3_pulse, "       456788                                                                          ");
-//     strcat(afc_3_pulse, "       23456788                                                                        ");
-//     strcat(afc_3_pulse, "        123456788                                                                      ");
-//     strcat(afc_3_pulse, "           123456788                                                                   ");
-//     strcat(afc_3_pulse, "              123456788                                                                ");
-//     strcat(afc_3_pulse, "                  123456788                                                            ");
-//     strcat(afc_3_pulse, "                      123456788                                                        ");
-//     strcat(afc_3_pulse, "                        123456788                                                      ");
-//     strcat(afc_3_pulse, "                         123456788                                                     ");
-//     strcat(afc_3_pulse, "                          123456788                                                    ");
-//     strcat(afc_3_pulse, "                           12345688                                                    ");
-//     strcat(afc_3_pulse, "                            1234588                                                    ");
-//     strcat(afc_3_pulse, "                             123488                                                    ");
-//     strcat(afc_3_pulse, "                              12388                                                    ");
-//     strcat(afc_3_pulse, "                               1277                                                    ");
-//     strcat(afc_3_pulse, "                                166                                                    ");
-//     strcat(afc_3_pulse, "                                 55                                                    ");
-//     strcat(afc_3_pulse, "                                 44                                                    ");
-//     strcat(afc_3_pulse, "                                 44                                                    ");
-//     strcat(afc_3_pulse, "                                 44                                                    ");
-//     strcat(afc_3_pulse, "                                 55                                                    ");
-//     strcat(afc_3_pulse, "                                 66                                                    ");
-//     strcat(afc_3_pulse, "                                 77                                                    ");
-//     strcat(afc_3_pulse, "                                 88                                                    ");
-//     strcat(afc_3_pulse, "                                 88                                                    ");
-//     strcat(afc_3_pulse, "                                 88                                                    ");
-//     strcat(afc_3_pulse, "                                 77                                                    ");
-//     strcat(afc_3_pulse, "                                 66                                                    ");
-//     strcat(afc_3_pulse, "                                 55                                                    ");
-//     strcat(afc_3_pulse, "                                 44                                                    ");
-//     strcat(afc_3_pulse, "                                 44                                                    ");
-//     strcat(afc_3_pulse, "                                 44                                                    ");
-//     strcat(afc_3_pulse, "                                 55                                                    ");
-//     strcat(afc_3_pulse, "                                 66                                                    ");
-//     strcat(afc_3_pulse, "                                 77                                                    ");
-//     strcat(afc_3_pulse, "                                 88                                                    ");
-//     strcat(afc_3_pulse, "                                 88                                                    ");
-//     strcat(afc_3_pulse, "                                887                                                    ");
-//     strcat(afc_3_pulse, "                                887                                                    ");
-//     strcat(afc_3_pulse, "                               8876                                                    ");
-//     strcat(afc_3_pulse, "                              88765                                                    ");
-//     strcat(afc_3_pulse, "                            8876543                                                    ");
-//     strcat(afc_3_pulse, "                         887654321                                                     ");
-//     strcat(afc_3_pulse, "                     887654321                                                         ");
-//     strcat(afc_3_pulse, "                   887654321                                                           ");
-//     strcat(afc_3_pulse, "                  887654321                                                            ");
-//     strcat(afc_3_pulse, "                  88654321                                                             ");
-//     strcat(afc_3_pulse, "                  8854321                                                              ");
-//     strcat(afc_3_pulse, "                  774321                                                               ");
-//     strcat(afc_3_pulse, "                  66321                                                                ");
-//     strcat(afc_3_pulse, "                  5521                                                                 ");
-//     strcat(afc_3_pulse, "                  441                                                                  ");
-//     strcat(afc_3_pulse, "                  44                                                                   ");
-//     strcat(afc_3_pulse, "                  44                                                                   ");
-//     strcat(afc_3_pulse, "                  55                                                                   ");
-//     strcat(afc_3_pulse, "                  66                                                                   ");
-//     strcat(afc_3_pulse, "                  77                                                                   ");
-//     strcat(afc_3_pulse, "                  88                                                                   ");
-//     strcat(afc_3_pulse, "                  88                                                                   ");
-//     strcat(afc_3_pulse, "                  88                                                                   ");
-//     strcat(afc_3_pulse, "                  788                                                                  ");
-//     strcat(afc_3_pulse, "                  788                                                                  ");
-//     strcat(afc_3_pulse, "                  6788                                                                 ");
-//     strcat(afc_3_pulse, "                  456788                                                               ");
-//     strcat(afc_3_pulse, "                  123456788                                                            ");
-//     strcat(afc_3_pulse, "                      123456788                                                        ");
-//     strcat(afc_3_pulse, "                          123456788                                                    ");
-//     strcat(afc_3_pulse, "                              123456788                                                ");
-//     strcat(afc_3_pulse, "                                 123456788                                             ");
-//     strcat(afc_3_pulse, "                                   123456788                                           ");
-//     strcat(afc_3_pulse, "                                    123456788                                          ");
-//     strcat(afc_3_pulse, "                                     12345688                                          ");
-//     strcat(afc_3_pulse, "                                      1234588                                          ");
-//     strcat(afc_3_pulse, "                                       123477                                          ");
-//     strcat(afc_3_pulse, "                                        12366                                          ");
-//     strcat(afc_3_pulse, "                                         1255                                          ");
-//     strcat(afc_3_pulse, "                                          144                                          ");
-//     strcat(afc_3_pulse, "                                           44                                          ");
-//     strcat(afc_3_pulse, "                                           44                                          ");
-//     strcat(afc_3_pulse, "                                           55                                          ");
-//     strcat(afc_3_pulse, "                                           66                                          ");
-//     strcat(afc_3_pulse, "                                           77                                          ");
-//     strcat(afc_3_pulse, "                                           88                                          ");
-//     strcat(afc_3_pulse, "                                           88                                          ");
-//     strcat(afc_3_pulse, "                                           88                                          ");
-//     strcat(afc_3_pulse, "                                           77                                          ");
-//     strcat(afc_3_pulse, "                                           66                                          ");
-//     strcat(afc_3_pulse, "                                           55                                          ");
-//     strcat(afc_3_pulse, "                                           44                                          ");
-//     strcat(afc_3_pulse, "                                           44                                          ");
-//     strcat(afc_3_pulse, "                                           44                                          ");
-//     strcat(afc_3_pulse, "                                           55                                          ");
-//     strcat(afc_3_pulse, "                                           66                                          ");
-//     strcat(afc_3_pulse, "                                           77                                          ");
-//     strcat(afc_3_pulse, "                                           88                                          ");
-//     strcat(afc_3_pulse, "                                           88                                          ");
-//     strcat(afc_3_pulse, "                                           88                                          ");
-//     strcat(afc_3_pulse, "                                          887                                          ");
-//     strcat(afc_3_pulse, "                                        88765                                          ");
-//     strcat(afc_3_pulse, "                                     88765432                                          ");
-//     strcat(afc_3_pulse, "                                 887654321                                             ");
-//     strcat(afc_3_pulse, "                              887654321                                                ");
-//     strcat(afc_3_pulse, "                             887654321                                                 ");
-//     strcat(afc_3_pulse, "                            887654321                                                  ");
-//     strcat(afc_3_pulse, "                            88654321                                                   ");
-//     strcat(afc_3_pulse, "                            8854321                                                    ");
-//     strcat(afc_3_pulse, "                            774321                                                     ");
-//     strcat(afc_3_pulse, "                            66321                                                      ");
-//     strcat(afc_3_pulse, "                            5521                                                       ");
-//     strcat(afc_3_pulse, "                            441                                                        ");
-//     strcat(afc_3_pulse, "                            33                                                         ");
-//     strcat(afc_3_pulse, "                           1441                                                        ");
-//     strcat(afc_3_pulse, "                           2552                                                        ");
-//     strcat(afc_3_pulse, "                           4664                                                        ");
-//     strcat(afc_3_pulse, "                          157751                                                       ");
-//     strcat(afc_3_pulse, "                          268862                                                       ");
-//     strcat(afc_3_pulse, "                          368863                                                       ");
-//     strcat(afc_3_pulse, "                         13688631                                                      ");
-//     strcat(afc_3_pulse, "                         13688631                                                      ");
-//     strcat(afc_3_pulse, "                          368863                                                       ");
-//     strcat(afc_3_pulse, "                          268862                                                       ");
-//     strcat(afc_3_pulse, "                          157751                                                       ");
-//     strcat(afc_3_pulse, "                           4664                                                        ");
-//     strcat(afc_3_pulse, "                           2552                                                        ");
-//     strcat(afc_3_pulse, "                           1441                                                        ");
-//     strcat(afc_3_pulse, "                            44                                                         ");
-//     strcat(afc_3_pulse, "                           1441                                                        ");
-//     strcat(afc_3_pulse, "                           2552                                                        ");
-//     strcat(afc_3_pulse, "                           4664                                                        ");
-//     strcat(afc_3_pulse, "                          157751                                                       ");
-//     strcat(afc_3_pulse, "                          268862                                                       ");
-//     strcat(afc_3_pulse, "                          368863                                                       ");
-//     strcat(afc_3_pulse, "                         13688631                                                      ");
-//     strcat(afc_3_pulse, "                         13688631                                                      ");
-//     strcat(afc_3_pulse, "                          368863                                                       ");
-//     strcat(afc_3_pulse, "                          268862                                                       ");
-//     strcat(afc_3_pulse, "                          157751                                                       ");
-//     strcat(afc_3_pulse, "                           4664                                                        ");
-//     strcat(afc_3_pulse, "                           2552                                                        ");
-//     strcat(afc_3_pulse, "                           2552                                                        ");
-//     strcat(afc_3_pulse, "                           1661                                                        ");
-//     strcat(afc_3_pulse, "                            77                                                         ");
-//     strcat(afc_3_pulse, "                            88                                                         ");
-//     strcat(afc_3_pulse, "                            88                                                         ");
-//     strcat(afc_3_pulse, "                            88                                                         ");
-//     strcat(afc_3_pulse, "                            788                                                        ");
-//     strcat(afc_3_pulse, "                            788                                                        ");
-//     strcat(afc_3_pulse, "                            788                                                        ");
-//     strcat(afc_3_pulse, "                            6788                                                       ");
-//     strcat(afc_3_pulse, "                            6788                                                       ");
-//     strcat(afc_3_pulse, "                            56788                                                      ");
-//     strcat(afc_3_pulse, "                            456788                                                     ");
-//     strcat(afc_3_pulse, "                            23456788                                                   ");
-//     strcat(afc_3_pulse, "                             123456788                                                 ");
-//     strcat(afc_3_pulse, "                                123456788                                              ");
-//     strcat(afc_3_pulse, "                                   123456788                                           ");
-//     strcat(afc_3_pulse, "                                       123456788                                       ");
-//     strcat(afc_3_pulse, "                                            123456788                                  ");
-//     strcat(afc_3_pulse, "                                                  123456788                            ");
-//     strcat(afc_3_pulse, "                                                        123456788                      ");
-//     strcat(afc_3_pulse, "                                                              123456788                ");
-//     strcat(afc_3_pulse, "                                                                   123456788           ");
-//     strcat(afc_3_pulse, "                                                                       123456788       ");
-//     strcat(afc_3_pulse, "                                                                          123456788    ");
-//     strcat(afc_3_pulse, "                                                                            123456788  ");
-//     strcat(afc_3_pulse, "                                                                             123456788 ");
-//     strcat(afc_3_pulse, "                                                                              12345688 ");
-//     strcat(afc_3_pulse, "                                                                                1234588");
-//     strcat(afc_3_pulse, "                                                                                 123488");
-//     strcat(afc_3_pulse, "                                                                                  12388");
-//     strcat(afc_3_pulse, "                                                                                   1277");
-//     strcat(afc_3_pulse, "                                                                                    166");
-//     strcat(afc_3_pulse, "                                                                                     55");
-//     strcat(afc_3_pulse, "                                                                                     44");
-//     strcat(afc_3_pulse, "                                                                                     44");
-//     strcat(afc_3_pulse, "                                                                                     44");
-//     strcat(afc_3_pulse, "                                                                                     55");
-//     strcat(afc_3_pulse, "                                                                                     66");
-//     strcat(afc_3_pulse, "                                                                                     77");
-//     strcat(afc_3_pulse, "                                                                                     88");
-//     strcat(afc_3_pulse, "                                                                                     88");
-//     strcat(afc_3_pulse, "                                                                                     88");
-//     strcat(afc_3_pulse, "                                                                                     77");
-//     strcat(afc_3_pulse, "                                                                                     66");
-//     strcat(afc_3_pulse, "                                                                                     55");
-//     strcat(afc_3_pulse, "                                                                                     44");
-//     strcat(afc_3_pulse, "                                                                                     44");
-//     strcat(afc_3_pulse, "                                                                                     44");
-//     strcat(afc_3_pulse, "                                                                                     55");
-//     strcat(afc_3_pulse, "                                                                                     66");
-//     strcat(afc_3_pulse, "                                                                                     77");
-//     strcat(afc_3_pulse, "                                                                                     88");
-//     strcat(afc_3_pulse, "                                                                                     88");
-//     strcat(afc_3_pulse, "                                                                                     88");
-//     strcat(afc_3_pulse, "                                                                                     77");
-//     strcat(afc_3_pulse, "                                                                                     66");
-//     strcat(afc_3_pulse, "                                                                                     55");
-//     strcat(afc_3_pulse, "                                                                                     33");
-//     strcat(afc_3_pulse, "                                                                                     11");
-//     strcat(afc_3_pulse, "                                                                                     33");
-//     strcat(afc_3_pulse, "                                                                                     55");
-//     strcat(afc_3_pulse, "                                                                                     66");
-//     strcat(afc_3_pulse, "                                                                                     77");
-//     strcat(afc_3_pulse, "                                                                                     88");
-//     strcat(afc_3_pulse, "                                                                                     88");
-//     strcat(afc_3_pulse, "                                                                                     88");
-//     strcat(afc_3_pulse, "                                                                                     77");
-//     strcat(afc_3_pulse, "                                                                                     66");
-//     strcat(afc_3_pulse, "                                                                                     55");
-//     strcat(afc_3_pulse, "                                                                                     44");
-//     strcat(afc_3_pulse, "                                                                                     44");
-//     strcat(afc_3_pulse, "                                                                                     44");
-//     strcat(afc_3_pulse, "                                                                                     55");
-//     strcat(afc_3_pulse, "                                                                                     66");
-//     strcat(afc_3_pulse, "                                                                                     77");
-    // strcat(afc_3_pulse, "                                                                                     88");
-    // strcat(afc_3_pulse, "                                                                                     88");
-    // strcat(afc_3_pulse, "                                                                                     88");
-    // strcat(afc_3_pulse, "                                                                                    887");
-    // strcat(afc_3_pulse, "                                                                                    887");
-    // strcat(afc_3_pulse, "                                                                                    887");
-    // strcat(afc_3_pulse, "                                                                                   8876");
-    // strcat(afc_3_pulse, "                                                                                   8876");
-    // strcat(afc_3_pulse, "                                                                                  88765");
-    // strcat(afc_3_pulse, "                                                                                 887654");
-    // strcat(afc_3_pulse, "                                                                              887654321");
-    // strcat(afc_3_pulse, "                                                                           887654321   ");
-    // strcat(afc_3_pulse, "                                                                       887654321       ");
-    // strcat(afc_3_pulse, "                                                                  887654321            ");
-    // strcat(afc_3_pulse, "                                                            887654321                  ");
-    // strcat(afc_3_pulse, "                                                     887654321                         ");
-    // strcat(afc_3_pulse, "                                               8876654321                              ");
-    // strcat(afc_3_pulse, "                                         887654321                                     ");
-    // strcat(afc_3_pulse, "                                   887654321                                           ");
-    // strcat(afc_3_pulse, "                              887654321                                                ");
-    // strcat(afc_3_pulse, "                         887654321                                                     ");
-    // strcat(afc_3_pulse, "                    887654321                                                          ");
-    // strcat(afc_3_pulse, "                887654321                                                              ");
-    // strcat(afc_3_pulse, "             887654321                                                                 ");
-    // strcat(afc_3_pulse, "           887654321                                                                   ");
-    // strcat(afc_3_pulse, "          887654321                                                                    ");
-    // strcat(afc_3_pulse, "         887654321                                                                     ");
-    // strcat(afc_3_pulse, "         88654321                                                                      ");
-    // strcat(afc_3_pulse, "        8854321                                                                        ");
-    // strcat(afc_3_pulse, "        884321                                                                         ");
-    // strcat(afc_3_pulse, "        88321                                                                          ");
-    // strcat(afc_3_pulse, "        8821                                                                           ");
-    // strcat(afc_3_pulse, "       881                                                                             ");
-    // strcat(afc_3_pulse, "       88                                                                              ");
-
-
+*/
+    //                       12345678901234567
+    strcpy(afc_f_slow_stop, "123456788        ");
+    strcat(afc_f_slow_stop, " 123456778       ");
+    strcat(afc_f_slow_stop, "  123456678      ");
+    strcat(afc_f_slow_stop, "   12345568      ");
+    strcat(afc_f_slow_stop, "    12344578     ");
+    strcat(afc_f_slow_stop, "     1233468     ");
+    strcat(afc_f_slow_stop, "      122357     ");
+    strcat(afc_f_slow_stop, "       112468    ");
+    strcat(afc_f_slow_stop, "         1358    ");
+    strcat(afc_f_slow_stop, "          248    ");
+    strcat(afc_f_slow_stop, "          158    ");
+    strcat(afc_f_slow_stop, "           68    ");
+    strcat(afc_f_slow_stop, "          178    ");
+    strcat(afc_f_slow_stop, "          288    ");
+    strcat(afc_f_slow_stop, "          388    ");
+    strcat(afc_f_slow_stop, "          488    ");
+    strcat(afc_f_slow_stop, "          588    ");
+    strcat(afc_f_slow_stop, "          688    ");
+    strcat(afc_f_slow_stop, "          788    ");
+    strcat(afc_f_slow_stop, "          887    ");
+    strcat(afc_f_slow_stop, "          886    ");
+    strcat(afc_f_slow_stop, "          885    ");
+    strcat(afc_f_slow_stop, "          884    ");
+    strcat(afc_f_slow_stop, "          883    ");
+    strcat(afc_f_slow_stop, "         2882    ");
+    strcat(afc_f_slow_stop, "        23871    ");
+    strcat(afc_f_slow_stop, "        3486     ");
+    strcat(afc_f_slow_stop, "        4585     ");
+    strcat(afc_f_slow_stop, "        5684     ");
+    strcat(afc_f_slow_stop, "        6783     ");
+    strcat(afc_f_slow_stop, "        7882     ");
+    strcat(afc_f_slow_stop, "       48871     ");
+    strcat(afc_f_slow_stop, "       5876      ");
+    strcat(afc_f_slow_stop, "       6865      ");
+    strcat(afc_f_slow_stop, "       7854      ");
+    strcat(afc_f_slow_stop, "      48843      ");
+    strcat(afc_f_slow_stop, "      58832      ");
+    strcat(afc_f_slow_stop, "      68821      ");
+    strcat(afc_f_slow_stop, "      7881       ");
+    strcat(afc_f_slow_stop, "     5888        ");
+    strcat(afc_f_slow_stop, "     6887        ");
+    strcat(afc_f_slow_stop, "     7876        ");
+    strcat(afc_f_slow_stop, "     8865        ");
+    strcat(afc_f_slow_stop, "     8854        ");
+    strcat(afc_f_slow_stop, "     7883        ");
+    strcat(afc_f_slow_stop, "     6882        ");
+    strcat(afc_f_slow_stop, "     5788        ");
+    strcat(afc_f_slow_stop, "     4688        ");
+    strcat(afc_f_slow_stop, "     3588        ");
+    strcat(afc_f_slow_stop, "     24788       ");
+    strcat(afc_f_slow_stop, "     13688       ");
+    strcat(afc_f_slow_stop, "      2578       ");
+    strcat(afc_f_slow_stop, "      14688      ");
+    strcat(afc_f_slow_stop, "       3588      ");
+    strcat(afc_f_slow_stop, "       2488      ");
+    strcat(afc_f_slow_stop, "       13788     ");
+    strcat(afc_f_slow_stop, "        2688     ");
+    strcat(afc_f_slow_stop, "        1588     ");
+    strcat(afc_f_slow_stop, "        14788    ");
+    strcat(afc_f_slow_stop, "        13688    ");
+    strcat(afc_f_slow_stop, "        125788   ");
+    strcat(afc_f_slow_stop, "        1246788  ");
+    strcat(afc_f_slow_stop, "        12356788 ");
+    strcat(afc_f_slow_stop, "        123456788");
+    strcat(afc_f_slow_stop, "                 ");
+    
 }
