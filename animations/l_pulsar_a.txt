@@ -1,0 +1,27 @@
+//                      123456789012345678901234
+strcpy(afc_l_pulsar_a, "           88           ");
+strcat(afc_l_pulsar_a, "          1881          ");
+strcat(afc_l_pulsar_a, "          2882          ");
+strcat(afc_l_pulsar_a, "         138831         ");
+strcat(afc_l_pulsar_a, "         248842         ");
+strcat(afc_l_pulsar_a, "        13588531        ");
+strcat(afc_l_pulsar_a, "       1246886421       ");
+strcat(afc_l_pulsar_a, "      123578875321      ");
+strcat(afc_l_pulsar_a, "     12346888864321     ");
+strcat(afc_l_pulsar_a, "    1234578888754321    ");
+strcat(afc_l_pulsar_a, "   123456888888654321   ");
+strcat(afc_l_pulsar_a, "  12345677888877654321  ");
+strcat(afc_l_pulsar_a, " 1234567868888687654321 ");
+strcat(afc_l_pulsar_a, "123456787578875787654321");
+strcat(afc_l_pulsar_a, "234567876468864678765432");
+strcat(afc_l_pulsar_a, "123456765358853567654321");
+strcat(afc_l_pulsar_a, " 1234565424884245654321 ");
+strcat(afc_l_pulsar_a, "  12345431388313454321  ");
+strcat(afc_l_pulsar_a, "   123432 2882 2343210  ");
+strcat(afc_l_pulsar_a, "    12321 1881 123210   ");
+strcat(afc_l_pulsar_a, "     121  1881  1210    ");
+strcat(afc_l_pulsar_a, "      1    88    1      ");
+
+frame width 24
+frames 22
+interval 20ms
