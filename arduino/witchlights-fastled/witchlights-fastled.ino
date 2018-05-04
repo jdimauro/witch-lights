@@ -40,15 +40,17 @@
 #define SPARKLE_ANIMATION_FRAME_WIDTH 23
 #define SPARKLE_ANIMATION_FRAMES      46
 
-#define ZOOMIE_ANIMATION_FRAME_WIDTH  200
-#define ZOOMIE_ANIMATION_FRAMES       37
-
 #define TIMINGTEST_ANIMATION_FRAME_WIDTH  58
 #define TIMINGTEST_ANIMATION_FRAMES       26
 
 #define afc_f_slow_stop_ANIMATION_FRAME_WIDTH   17
 #define afc_f_slow_stop_ANIMATION_FRAMES        65
 
+#define afc_f_slow_stop_c_ANIMATION_FRAME_WIDTH 25
+#define afc_f_slow_stop_c_ANIMATION_FRAMES      82
+
+#define afc_l_pulsar_a_ANIMATION_FRAME_WIDTH    24
+#define afc_l_pulsar_a_ANIMATION_FRAMES         22
 
 
 
@@ -77,14 +79,21 @@ CRGB af_w8v1[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
 char afc_w8v1r[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
 CRGB af_w8v1r[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
 
-char afc_timing_test[TIMINGTEST_ANIMATION_FRAME_WIDTH * TIMINGTEST_ANIMATION_FRAMES];
-CRGB af_timing_test[TIMINGTEST_ANIMATION_FRAME_WIDTH * TIMINGTEST_ANIMATION_FRAMES];
+// char afc_timing_test[TIMINGTEST_ANIMATION_FRAME_WIDTH * TIMINGTEST_ANIMATION_FRAMES];
+// CRGB af_timing_test[TIMINGTEST_ANIMATION_FRAME_WIDTH * TIMINGTEST_ANIMATION_FRAMES];
 
 // char afc_2_sparkle_a[SPARKLE_ANIMATION_FRAME_WIDTH * SPARKLE_ANIMATION_FRAMES];
 // CRGB af_2_sparkle_a[SPARKLE_ANIMATION_FRAME_WIDTH * SPARKLE_ANIMATION_FRAMES];
 
 char afc_f_slow_stop[afc_f_slow_stop_ANIMATION_FRAME_WIDTH * afc_f_slow_stop_ANIMATION_FRAMES];
 CRGB af_f_slow_stop[afc_f_slow_stop_ANIMATION_FRAME_WIDTH * afc_f_slow_stop_ANIMATION_FRAMES];
+
+char afc_f_slow_stop_c[afc_f_slow_stop_c_ANIMATION_FRAME_WIDTH * afc_f_slow_stop_c_ANIMATION_FRAMES];
+CRGB af_f_slow_stop_c[afc_f_slow_stop_c_ANIMATION_FRAME_WIDTH * afc_f_slow_stop_c_ANIMATION_FRAMES];
+
+char afc_l_pulsar_a[afc_l_pulsar_a_ANIMATION_FRAME_WIDTH * afc_l_pulsar_a_ANIMATION_FRAMES];
+CRGB af_l_pulsar_a[afc_l_pulsar_a_ANIMATION_FRAME_WIDTH * afc_l_pulsar_a_ANIMATION_FRAMES];
+
 
 
 // Function prototypes.
@@ -164,7 +173,6 @@ class Sprite {
     boolean done;
 };
 
-
 class SpriteVector {
     private:
         Sprite **sprites;
@@ -224,14 +232,12 @@ class SpriteVector {
         }
 };
 
+// TODO: sprite creation
 
-// TODO: create new Sprite class with input functions for color (select which entry in the color array), acceleration factor (0-5; 1 means subtract 1ms per animation frame, ask Jim if this takex floats?), scanner min and max distance, start speed (like delay function), start position?
-
-// TODO: maybe just create named sprites with different scanner patterns first?
-
-
+// I want to declare a BlinkingEyesSprite and declare which animation fragments it uses, what its "loop" animation is, what the sprite animation is, its starting interval and its target interval when it reaches a destination with an UpdateTravel move. Also its travel fadeinterval and animation fadeinterval. 
+// Use ifdef to call animation char and CRGB structs into memory at compile time
   
-
+/*
 class AnimationTestSprite : public Sprite {
   private:
     int updateInterval;
@@ -327,10 +333,6 @@ class AnimationTestSprite : public Sprite {
             stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
             ++currentPixel;
 
-            // Are we nearer the last inflection than the next inflection? If so, speed up. Otherwise, slow down.
-/*            int updateInterval = (currentPixel >= (lastInflection + nextInflection) / 2)
-                                                      ? (updateInterval + ACCELERATION_RATE_IN_MS_PER_PIXEL)
-                                                      : (updateInterval - ACCELERATION_RATE_IN_MS_PER_PIXEL); */
             if (currentPixel >= nextInflection - (SCANNER_DELAY_INTERVAL_IN_MS - 1)) {
                 updateInterval += 1;
             } else {
@@ -368,6 +370,7 @@ class AnimationTestSprite : public Sprite {
         return true;
     }
 };
+*/
 
 class FragmentTestSprite : public Sprite {
   private:
@@ -423,6 +426,10 @@ class FragmentTestSprite : public Sprite {
 
         this->patternLength = 10;
 
+
+        // Read all frames of animation at once into the af_f_slow_stop[i] CRGB struct, which is then used to write to the FastLED leds buffer
+        // If we want to automatically create trails, we need to have made the correct changes to the char afc_f_slow_stop's contents to create
+        // the fading trail.
         for (int i = 0; i < afc_f_slow_stop_ANIMATION_FRAME_WIDTH * afc_f_slow_stop_ANIMATION_FRAMES; i++) {
             af_f_slow_stop[i] = afc_f_slow_stop[i] > ' ' ? colorSets[colorPalette][afc_f_slow_stop[i] - '0'] : CRGB::Black;
         }
@@ -465,10 +472,6 @@ class FragmentTestSprite : public Sprite {
             stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
             ++currentPixel;
 
-            // Are we nearer the last inflection than the next inflection? If so, speed up. Otherwise, slow down.
-/*            int updateInterval = (currentPixel >= (lastInflection + nextInflection) / 2)
-                                                      ? (updateInterval + ACCELERATION_RATE_IN_MS_PER_PIXEL)
-                                                      : (updateInterval - ACCELERATION_RATE_IN_MS_PER_PIXEL); */
             if (currentPixel >= nextInflection - (SCANNER_DELAY_INTERVAL_IN_MS - 1)) {
                 updateInterval += 1;
             } else {
@@ -1265,7 +1268,7 @@ void createAnimationFrames() {
     // TODO: a "reverse direction for animation" animation fragment to play to turn sprites going the other way back once, and gets lined up to play the "forwards" animation
     // (For example, if I want to animate a scanner but the animation loaded into memory starts going in the other direction, you can have the sprite reverse once, then spin around
     //  and execute that animation, which always ends with the sprite in the right position for frame 1 of the scanner animation. Which presumes they all start off in the same position on the same start pixel? Note to self.)
-
+    /*
     strcpy(afc_timing_test, "123456788                                                 ");
     strcat(afc_timing_test, "1234567888                                                ");
     strcat(afc_timing_test, "  1234567888                                              ");
@@ -1293,7 +1296,7 @@ void createAnimationFrames() {
     strcat(afc_timing_test, "                                            138831        ");
     strcat(afc_timing_test, "                                            138831        ");
 
-/*
+
   
 
     //                       12345678901234567890123
@@ -1342,7 +1345,44 @@ void createAnimationFrames() {
     strcat(afc_2_sparkle_a, "           327141145   ");
     strcat(afc_2_sparkle_a, "           215 2 122   ");
     strcat(afc_2_sparkle_a, "           1 7   216   ");
-*/
+*/  
+    
+    // The L animations are loops. 
+    //
+    // These always start with pixels 11 and 12 (counting from 0) at 8, and return to the same position. 
+    
+    //                      123456789012345678901234
+    strcpy(afc_l_pulsar_a, "           88           ");
+    strcat(afc_l_pulsar_a, "          1881          ");
+    strcat(afc_l_pulsar_a, "          2882          ");
+    strcat(afc_l_pulsar_a, "         138831         ");
+    strcat(afc_l_pulsar_a, "         248842         ");
+    strcat(afc_l_pulsar_a, "        13588531        ");
+    strcat(afc_l_pulsar_a, "       1246886421       ");
+    strcat(afc_l_pulsar_a, "      123578875321      ");
+    strcat(afc_l_pulsar_a, "     12346888864321     ");
+    strcat(afc_l_pulsar_a, "    1234578888754321    ");
+    strcat(afc_l_pulsar_a, "   123456888888654321   ");
+    strcat(afc_l_pulsar_a, "  12345677888877654321  ");
+    strcat(afc_l_pulsar_a, " 1234567868888687654321 ");
+    strcat(afc_l_pulsar_a, "123456787578875787654321");
+    strcat(afc_l_pulsar_a, "234567876468864678765432");
+    strcat(afc_l_pulsar_a, "123456765358853567654321");
+    strcat(afc_l_pulsar_a, " 1234565424884245654321 ");
+    strcat(afc_l_pulsar_a, "  12345431388313454321  ");
+    strcat(afc_l_pulsar_a, "   123432 2882 2343210  ");
+    strcat(afc_l_pulsar_a, "    12321 1881 123210   ");
+    strcat(afc_l_pulsar_a, "     121  1881  1210    ");
+    strcat(afc_l_pulsar_a, "      1    88    1      ");
+    
+    
+    // The F animations are fragments.
+    
+    // The plan is to cut them into "intro" and "outro" animations, with loop animations inserted in between
+    // Hopefully we can have enough SRAM for multiple "intro" and "outro" animations, so that the motion doesn't become predictable. 
+    // Also, incorporating auto-trails and controllable acceleration factors in UpdateTravel methods means that we reduce the number
+    // of frames of animation that we have to render into RAM. 
+
     //                       12345678901234567
     strcpy(afc_f_slow_stop, "123456788        ");
     strcat(afc_f_slow_stop, " 123456778       ");
@@ -1409,5 +1449,89 @@ void createAnimationFrames() {
     strcat(afc_f_slow_stop, "        12356788 ");
     strcat(afc_f_slow_stop, "        123456788");
     strcat(afc_f_slow_stop, "                 ");
+    
+    //                         1234567890123456789012345
+    strcpy(afc_f_slow_stop_c, "123456788                ");
+    strcat(afc_f_slow_stop_c, " 1234567882              ");
+    strcat(afc_f_slow_stop_c, "  1234567782             ");
+    strcat(afc_f_slow_stop_c, "   1234566782            ");
+    strcat(afc_f_slow_stop_c, "    123455684            ");
+    strcat(afc_f_slow_stop_c, "     123445782           ");
+    strcat(afc_f_slow_stop_c, "      12334684           ");
+    strcat(afc_f_slow_stop_c, "       1223586           ");
+    strcat(afc_f_slow_stop_c, "        1124782          ");
+    strcat(afc_f_slow_stop_c, "          13684          ");
+    strcat(afc_f_slow_stop_c, "           2586          ");
+    strcat(afc_f_slow_stop_c, "           1487          ");
+    strcat(afc_f_slow_stop_c, "            378          ");
+    strcat(afc_f_slow_stop_c, "            268          ");
+    strcat(afc_f_slow_stop_c, "            158          ");
+    strcat(afc_f_slow_stop_c, "             48          ");
+    strcat(afc_f_slow_stop_c, "             38          ");
+    strcat(afc_f_slow_stop_c, "             28          ");
+    strcat(afc_f_slow_stop_c, "             18          ");
+    strcat(afc_f_slow_stop_c, "             18          ");
+    strcat(afc_f_slow_stop_c, "             38          ");
+    strcat(afc_f_slow_stop_c, "             58          ");
+    strcat(afc_f_slow_stop_c, "             78          ");
+    strcat(afc_f_slow_stop_c, "             88          ");
+    strcat(afc_f_slow_stop_c, "             88          ");
+    strcat(afc_f_slow_stop_c, "            288          ");
+    strcat(afc_f_slow_stop_c, "            488          ");
+    strcat(afc_f_slow_stop_c, "            688          ");
+    strcat(afc_f_slow_stop_c, "            788          ");
+    strcat(afc_f_slow_stop_c, "            887          ");
+    strcat(afc_f_slow_stop_c, "            886          ");
+    strcat(afc_f_slow_stop_c, "           2885          ");
+    strcat(afc_f_slow_stop_c, "           4884          ");
+    strcat(afc_f_slow_stop_c, "           6884          ");
+    strcat(afc_f_slow_stop_c, "           7883          ");
+    strcat(afc_f_slow_stop_c, "           8873          ");
+    strcat(afc_f_slow_stop_c, "           8862          ");
+    strcat(afc_f_slow_stop_c, "           8852          ");
+    strcat(afc_f_slow_stop_c, "          28841          ");
+    strcat(afc_f_slow_stop_c, "          48841          ");
+    strcat(afc_f_slow_stop_c, "          6883           ");
+    strcat(afc_f_slow_stop_c, "          7873           ");
+    strcat(afc_f_slow_stop_c, "          8862           ");
+    strcat(afc_f_slow_stop_c, "         28852           ");
+    strcat(afc_f_slow_stop_c, "         48841           ");
+    strcat(afc_f_slow_stop_c, "         68841           ");
+    strcat(afc_f_slow_stop_c, "         7883            ");
+    strcat(afc_f_slow_stop_c, "        28873            ");
+    strcat(afc_f_slow_stop_c, "        48862            ");
+    strcat(afc_f_slow_stop_c, "        68852            ");
+    strcat(afc_f_slow_stop_c, "        78841            ");
+    strcat(afc_f_slow_stop_c, "       388741            ");
+    strcat(afc_f_slow_stop_c, "       58863             ");
+    strcat(afc_f_slow_stop_c, "       78853             ");
+    strcat(afc_f_slow_stop_c, "       88742             ");
+    strcat(afc_f_slow_stop_c, "       88642             ");
+    strcat(afc_f_slow_stop_c, "       87531             ");
+    strcat(afc_f_slow_stop_c, "       86431             ");
+    strcat(afc_f_slow_stop_c, "       8542              ");
+    strcat(afc_f_slow_stop_c, "       8432              ");
+    strcat(afc_f_slow_stop_c, "       8321              ");
+    strcat(afc_f_slow_stop_c, "       821               ");
+    strcat(afc_f_slow_stop_c, "       81                ");
+    strcat(afc_f_slow_stop_c, "       8                 ");
+    strcat(afc_f_slow_stop_c, "       82                ");
+    strcat(afc_f_slow_stop_c, "       84                ");
+    strcat(afc_f_slow_stop_c, "       86                ");
+    strcat(afc_f_slow_stop_c, "       88                ");
+    strcat(afc_f_slow_stop_c, "       788               ");
+    strcat(afc_f_slow_stop_c, "       688               ");
+    strcat(afc_f_slow_stop_c, "       5788              ");
+    strcat(afc_f_slow_stop_c, "       46788             ");
+    strcat(afc_f_slow_stop_c, "       356788            ");
+    strcat(afc_f_slow_stop_c, "       24567788          ");
+    strcat(afc_f_slow_stop_c, "       1345667788        ");
+    strcat(afc_f_slow_stop_c, "       123455667788      ");
+    strcat(afc_f_slow_stop_c, "        123445566788     ");
+    strcat(afc_f_slow_stop_c, "         1233445567788   ");
+    strcat(afc_f_slow_stop_c, "          1223344566788  ");
+    strcat(afc_f_slow_stop_c, "             12334456788 ");
+    strcat(afc_f_slow_stop_c, "                123456788");
+    strcat(afc_f_slow_stop_c, "                         ");
     
 }
