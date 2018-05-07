@@ -530,8 +530,10 @@ class FragmentTestSprite : public Sprite {
     int scanCount;
     int scanCountTotal;
 
+
     // pattern is one black pixel plus remaining pixels in order of increasing brightness with brightest pixel doubled.
     CRGB pattern[NUM_COLORS_PER_SET + 1];
+
     int patternLength = NUM_COLORS_PER_SET + 1;
 
     void SetNextInflection() {
@@ -572,12 +574,13 @@ class FragmentTestSprite : public Sprite {
         this->pattern[9] = colorSets[colorPalette][8];
 
         this->patternLength = 10;
-
+		
 
         // Read all frames of animation at once into the af_f_slow_stop[i] CRGB struct, which is then used to write to the FastLED leds buffer
         // If we want to automatically create trails, we need to have made the correct changes to the char afc_f_slow_stop's contents to create
         // the fading trail.
         for (int i = 0; i < afc_f_slow_stop_ANIMATION_FRAME_WIDTH * afc_f_slow_stop_ANIMATION_FRAMES; i++) {
+			int dc = 56 + i;
             af_f_slow_stop[i] = afc_f_slow_stop[i] > ' ' ? colorSets[colorPalette][afc_f_slow_stop[i] - '0'] : CRGB::Black;
         }
     }
@@ -598,7 +601,8 @@ class FragmentTestSprite : public Sprite {
         if (! this->UpdateNow()) {
             return false;
         }
-
+		
+		debug(2);
         // Going from scanning to travel mode.
         if (isScanning && scanCount == scanCountTotal) {
             isScanning = false;
@@ -612,10 +616,12 @@ class FragmentTestSprite : public Sprite {
             leds[currentPixel - 8] = CRGB::Black;
             leds[currentPixel - 9] = CRGB::Black;  // I hate this. One-off to get rid of the straggler when coming out of scan mode.
             leds[currentPixel - 10] = CRGB::Black;
+			// debug(3);
         }
 
         if (! isScanning) {
             // Traveling and continuing to travel.
+			debug(4);
             stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
             ++currentPixel;
 
@@ -633,6 +639,7 @@ class FragmentTestSprite : public Sprite {
 
             // Transition from travel mode to scanning.
             if (currentPixel >= nextInflection) {
+				// debug(5);
                 // Safety. Since I don't trust my math, once we enter scanning mode, ALWAYS go back to the constant speed for scanning
                 // regardless of what the math said.
                 updateInterval = SCANNER_DELAY_INTERVAL_IN_MS;
@@ -645,6 +652,7 @@ class FragmentTestSprite : public Sprite {
                this->MarkDone();
             }
         } else {
+			debug(6);
             stripcpy(leds, af_f_slow_stop + afc_f_slow_stop_ANIMATION_FRAME_WIDTH * scanningFrame, currentPixel, afc_f_slow_stop_ANIMATION_FRAME_WIDTH, afc_f_slow_stop_ANIMATION_FRAME_WIDTH);
             if (++scanningFrame == afc_f_slow_stop_ANIMATION_FRAMES) {
                 scanningFrame = 0;
@@ -1156,6 +1164,8 @@ void setup() {
     sensor2 = new InfraredSensor(PIR_SENSOR_2_PIN);
 
     resetStrip();
+    // debug(2);
+    // delay(3000);
 }
 
 int counter = 0;
@@ -1184,9 +1194,11 @@ void loop() {
     }
 
     if (sensor1->IsActuated()) {
+        debug(1);
         // Sprite *s1 = new W8V1ScannerDebrisV1Sprite();
         // Sprite *s1 = new AnimationTestSprite();
         Sprite *s1 = new FragmentTestSprite();
+        
         // Sprite *s1 = new LoopTestSprite();
 
         if (! spriteManager->Add(s1)) {
@@ -1195,14 +1207,17 @@ void loop() {
     }
 
     if (sensor2->IsActuated()) {
-        // Sprite *s2 = new W8V1ScannerDebrisV1ReverseSprite();
-
+        //Sprite *s2 = new W8V1ScannerDebrisV1ReverseSprite();
+        // debugNeg(42);
+        /*
         if (! spriteManager->Add(s2)) {
             delete s2;
         }
+        */
     }
 
     spriteManager->Update();
+    
 }
 
 
