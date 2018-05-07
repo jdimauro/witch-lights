@@ -616,7 +616,7 @@ class FragmentTestSprite : public Sprite {
             leds[currentPixel - 8] = CRGB::Black;
             leds[currentPixel - 9] = CRGB::Black;  // I hate this. One-off to get rid of the straggler when coming out of scan mode.
             leds[currentPixel - 10] = CRGB::Black;
-			// debug(3);
+			debug(3);
         }
 
         if (! isScanning) {
@@ -639,7 +639,7 @@ class FragmentTestSprite : public Sprite {
 
             // Transition from travel mode to scanning.
             if (currentPixel >= nextInflection) {
-				// debug(5);
+				debug(5);
                 // Safety. Since I don't trust my math, once we enter scanning mode, ALWAYS go back to the constant speed for scanning
                 // regardless of what the math said.
                 updateInterval = SCANNER_DELAY_INTERVAL_IN_MS;
