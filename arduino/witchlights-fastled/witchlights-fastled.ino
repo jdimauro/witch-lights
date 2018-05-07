@@ -67,14 +67,14 @@ CRGB leds[NUM_LEDS];
 
 CRGB colorSets[NUM_COLORSETS][NUM_COLORS_PER_SET];
 
-char animationFramesChars[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
-CRGB animationFrames[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
+// char animationFramesChars[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
+// CRGB animationFrames[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
 
-char animationFramesCharsReverse[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
-CRGB animationFramesReverse[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
+// char animationFramesCharsReverse[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
+// CRGB animationFramesReverse[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
 
-char afc_w8v1[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
-CRGB af_w8v1[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
+// char afc_w8v1[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
+// CRGB af_w8v1[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
 
 char afc_w8v1r[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
 CRGB af_w8v1r[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
@@ -437,7 +437,7 @@ class LoopTestSprite : public Sprite {
 
         this->patternLength = 10;
 
-        for (int i = 0; i < ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES; i++) {
+        for (int i = 0; i < afc_l_pulsar_a_ANIMATION_FRAME_WIDTH * afc_l_pulsar_a_ANIMATION_FRAMES; i++) {
             af_l_pulsar_a[i] = afc_l_pulsar_a[i] > ' ' ? colorSets[colorPalette][afc_l_pulsar_a[i] - '0'] : CRGB::Black;
         }
     }
@@ -657,7 +657,9 @@ class FragmentTestSprite : public Sprite {
     }
 };
 
+
 // Animation sprite from last year
+/*
 class W8V1ScannerDebrisV1Sprite : public Sprite {
   private:
     int updateInterval;
@@ -753,10 +755,6 @@ class W8V1ScannerDebrisV1Sprite : public Sprite {
             stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
             ++currentPixel;
 
-            // Are we nearer the last inflection than the next inflection? If so, speed up. Otherwise, slow down.
-/*            int updateInterval = (currentPixel >= (lastInflection + nextInflection) / 2)
-                                                      ? (updateInterval + ACCELERATION_RATE_IN_MS_PER_PIXEL)
-                                                      : (updateInterval - ACCELERATION_RATE_IN_MS_PER_PIXEL); */
             if (currentPixel >= nextInflection - (SCANNER_DELAY_INTERVAL_IN_MS - 1)) {
                 updateInterval += 1;
             } else {
@@ -794,6 +792,7 @@ class W8V1ScannerDebrisV1Sprite : public Sprite {
         return true;
     }
 };
+*/
 
 
 class W8V1ScannerDebrisV1ReverseSprite : public Sprite {
@@ -933,6 +932,8 @@ class W8V1ScannerDebrisV1ReverseSprite : public Sprite {
 };
 
 
+
+/*
 class ScannerSprite : public Sprite {
   private:
     int currentPixel;
@@ -1027,7 +1028,7 @@ class ScannerSprite : public Sprite {
         return true;
     }
 };
-
+*/
 
 class W1V1Sprite : public Sprite {
   private:
@@ -1138,11 +1139,11 @@ bool testSpritesCreated;
 int starttime = millis();
 
 void setup() {
-    debug(1);
+
     createColorsets();
-    debug(2);
+
     createAnimationFrames();
-    debug(3);
+
 
     isBooted = false;
     testSpritesCreated = false;
@@ -1185,8 +1186,8 @@ void loop() {
     if (sensor1->IsActuated()) {
         // Sprite *s1 = new W8V1ScannerDebrisV1Sprite();
         // Sprite *s1 = new AnimationTestSprite();
-        // Sprite *s1 = new FragmentTestSprite();
-        Sprite *s1 = new LoopTestSprite();
+        Sprite *s1 = new FragmentTestSprite();
+        // Sprite *s1 = new LoopTestSprite();
 
         if (! spriteManager->Add(s1)) {
             delete s1;
@@ -1194,7 +1195,7 @@ void loop() {
     }
 
     if (sensor2->IsActuated()) {
-        Sprite *s2 = new W8V1ScannerDebrisV1ReverseSprite();
+        // Sprite *s2 = new W8V1ScannerDebrisV1ReverseSprite();
 
         if (! spriteManager->Add(s2)) {
             delete s2;
@@ -1321,7 +1322,10 @@ void createColorsets() {
 #endif
 }
 
+
 void createAnimationFrames() {
+  
+/*
     strcpy(animationFramesChars, "          1234   ");
     strcat(animationFramesChars, "           4323  ");
     strcat(animationFramesChars, "         4321  2 ");
@@ -1404,7 +1408,7 @@ void createAnimationFrames() {
     // TODO: a "reverse direction for animation" animation fragment to play to turn sprites going the other way back once, and gets lined up to play the "forwards" animation
     // (For example, if I want to animate a scanner but the animation loaded into memory starts going in the other direction, you can have the sprite reverse once, then spin around
     //  and execute that animation, which always ends with the sprite in the right position for frame 1 of the scanner animation. Which presumes they all start off in the same position on the same start pixel? Note to self.)
-    /*
+
     strcpy(afc_timing_test, "123456788                                                 ");
     strcat(afc_timing_test, "1234567888                                                ");
     strcat(afc_timing_test, "  1234567888                                              ");
