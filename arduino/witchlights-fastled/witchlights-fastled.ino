@@ -19,12 +19,12 @@
 #define SCANNER_SPRITE_FRAME_DELAY_IN_MS     1
 #define TEST_PATTERN_FRAME_DELAY_IN_MS       1
 
-#define SCANNER_MIN_SCANS    2
-#define SCANNER_MAX_SCANS    5
+#define SCANNER_MIN_SCANS    6
+#define SCANNER_MAX_SCANS    8
 
 // currently set this to be consistent for animation design
-#define SCANNER_MIN_STOP_DISTANCE    30   // This probably shouldn't be smaller than 40. If it is scanners may get stuck in place if they don't have enough "exit velocity". // 40
-#define SCANNER_MAX_STOP_DISTANCE    60  // 120
+#define SCANNER_MIN_STOP_DISTANCE    40   // This probably shouldn't be smaller than 40. If it is scanners may get stuck in place if they don't have enough "exit velocity". // 40
+#define SCANNER_MAX_STOP_DISTANCE    50   // 120
 
 #define SPRITE_STARTING_DELAY_INTERVAL_IN_MS   40 // 40
 #define SCANNER_DELAY_INTERVAL_IN_MS           20
@@ -369,7 +369,7 @@ class AnimationTestSprite : public Sprite {
             if (++scanningFrame == TIMINGTEST_ANIMATION_FRAMES) {
                 scanningFrame = 0;
                 ++scanCount;
-                SetNextInflection();
+                // SetNextInflection();
             }
         }
 
@@ -458,14 +458,15 @@ class LoopTestSprite : public Sprite {
         if (! this->UpdateNow()) {
             return false;
         }
-
+		
+		// debug(nextInflection);
         // Going from scanning to travel mode.
         if (isScanning && scanCount == scanCountTotal) {
             isScanning = false;
             currentPixel += 8;
             SetNextInflection();
             this->scanCount = 0;
-            this->scanCountTotal = GetNewScanCountTotal();
+            this->scanCountTotal = GetNewScanCountTotal(); // set to 1 for fragments
             this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
             leds[currentPixel - 6] = CRGB::Black;
             leds[currentPixel - 8] = CRGB::Black;
@@ -504,11 +505,11 @@ class LoopTestSprite : public Sprite {
                this->MarkDone();
             }
         } else {
-            stripcpy(leds, af_l_pulsar_a + ANIMATION_FRAME_WIDTH * scanningFrame, currentPixel, afc_l_pulsar_a_ANIMATION_FRAME_WIDTH, afc_l_pulsar_a_ANIMATION_FRAME_WIDTH);
+            stripcpy(leds, af_l_pulsar_a + afc_l_pulsar_a_ANIMATION_FRAME_WIDTH * scanningFrame, currentPixel, afc_l_pulsar_a_ANIMATION_FRAME_WIDTH, afc_l_pulsar_a_ANIMATION_FRAME_WIDTH);
             if (++scanningFrame == afc_l_pulsar_a_ANIMATION_FRAMES) {
                 scanningFrame = 0;
                 ++scanCount;
-                SetNextInflection();
+                // SetNextInflection();
             }
         }
 
@@ -579,9 +580,9 @@ class FragmentTestSprite : public Sprite {
         // Read all frames of animation at once into the af_f_slow_stop[i] CRGB struct, which is then used to write to the FastLED leds buffer
         // If we want to automatically create trails, we need to have made the correct changes to the char afc_f_slow_stop's contents to create
         // the fading trail.
-        for (int i = 0; i < afc_f_slow_stop_ANIMATION_FRAME_WIDTH * afc_f_slow_stop_ANIMATION_FRAMES; i++) {
+        for (int i = 0; i < afc_l_pulsar_a_ANIMATION_FRAME_WIDTH * afc_l_pulsar_a_ANIMATION_FRAMES; i++) {
 			int dc = 56 + i;
-            af_f_slow_stop[i] = afc_f_slow_stop[i] > ' ' ? colorSets[colorPalette][afc_f_slow_stop[i] - '0'] : CRGB::Black;
+            af_l_pulsar_a[i] = afc_l_pulsar_a[i] > ' ' ? colorSets[colorPalette][afc_l_pulsar_a[i] - '0'] : CRGB::Black;
         }
     }
 
@@ -602,26 +603,26 @@ class FragmentTestSprite : public Sprite {
             return false;
         }
 		
-		debug(2);
+		// debug(2);
         // Going from scanning to travel mode.
-        if (isScanning && scanCount == scanCountTotal) {
+        if (isScanning && scanCount == scanCountTotal) { // >= ?
             isScanning = false;
-            currentPixel += afc_f_slow_stop_ANIMATION_FRAME_WIDTH; // 8
+            currentPixel += afc_l_pulsar_a_ANIMATION_FRAME_WIDTH; // 8
             currentPixel -= 8;
             SetNextInflection();
             this->scanCount = 0;
-            this->scanCountTotal = 1;
+            this->scanCountTotal = GetNewScanCountTotal();
             this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
             leds[currentPixel - 6] = CRGB::Black;
             leds[currentPixel - 8] = CRGB::Black;
             leds[currentPixel - 9] = CRGB::Black;  // I hate this. One-off to get rid of the straggler when coming out of scan mode.
             leds[currentPixel - 10] = CRGB::Black;
-			debug(3);
+			// debug(3);
         }
 
         if (! isScanning) {
             // Traveling and continuing to travel.
-			debug(4);
+			// debug(4);
             stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
             ++currentPixel;
 
@@ -639,7 +640,7 @@ class FragmentTestSprite : public Sprite {
 
             // Transition from travel mode to scanning.
             if (currentPixel >= nextInflection) {
-				debug(5);
+				// debug(5);
                 // Safety. Since I don't trust my math, once we enter scanning mode, ALWAYS go back to the constant speed for scanning
                 // regardless of what the math said.
                 updateInterval = SCANNER_DELAY_INTERVAL_IN_MS;
@@ -652,12 +653,12 @@ class FragmentTestSprite : public Sprite {
                this->MarkDone();
             }
         } else {
-			debug(6);
-            stripcpy(leds, af_f_slow_stop + afc_f_slow_stop_ANIMATION_FRAME_WIDTH * scanningFrame, currentPixel, afc_f_slow_stop_ANIMATION_FRAME_WIDTH, afc_f_slow_stop_ANIMATION_FRAME_WIDTH);
-            if (++scanningFrame == afc_f_slow_stop_ANIMATION_FRAMES) {
+			// debug(6);
+            stripcpy(leds, af_l_pulsar_a + afc_l_pulsar_a_ANIMATION_FRAME_WIDTH * scanningFrame, currentPixel, afc_l_pulsar_a_ANIMATION_FRAME_WIDTH, afc_l_pulsar_a_ANIMATION_FRAME_WIDTH);
+            if (++scanningFrame == afc_l_pulsar_a_ANIMATION_FRAMES) {
                 scanningFrame = 0;
                 ++scanCount;
-                SetNextInflection();
+                // SetNextInflection();
             }
         }
 
@@ -793,7 +794,7 @@ class W8V1ScannerDebrisV1Sprite : public Sprite {
             if (++scanningFrame == ANIMATION_FRAMES) {
                 scanningFrame = 0;
                 ++scanCount;
-                SetNextInflection();
+                // SetNextInflection();
             }
         }
 
@@ -931,7 +932,7 @@ class W8V1ScannerDebrisV1ReverseSprite : public Sprite {
             if (++scanningFrame == ANIMATION_FRAMES) {
                 scanningFrame = 0;
                 ++scanCount;
-                SetNextInflection();
+                // SetNextInflection();
             }
         }
 
@@ -1029,7 +1030,7 @@ class ScannerSprite : public Sprite {
             if (++scanningFrame == ANIMATION_FRAMES) {
                 scanningFrame = 0;
                 ++scanCount;
-                SetNextInflection();
+                // SetNextInflection();
             }
         }
 
@@ -1197,9 +1198,9 @@ void loop() {
         debug(1);
         // Sprite *s1 = new W8V1ScannerDebrisV1Sprite();
         // Sprite *s1 = new AnimationTestSprite();
-        Sprite *s1 = new FragmentTestSprite();
+        // Sprite *s1 = new FragmentTestSprite();
         
-        // Sprite *s1 = new LoopTestSprite();
+        Sprite *s1 = new LoopTestSprite();
 
         if (! spriteManager->Add(s1)) {
             delete s1;
