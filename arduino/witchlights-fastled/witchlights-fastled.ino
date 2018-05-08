@@ -5,7 +5,7 @@
 #endif
 
 #define NUM_LEDS            750
-#define MAXSPRITES            4
+#define MAXSPRITES            20
 
 #define NUM_COLORSETS         5
 #define NUM_COLORS_PER_SET    9
@@ -14,7 +14,7 @@
 #define PIR_SENSOR_2_PIN     4
 #define NEOPIXEL_DATA_PIN    6                // Pin for neopixels
 
-#define INFRARED_SENSOR_TIMEOUT_IN_MS   10000  // Ten seconds.
+#define INFRARED_SENSOR_TIMEOUT_IN_MS   1000  // Ten seconds.
 
 #define SCANNER_SPRITE_FRAME_DELAY_IN_MS     1
 #define TEST_PATTERN_FRAME_DELAY_IN_MS       1
