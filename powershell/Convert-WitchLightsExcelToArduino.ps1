@@ -159,8 +159,8 @@ function Convert-ExcelToArduino
         }
         $animationArduinoOutputArray
 
-        "#define $animationName" + "_ANIMATION_FRAME_WIDTH $animationFrameWidth"
-        "#define $animationName" + "_ANIMATION_FRAMES $animationFrameCount"
+        "#define afc_" + $animationName + "_ANIMATION_FRAME_WIDTH $animationFrameWidth"
+        "#define afc_" + $animationName + "_ANIMATION_FRAMES $animationFrameCount"
 
     }
     End
