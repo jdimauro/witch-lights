@@ -393,9 +393,11 @@ private:
 	int eyeWidth;	// spacing between eyes, minimum is 1, set this higher the further away you are locating the sprite from the viewer
 	// bool isBlinking;	// are we in blink mode or stare mode?
 	int blinkDirection;	// if in blink mode, are we closing or opening? -1 for closing, +1 for opening, 0 for staring
-	int eyeColor;
+	int eyeColor;			// entry in color array
+	int eyeMaxColor;		// how bright should we go?
 	int blinkMaxCount;		// how many blinks in a "set" of blinks?
-	int blinkTiming;	// how many ms between each blink in a "set"? 
+	int blinkTiming;		// how many ms between each blink in a "set"? 
+	unsigned long lastBlinkTime;	// time when we last blinked
 
 	// We're defining a set of either 2, 4, or 6 pixels, depending on how far apart you want the eyes to be
 	// ...so, should this be set to eyemaxwidth?
@@ -418,6 +420,27 @@ private:
 		return random(400,2000); // ms; testing to see what looks good, these are rough guesses
 	}
 	
+	int SetBlinkDirection() {
+		// if 0:
+		// check to see if eyecolor = ??maxeyecolor??; if so, we're starting a blink.
+			// Check to see if millis - lastBlinkTime is over the blinkFrequency. 
+			// if so, return -1, else 0
+		// check to see if eyecolor = 0, if so, we're mid-blink.
+		// check if millis - lastBlinkTime >= blinkTiming 
+			// if so, return +1, else 0
+		
+		
+		
+		// if -1:
+		// Check to see if eyeColor = 0
+		// if so, set lastBlinkTime = millis() and return 0
+		// if eyecolor > 0, return -1
+		
+		// if 1:
+		// Check if eyecolor == max, if so, return 0
+		// 
+	}
+	
 public:
     StationaryBlinkSprite() : Sprite() {
         // Initial state.
@@ -429,8 +452,10 @@ public:
         this->eyeWidth = 1;			// can we set this on spawn? Make it semi-random within params? 
 		this->blinkDirection = 0;	// we start off not blinking. 0 is "stare" mode. 
 		this->eyeColor = 5;			// entry 5 in the colorset
+		this->eyeMaxColor = eyeColor;
 		this->blinkMaxCount = SetBlinkMaxCount();
 		this->blinkTiming = SetBlinkTiming();
+		this->lastBlinkTime = millis();
 		
 		// int colorPalette = random(0, NUM_COLORSETS);
 		int colorPalette = 2; // yellow to start
