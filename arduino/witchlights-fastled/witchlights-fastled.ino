@@ -378,6 +378,92 @@ class AnimationTestSprite : public Sprite {
 };
 */
 
+
+
+// TODO: State machine blink sprites that spawn in defined areas when TravelSprites pass through them. "Spirits awaken" 
+
+// What I'm going for here: I want to put these in shadowed places, where our primate brain will be looking for glowing eyes in the night. I want them to awaken, and blink, and maybe shift a little, and blink. 
+class StationaryBlinkSprite : public Sprite {
+private:
+    int updateInterval;
+    int currentPixel;
+	int lifetimeBlinks; // # of eyeblinks before sprite vanishes
+	int blinkCount;
+	int blinkFrequency;
+	int eyeWidth;	// spacing between eyes, minimum is 1, set this higher the further away you are locating the sprite from the viewer
+	// bool isBlinking;	// are we in blink mode or stare mode?
+	int blinkDirection;	// if in blink mode, are we closing or opening? -1 for closing, +1 for opening, 0 for staring
+	int eyeColor;
+	int blinkMaxCount;		// how many blinks in a "set" of blinks?
+	int blinkTiming;	// how many ms between each blink in a "set"? 
+
+	// We're defining a set of either 2, 4, or 6 pixels, depending on how far apart you want the eyes to be
+	// ...so, should this be set to eyemaxwidth?
+	CRGB eyes[6];
+	int eyeLength;
+	
+	int SetLifeSpan() {
+		return random(BLINK_SPRITE_MIN_LIFETIME, BLINK_SPRITE_MAX_LIFETIME + 1);
+	}
+	
+	int SetInitialBlinkSpeed() {
+		return random(BLINK_SPRITE_MAX_BLINK_SPEED, BLINK_SPRITE_MIN_BLINK_SPEED + 1);
+	}
+	
+	int	SetBlinkMaxCount() {
+		return random(1,4 + 1);
+	}
+	
+	int SetBlinkTiming() {
+		return random(400,2000); // ms; testing to see what looks good, these are rough guesses
+	}
+	
+public:
+    StationaryBlinkSprite() : Sprite() {
+        // Initial state.
+        this->currentPixel = 90;  // OK, so I want to set this to a random between factors (RBF) value based on the value of currentPixel in a passing TravelSprite when it passes through areas where BlinkSprites can "awaken". So... I set a method here, right? AwakenAtPixel()? I'm assuming we can hand a BlinkSprite off the value of currentPixel at the time of spawn from the sprite that "woke" it? 
+        this->updateInterval = SetInitialBlinkSpeed();
+		this->lifetimeBlinks = SetLifeSpan(); 
+		this->blinkCount = 0;
+		this->blinkFrequency; 		// average # of ms between blinks? Like, "wait generally 2-3 seconds, then blink 3 times"? 
+        this->eyeWidth = 1;			// can we set this on spawn? Make it semi-random within params? 
+		this->blinkDirection = 0;	// we start off not blinking. 0 is "stare" mode. 
+		this->eyeColor = 5;			// entry 5 in the colorset
+		this->blinkMaxCount = SetBlinkMaxCount();
+		this->blinkTiming = SetBlinkTiming();
+		
+		// int colorPalette = random(0, NUM_COLORSETS);
+		int colorPalette = 2; // yellow to start
+
+		this->eyes[0] = colorSets[colorPalette][eyeColor];
+		this->eyes[eyeWidth] = colorSets[colorPalette][eyeColor];
+		
+        this->eyeLength = eyeWidth;
+    }
+
+    ~StationaryBlinkSprite() {
+    }
+	
+    boolean UpdateNow() {
+      if (millis() - lastUpdateTime >= ACCELERATION_DELAY_OBVIOUSNESS_FACTOR * updateInterval) {
+        lastUpdateTime = millis();
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    bool Update() {
+        if (! this->UpdateNow()) {
+            return false;
+        }
+		
+		
+		
+	}
+};
+
+
 // Loop test class
 
 // Travel, pause, play loop 2-5 times, move on
@@ -516,8 +602,6 @@ class LoopTestSprite : public Sprite {
         return true;
     }
 };
-
-
 
 // Test intro and outro fragments together until I like them, then split into two halves and adjust code to play one, a loop, and then the other. 
 class FragmentTestSprite : public Sprite {
