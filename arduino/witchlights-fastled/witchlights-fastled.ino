@@ -22,6 +22,15 @@
 #define SCANNER_MIN_SCANS    6
 #define SCANNER_MAX_SCANS    8
 
+// lurker sprite constants
+
+#define BLINK_SPRITE_MIN_LIFETIME		3
+#define BLINK_SPRITE_MAX_LIFETIME		12		// # of blinks before dying
+
+#define BLINK_SPRITE_MAX_BLINK_SPEED	5		// ms interval between updates, lower is faster
+#define BLINK_SPRITE_MIN_BLINK_SPEED	45
+
+
 // currently set this to be consistent for animation design
 #define SCANNER_MIN_STOP_DISTANCE    40   // This probably shouldn't be smaller than 40. If it is scanners may get stuck in place if they don't have enough "exit velocity". // 40
 #define SCANNER_MAX_STOP_DISTANCE    50   // 120
@@ -391,16 +400,16 @@ private:
 	int blinkCount;
 	int blinkFrequency;
 	int eyeWidth;	// spacing between eyes, minimum is 1, set this higher the further away you are locating the sprite from the viewer
-	// bool isBlinking;	// are we in blink mode or stare mode?
 	int blinkDirection;	// if in blink mode, are we closing or opening? -1 for closing, +1 for opening, 0 for staring
 	int eyeColor;			// entry in color array
 	int eyeMaxColor;		// how bright should we go?
 	int blinkMaxCount;		// how many blinks in a "set" of blinks?
 	int blinkTiming;		// how many ms between each blink in a "set"? 
 	unsigned long lastBlinkTime;	// time when we last blinked
+	int colorPalette;
 
 	// We're defining a set of either 2, 4, or 6 pixels, depending on how far apart you want the eyes to be
-	// ...so, should this be set to eyemaxwidth?
+	// ...so, should this be set to eyewidth + 1?
 	CRGB eyes[6];
 	int eyeLength;
 	
@@ -417,7 +426,11 @@ private:
 	}
 	
 	int SetBlinkTiming() {
-		return random(400,2000); // ms; testing to see what looks good, these are rough guesses
+		return random(200,1000); // ms; testing to see what looks good, these are rough guesses
+	}
+	
+	void SpawnBlinkChild() {
+		// random chance to spawn a new blink sprite with a reduced lifespan
 	}
 	
 	int SetBlinkDirection() {
@@ -429,16 +442,71 @@ private:
 		// check if millis - lastBlinkTime >= blinkTiming 
 			// if so, return +1, else 0
 		
-		
+		if (blinkDirection == 0) {
+			if (eyeColor == eyeMaxColor) {
+				// we are staring.
+				// check to see if we need to blink
+				if (millis() - lastBlinkTime >= blinkFrequency) {
+					lastBlinkTime = millis();
+					return -1;
+					// make this a random chance that gets more likely over time, based on blinkFrequency?
+				} else {
+					return 0;
+				}
+			} else if (eyeColor == 0) {
+				// we are mid-blink
+				// check to see if our lifespan is up, and if so, mark done and exit
+				if (blinkCount >= lifetimeBlinks) {
+					this->MarkDone();
+					SpawnBlinkChild();
+					return 0;
+				}
+				// check to see if it's time to open our eyes
+				if (millis() - lastBlinkTime >= blinkTiming) {
+					// eyes have been closed long enough
+					return 1;
+				} else {
+					// eyes are staying closed a little longer
+					return 0;
+				}
+			}
+		}
 		
 		// if -1:
 		// Check to see if eyeColor = 0
-		// if so, set lastBlinkTime = millis() and return 0
 		// if eyecolor > 0, return -1
+		
+		if (blinkDirection == -1) {
+			// have we reached the end of the blink?
+			if (eyeColor <= 0) {
+				// if eyeColor went negative, fix that
+				eyeColor = 0;
+				return 0;
+			} else {
+				// if not, keep blinking
+				return -1;
+			}
+		}
 		
 		// if 1:
 		// Check if eyecolor == max, if so, return 0
 		// 
+		if (blinkDirection == 1) {
+			if (eyeColor >= eyeMaxColor) {
+				// we have just completed a single blink
+				// add a blink to our lifetime count
+				blinkCount ++;
+				// and record the time as the end of the last blink
+				lastBlinkTime = millis();
+				// and stop blinking
+				return 0;
+			} else {
+				return 1;
+			}
+		} else {
+			debug(2);
+			return 0; // if blinkDirection's value gets messed up somehow and is not -1, 0, or 1, just set it to 0 for now. 
+		}
 	}
 	
 public:
@@ -448,17 +516,17 @@ public:
         this->updateInterval = SetInitialBlinkSpeed();
 		this->lifetimeBlinks = SetLifeSpan(); 
 		this->blinkCount = 0;
-		this->blinkFrequency; 		// average # of ms between blinks? Like, "wait generally 2-3 seconds, then blink 3 times"? 
-        this->eyeWidth = 1;			// can we set this on spawn? Make it semi-random within params? 
-		this->blinkDirection = 0;	// we start off not blinking. 0 is "stare" mode. 
-		this->eyeColor = 5;			// entry 5 in the colorset
+		this->blinkFrequency = 4000; 					// average # of ms between blinks? Like, "wait generally 2-3 seconds, then blink 3 times"? 
+        this->eyeWidth = 1;								// can we set this on spawn? Make it semi-random within params? 
+		this->blinkDirection = 0;						// we start off not blinking. 0 is "stare" mode. 
+		this->eyeColor = 5;								// entry 5 in the colorset
 		this->eyeMaxColor = eyeColor;
 		this->blinkMaxCount = SetBlinkMaxCount();
 		this->blinkTiming = SetBlinkTiming();
 		this->lastBlinkTime = millis();
 		
 		// int colorPalette = random(0, NUM_COLORSETS);
-		int colorPalette = 2; // yellow to start
+		int colorPalette = 2; 							// yellow to start
 
 		this->eyes[0] = colorSets[colorPalette][eyeColor];
 		this->eyes[eyeWidth] = colorSets[colorPalette][eyeColor];
@@ -483,8 +551,20 @@ public:
             return false;
         }
 		
+		// Decide if we're going to blink, and set the value to do it
+		blinkDirection = SetBlinkDirection();
+		
+		// close or open the eyes a step by adding blinkDirection to eye color
+		eyeColor += blinkDirection;
+		
+		this->eyes[0] = colorSets[colorPalette][eyeColor];
+		this->eyes[eyeWidth] = colorSets[colorPalette][eyeColor];
 		
 		
+		// stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
+		
+		stripcpy(leds, eyes, currentPixel, eyeLength, eyeLength);
+		return true;
 	}
 };
 
@@ -776,7 +856,7 @@ class FragmentTestSprite : public Sprite {
 };
 
 
-// Animation sprite from last year
+// Animation sprites from last year
 /*
 class W8V1ScannerDebrisV1Sprite : public Sprite {
   private:
@@ -1274,8 +1354,6 @@ void setup() {
     sensor2 = new InfraredSensor(PIR_SENSOR_2_PIN);
 
     resetStrip();
-    // debug(2);
-    // delay(3000);
 }
 
 int counter = 0;
