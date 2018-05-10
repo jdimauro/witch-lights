@@ -61,6 +61,8 @@
 #define afc_l_pulsar_a_ANIMATION_FRAME_WIDTH    24
 #define afc_l_pulsar_a_ANIMATION_FRAMES         22
 
+#define afc_f_eye_full_a_ANIMATION_FRAME_WIDTH 	21
+#define afc_f_eye_full_a_ANIMATION_FRAMES 		57
 
 
 // ...TO HERE.
@@ -102,6 +104,9 @@ CRGB af_f_slow_stop_c[afc_f_slow_stop_c_ANIMATION_FRAME_WIDTH * afc_f_slow_stop_
 
 char afc_l_pulsar_a[afc_l_pulsar_a_ANIMATION_FRAME_WIDTH * afc_l_pulsar_a_ANIMATION_FRAMES];
 CRGB af_l_pulsar_a[afc_l_pulsar_a_ANIMATION_FRAME_WIDTH * afc_l_pulsar_a_ANIMATION_FRAMES];
+
+char afc_f_eye_full_a[afc_f_eye_full_a_ANIMATION_FRAME_WIDTH * afc_f_eye_full_a_ANIMATION_FRAMES];
+CRGB af_f_eye_full_a[afc_f_eye_full_a_ANIMATION_FRAME_WIDTH * afc_f_eye_full_a_ANIMATION_FRAMES];
 
 
 
@@ -1876,5 +1881,63 @@ void createAnimationFrames() {
     strcat(afc_f_slow_stop_c, "             12334456788 ");
     strcat(afc_f_slow_stop_c, "                123456788");
     strcat(afc_f_slow_stop_c, "                         ");
-    
+ 	
+//                             123456789012345678901
+     strcpy(afc_f_eye_full_a, "123456785            ");
+     strcat(afc_f_eye_full_a, " 123456785           ");
+     strcat(afc_f_eye_full_a, "  12345685           ");
+     strcat(afc_f_eye_full_a, "   12345785          ");
+     strcat(afc_f_eye_full_a, "    1234685          ");
+     strcat(afc_f_eye_full_a, "     123585          ");
+     strcat(afc_f_eye_full_a, "      124785         ");
+     strcat(afc_f_eye_full_a, "       13685         ");
+     strcat(afc_f_eye_full_a, "        2585         ");
+     strcat(afc_f_eye_full_a, "        1485         ");
+     strcat(afc_f_eye_full_a, "         3785        ");
+     strcat(afc_f_eye_full_a, "         2685        ");
+     strcat(afc_f_eye_full_a, "         1585        ");
+     strcat(afc_f_eye_full_a, "          485        ");
+     strcat(afc_f_eye_full_a, "          385        ");
+     strcat(afc_f_eye_full_a, "          285        ");
+     strcat(afc_f_eye_full_a, "          185        ");
+     strcat(afc_f_eye_full_a, "           74        ");
+     strcat(afc_f_eye_full_a, "           63        ");
+     strcat(afc_f_eye_full_a, "           52        ");
+     strcat(afc_f_eye_full_a, "           55        ");
+     strcat(afc_f_eye_full_a, "          5 6        ");
+     strcat(afc_f_eye_full_a, "         5  7        ");
+     strcat(afc_f_eye_full_a, "        5  5         ");
+     strcat(afc_f_eye_full_a, "       5  5          ");
+     strcat(afc_f_eye_full_a, "      5  5           ");
+     strcat(afc_f_eye_full_a, "     5  5            ");
+     strcat(afc_f_eye_full_a, "    5  5             ");
+     strcat(afc_f_eye_full_a, "   5  5              ");
+     strcat(afc_f_eye_full_a, "  5  5               ");
+     strcat(afc_f_eye_full_a, "  4 5                ");
+     strcat(afc_f_eye_full_a, "  35                 ");
+     strcat(afc_f_eye_full_a, "  25                 ");
+     strcat(afc_f_eye_full_a, "  35                 ");
+     strcat(afc_f_eye_full_a, "  4 5                ");
+     strcat(afc_f_eye_full_a, "  5  5               ");
+     strcat(afc_f_eye_full_a, "   5  5              ");
+     strcat(afc_f_eye_full_a, "    5  5             ");
+     strcat(afc_f_eye_full_a, "     5  5            ");
+     strcat(afc_f_eye_full_a, "      5  5           ");
+     strcat(afc_f_eye_full_a, "       5  5          ");
+     strcat(afc_f_eye_full_a, "        5  5         ");
+     strcat(afc_f_eye_full_a, "         5  4        ");
+     strcat(afc_f_eye_full_a, "          5 3        ");
+     strcat(afc_f_eye_full_a, "           52        ");
+     strcat(afc_f_eye_full_a, "           62        ");
+     strcat(afc_f_eye_full_a, "           74        ");
+     strcat(afc_f_eye_full_a, "           85        ");
+     strcat(afc_f_eye_full_a, "           785       ");
+     strcat(afc_f_eye_full_a, "           6785      ");
+     strcat(afc_f_eye_full_a, "           56785     ");
+     strcat(afc_f_eye_full_a, "           456785    ");
+     strcat(afc_f_eye_full_a, "           3456785   ");
+     strcat(afc_f_eye_full_a, "           23456785  ");
+     strcat(afc_f_eye_full_a, "           123456785 ");
+     strcat(afc_f_eye_full_a, "            123456785");
+	
 }
