@@ -397,7 +397,7 @@ class AnimationTestSprite : public Sprite {
 // TODO: State machine blink sprites that spawn in defined areas when TravelSprites pass through them. "Spirits awaken" 
 
 // What I'm going for here: I want to put these in shadowed places, where our primate brain will be looking for glowing eyes in the night. I want them to awaken, and blink, and maybe shift a little, and blink. 
-class StationaryBlinkSprite : public Sprite {
+class LurkerSprite : public Sprite {
 private:
     int updateInterval;
     int currentPixel;
@@ -515,7 +515,7 @@ private:
 	}
 	
 public:
-    StationaryBlinkSprite() : Sprite() {
+    LurkerSprite() : Sprite() {
         // Initial state.
         this->currentPixel = 90;  // OK, so I want to set this to a random between factors (RBF) value based on the value of currentPixel in a passing TravelSprite when it passes through areas where BlinkSprites can "awaken". So... I set a method here, right? AwakenAtPixel()? I'm assuming we can hand a BlinkSprite off the value of currentPixel at the time of spawn from the sprite that "woke" it? 
         this->updateInterval = SetInitialBlinkSpeed();
@@ -539,7 +539,7 @@ public:
         this->eyeLength = eyeWidth;
     }
 
-    ~StationaryBlinkSprite() {
+    ~LurkerSprite() {
     }
 	
     boolean UpdateNow() {
