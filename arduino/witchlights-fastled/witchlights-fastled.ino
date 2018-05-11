@@ -30,6 +30,33 @@
 #define BLINK_SPRITE_MAX_BLINK_SPEED	5		// ms interval between updates, lower is faster
 #define BLINK_SPRITE_MIN_BLINK_SPEED	45
 
+#define LURKER_MIN_PIXEL_1  100
+#define LURKER_MAX_PIXEL_1  150
+#define LURKER_MIN_PIXEL_2  260
+#define LURKER_MAX_PIXEL_2  310
+
+// TreeSprite locations
+#define TREE_FADE_PIXEL_1	315
+#define TREE_START_1		323
+#define TREE_END_1			334
+
+#define TREE_FADE_PIXEL_2	315
+#define TREE_START_2		323
+#define TREE_END_2			334
+
+#define TREE_FADE_PIXEL_3	315
+#define TREE_START_3		323
+#define TREE_END_3			334
+
+#define TREE_FADE_PIXEL_4	315
+#define TREE_START_4		323
+#define TREE_END_4			334
+
+#define TREE_FADE_PIXEL_5	315
+#define TREE_START_5		323
+#define TREE_END_5			334
+
+
 
 // currently set this to be consistent for animation design
 #define SCANNER_MIN_STOP_DISTANCE    35   // This probably shouldn't be smaller than 40. If it is scanners may get stuck in place if they don't have enough "exit velocity". // 40
@@ -62,7 +89,7 @@
 #define afc_l_pulsar_a_ANIMATION_FRAMES         22
 
 #define afc_f_eye_full_a_ANIMATION_FRAME_WIDTH 	21
-#define afc_f_eye_full_a_ANIMATION_FRAMES 		57
+#define afc_f_eye_full_a_ANIMATION_FRAMES 		58
 
 
 // ...TO HERE.
@@ -415,26 +442,31 @@ private:
 
 	// We're defining a set of either 2, 4, or 6 pixels, depending on how far apart you want the eyes to be
 	// ...so, should this be set to eyewidth + 1?
-	CRGB eyes[6];
-	int eyeLength;
+	CRGB eyes[2];
+	int eyeLength = 2;
 	
 	int SetLifeSpan() {
+		debug(2);
 		return random(BLINK_SPRITE_MIN_LIFETIME, BLINK_SPRITE_MAX_LIFETIME + 1);
 	}
 	
 	int SetInitialBlinkSpeed() {
+		debug(3);
 		return random(BLINK_SPRITE_MAX_BLINK_SPEED, BLINK_SPRITE_MIN_BLINK_SPEED + 1);
 	}
 	
 	int	SetBlinkMaxCount() {
-		return random(1,4 + 1);
+		debug(4);
+		return random(3,10 + 1);
 	}
 	
 	int SetBlinkTiming() {
+		debug(5);
 		return random(200,1000); // ms; testing to see what looks good, these are rough guesses
 	}
 	
 	void SpawnBlinkChild() {
+		debug(6);
 		// random chance to spawn a new blink sprite with a reduced lifespan
 	}
 	
@@ -509,20 +541,20 @@ private:
 				return 1;
 			}
 		} else {
-			debug(2);
+			debug(7);
 			return 0; // if blinkDirection's value gets messed up somehow and is not -1, 0, or 1, just set it to 0 for now. 
 		}
 	}
 	
 public:
-    LurkerSprite() : Sprite() {
+    LurkerSprite(int spawnPixel, int eyew) : Sprite() {
         // Initial state.
-        this->currentPixel = 90;  // OK, so I want to set this to a random between factors (RBF) value based on the value of currentPixel in a passing TravelSprite when it passes through areas where BlinkSprites can "awaken". So... I set a method here, right? AwakenAtPixel()? I'm assuming we can hand a BlinkSprite off the value of currentPixel at the time of spawn from the sprite that "woke" it? 
+        this->currentPixel = spawnPixel;  // OK, so I want to set this to a random between factors (RBF) value based on the value of currentPixel in a passing TravelSprite when it passes through areas where BlinkSprites can "awaken". So... I set a method here, right? AwakenAtPixel()? I'm assuming we can hand a BlinkSprite off the value of currentPixel at the time of spawn from the sprite that "woke" it? 
         this->updateInterval = SetInitialBlinkSpeed();
 		this->lifetimeBlinks = SetLifeSpan(); 
 		this->blinkCount = 0;
 		this->blinkFrequency = 4000; 					// average # of ms between blinks? Like, "wait generally 2-3 seconds, then blink 3 times"? 
-        this->eyeWidth = 1;								// can we set this on spawn? Make it semi-random within params? 
+        this->eyeWidth = eyew;							// can we set this on spawn? Make it semi-random within params? 
 		this->blinkDirection = 0;						// we start off not blinking. 0 is "stare" mode. 
 		this->eyeColor = 5;								// entry 5 in the colorset
 		this->eyeMaxColor = eyeColor;
@@ -533,10 +565,15 @@ public:
 		// int colorPalette = random(0, NUM_COLORSETS);
 		int colorPalette = 2; 							// yellow to start
 
-		this->eyes[0] = colorSets[colorPalette][eyeColor];
-		this->eyes[eyeWidth] = colorSets[colorPalette][eyeColor];
+		// TODO: fix eye color lookup; it's not drawing because it's not pulling correctly from colorsets? 
+
+		// this->eyes[0] = colorSets[colorPalette][eyeColor];
+// 		this->eyes[eyeWidth] = colorSets[colorPalette][eyeColor];
+//
+		this->eyes[0] = 0x020202;
+		this->eyes[eyeWidth] = 0x020202;
 		
-        this->eyeLength = eyeWidth;
+        this->eyeLength = 2;
     }
 
     ~LurkerSprite() {
@@ -552,6 +589,7 @@ public:
     }
 
     bool Update() {
+		debug(2);
         if (! this->UpdateNow()) {
             return false;
         }
@@ -562,13 +600,14 @@ public:
 		// close or open the eyes a step by adding blinkDirection to eye color
 		eyeColor += blinkDirection;
 		
-		this->eyes[0] = colorSets[colorPalette][eyeColor];
-		this->eyes[eyeWidth] = colorSets[colorPalette][eyeColor];
+		this->eyes[0] = 0x020202; // colorSets[colorPalette][eyeColor];
+		this->eyes[eyeWidth] = 0x020202; //colorSets[colorPalette][eyeColor];
 		
 		
 		// stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
 		
-		stripcpy(leds, eyes, currentPixel, eyeLength, eyeLength);
+		// stripcpy(leds, eyes, currentPixel, eyeLength, eyeLength);
+		stripcpy(leds, eyes, 40, 6, 6);
 		return true;
 	}
 };
@@ -611,7 +650,8 @@ class TravelEyeTestSprite : public Sprite {
         this->nextInflection = 0;
         SetNextInflection();
         this->scanCount = 0;
-        this->scanCountTotal = GetNewScanCountTotal();
+        // this->scanCountTotal = GetNewScanCountTotal();
+		this->scanCountTotal = 1;
         this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
 
         // Choose a random color palette from the palettes available.
@@ -657,10 +697,12 @@ class TravelEyeTestSprite : public Sprite {
         // Going from scanning to travel mode.
         if (isScanning && scanCount == scanCountTotal) {
             isScanning = false;
-            currentPixel += 8;
+            currentPixel += afc_f_eye_full_a_ANIMATION_FRAME_WIDTH;
+			currentPixel -= 8;
             SetNextInflection();
             this->scanCount = 0;
-            this->scanCountTotal = GetNewScanCountTotal(); // set to 1 for fragments
+            // this->scanCountTotal = GetNewScanCountTotal(); // set to 1 for fragments
+			this->scanCountTotal = 1;
             this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
             leds[currentPixel - 6] = CRGB::Black;
             leds[currentPixel - 8] = CRGB::Black;
@@ -693,7 +735,7 @@ class TravelEyeTestSprite : public Sprite {
 				updateInterval = 60;
                 isScanning = true;
                 scanningFrame = 0;
-                currentPixel -= 8;
+                currentPixel -= 0;
             }
 
             if (currentPixel > NUM_LEDS) {
@@ -915,7 +957,6 @@ class FragmentTestSprite : public Sprite {
         // If we want to automatically create trails, we need to have made the correct changes to the char afc_f_slow_stop's contents to create
         // the fading trail.
         for (int i = 0; i < afc_l_pulsar_a_ANIMATION_FRAME_WIDTH * afc_l_pulsar_a_ANIMATION_FRAMES; i++) {
-			int dc = 56 + i;
             af_l_pulsar_a[i] = afc_l_pulsar_a[i] > ' ' ? colorSets[colorPalette][afc_l_pulsar_a[i] - '0'] : CRGB::Black;
         }
     }
@@ -1531,9 +1572,9 @@ void loop() {
         // Sprite *s1 = new W8V1ScannerDebrisV1Sprite();
         // Sprite *s1 = new AnimationTestSprite();
         // Sprite *s1 = new FragmentTestSprite();
-        
         // Sprite *s1 = new LoopTestSprite();
-		Sprite *s1 = new TravelEyeTestSprite();
+		// Sprite *s1 = new TravelEyeTestSprite();
+		Sprite *s1 = new LurkerSprite(42,1);
 
         if (! spriteManager->Add(s1)) {
             delete s1;
@@ -2074,11 +2115,12 @@ void createAnimationFrames() {
      strcat(afc_f_eye_full_a, "           85        ");
      strcat(afc_f_eye_full_a, "           785       ");
      strcat(afc_f_eye_full_a, "           6785      ");
-     strcat(afc_f_eye_full_a, "           56785     ");
-     strcat(afc_f_eye_full_a, "           456785    ");
-     strcat(afc_f_eye_full_a, "           3456785   ");
-     strcat(afc_f_eye_full_a, "           23456785  ");
-     strcat(afc_f_eye_full_a, "           123456785 ");
-     strcat(afc_f_eye_full_a, "            123456785");
+     strcat(afc_f_eye_full_a, "           56786     ");
+     strcat(afc_f_eye_full_a, "           456786    ");
+     strcat(afc_f_eye_full_a, "           3456787   ");
+     strcat(afc_f_eye_full_a, "           23456787  ");
+     strcat(afc_f_eye_full_a, "           123456788 ");
+     strcat(afc_f_eye_full_a, "            123456788");
+	 strcat(afc_f_eye_full_a, "                     ");
 	
 }
