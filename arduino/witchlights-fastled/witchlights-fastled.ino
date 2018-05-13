@@ -30,6 +30,12 @@
 #define BLINK_SPRITE_MAX_BLINK_SPEED	5		// ms interval between updates, lower is faster
 #define BLINK_SPRITE_MIN_BLINK_SPEED	45
 
+#define BLINK_MIN_COUNT		1
+#define BLINK_MAX_COUNT		4			
+
+#define LURKER_BLINK_MIN_FREQUENCY	2500
+#define LURKER_BLINK_MAX_FREQUENCY	6000
+
 #define LURKER_MIN_PIXEL_1  100
 #define LURKER_MAX_PIXEL_1  150
 #define LURKER_MIN_PIXEL_2  260
@@ -463,7 +469,8 @@ private:
 	
 	int	SetBlinkMaxCount() {
 		// debug(4);
-		return random(3,10 + 1);
+		return random(BLINK_MIN_COUNT,BLINK_MAX_COUNT + 1);
+
 	}
 	
 	int SetBlinkTiming() {
@@ -471,11 +478,18 @@ private:
 		return random(200,1000); // ms; testing to see what looks good, these are rough guesses
 	}
 	
+
+	
+	int SetBlinkFrequency() {
+		return random(LURKER_BLINK_MIN_FREQUENCY, LURKER_BLINK_MAX_FREQUENCY +1);
+	}
+	
 	void SpawnBlinkChild() {
 		// debug(6);
 		// random chance to spawn a new blink sprite with a reduced lifespan
 	}
 	
+	// TODO: blink in multiple sets
 	int SetBlinkDirection() {
 		// if 0:
 		// check to see if eyecolor = ??maxeyecolor??; if so, we're starting a blink.
@@ -491,6 +505,7 @@ private:
 				// check to see if we need to blink
 				if (millis() - lastBlinkTime >= blinkFrequency) {
 					lastBlinkTime = millis();
+					blinkFrequency = SetBlinkFrequency();	// reset blinkFrequency after every blink?
 					return -1;
 					// make this a random chance that gets more likely over time, based on blinkFrequency?
 				} else {
@@ -547,7 +562,7 @@ private:
 				return 1;
 			}
 		} else {
-			// debug(7);
+			debug(7);
 			return 0; // if blinkDirection's value gets messed up somehow and is not -1, 0, or 1, just set it to 0 for now. 
 		}
 	}
@@ -558,12 +573,12 @@ public:
         this->currentPixel = spawnPixel;  // OK, so I want to set this to a random between factors (RBF) value based on the value of currentPixel in a passing TravelSprite when it passes through areas where BlinkSprites can "awaken". So... I set a method here, right? AwakenAtPixel()? I'm assuming we can hand a BlinkSprite off the value of currentPixel at the time of spawn from the sprite that "woke" it? 
         this->updateInterval = SetInitialBlinkSpeed();
 		this->lifetimeBlinks = SetLifeSpan(); 
-		this->blinkCount = 0;
-		this->blinkFrequency = 4000; 					// average # of ms between blinks? Like, "wait generally 2-3 seconds, then blink 3 times"? 
+		this->blinkCount = -1;							// When first opening the eyes, it "counts" as a blink, and setting to -1 means we don't count it against lifespan
+		this->blinkFrequency = SetBlinkFrequency(); 	// decent test with 4000 ms, trying a random set
         this->eyeWidth = eyew;							// can we set this on spawn? Make it semi-random within params? 
-		this->blinkDirection = 0;						// we start off not blinking. 0 is "stare" mode. 
-		this->eyeColor = 5;								// entry 5 in the colorset
-		this->eyeMaxColor = eyeColor;
+		this->blinkDirection = 1;						// want to start with eyes closed and open them
+		this->eyeColor = 0;								// eyes closed = 0
+		this->eyeMaxColor = 5;							// up to 5 in the color set
 		this->blinkMaxCount = SetBlinkMaxCount();
 		this->blinkTiming = SetBlinkTiming();
 		this->lastBlinkTime = millis();
@@ -610,15 +625,13 @@ public:
 		// close or open the eyes a step by adding blinkDirection to eye color
 		eyeColor += blinkDirection;
 		
+		// so when we use colorPalette to call the color set, we don't get a value returned?
+		// TODO: figure this out
 		// this->eyes[0] = 0x020202; // colorSets[colorPalette][eyeColor];
 		this->eyes[0] = colorSets[2][eyeColor];
 		this->eyes[eyeWidth] = colorSets[2][eyeColor]; //colorSets[colorPalette][eyeColor];
 		
-		
-		// stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
-		
 		stripcpy(leds, eyes, currentPixel, eyeLength, eyeLength);
-		// stripcpy(leds, eyes, 40, 2, 2);
 		return true;
 	}
 };
@@ -1569,17 +1582,28 @@ void loop() {
         return;
     }
 
+	// Spawn lurkers randomly
+	if (random(0,1000) == 0) {
+		// debug(3);
+		int lurkerSpawnPixel = random(40,149);
+		Sprite *s1 = new LurkerSprite(lurkerSpawnPixel,1); 
+		// TODO: check to see if another lurker already exists at this pixel, despawn if so
+		
+        if (! spriteManager->Add(s1)) {
+            delete s1;
+        } 
+	} else {
+		// debug(1);
+	}
+
     if (sensor1->IsActuated()) {
         debug(1);
         // Sprite *s1 = new W8V1ScannerDebrisV1Sprite();
         // Sprite *s1 = new AnimationTestSprite();
         // Sprite *s1 = new FragmentTestSprite();
-        // Sprite *s1 = new LoopTestSprite();
-		// Sprite *s1 = new TravelEyeTestSprite();
+        Sprite *s1 = new LoopTestSprite();
 		
-		int lurkerSpawnPixel = random(41,64);
-		Sprite *s1 = new LurkerSprite(lurkerSpawnPixel,1);
-		// TODO: check to see if another lurker already exists at this pixel, despawn if so
+
 
         if (! spriteManager->Add(s1)) {
             delete s1;
