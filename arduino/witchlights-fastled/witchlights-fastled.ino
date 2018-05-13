@@ -34,6 +34,8 @@
 #define LURKER_MAX_PIXEL_1  150
 #define LURKER_MIN_PIXEL_2  260
 #define LURKER_MAX_PIXEL_2  310
+#define LURKER_MIN_PIXEL_3	400
+#define LURKER_MAX_PIXEL_3	450
 
 // TreeSprite locations
 #define TREE_FADE_PIXEL_1	315
@@ -190,6 +192,10 @@ class Sprite {
     }
 
     virtual bool Update() = 0;
+
+    bool allowCreation() {
+        return true;    // Always true, no reason to veto this one.
+    }
 
     boolean UpdateNow() {
       if (millis() - lastUpdateTime >= updateInterval) {
@@ -446,27 +452,27 @@ private:
 	int eyeLength = 2;
 	
 	int SetLifeSpan() {
-		debug(2);
+		// debug(2);
 		return random(BLINK_SPRITE_MIN_LIFETIME, BLINK_SPRITE_MAX_LIFETIME + 1);
 	}
 	
 	int SetInitialBlinkSpeed() {
-		debug(3);
+		// debug(3);
 		return random(BLINK_SPRITE_MAX_BLINK_SPEED, BLINK_SPRITE_MIN_BLINK_SPEED + 1);
 	}
 	
 	int	SetBlinkMaxCount() {
-		debug(4);
+		// debug(4);
 		return random(3,10 + 1);
 	}
 	
 	int SetBlinkTiming() {
-		debug(5);
+		// debug(5);
 		return random(200,1000); // ms; testing to see what looks good, these are rough guesses
 	}
 	
 	void SpawnBlinkChild() {
-		debug(6);
+		// debug(6);
 		// random chance to spawn a new blink sprite with a reduced lifespan
 	}
 	
@@ -541,7 +547,7 @@ private:
 				return 1;
 			}
 		} else {
-			debug(7);
+			// debug(7);
 			return 0; // if blinkDirection's value gets messed up somehow and is not -1, 0, or 1, just set it to 0 for now. 
 		}
 	}
@@ -569,14 +575,18 @@ public:
 
 		// this->eyes[0] = colorSets[colorPalette][eyeColor];
 // 		this->eyes[eyeWidth] = colorSets[colorPalette][eyeColor];
-//
-		this->eyes[0] = 0x020202;
-		this->eyes[eyeWidth] = 0x020202;
+
+		this->eyes[0] = colorSets[2][eyeColor];
+		this->eyes[eyeWidth] = colorSets[2][eyeColor];
 		
         this->eyeLength = 2;
     }
 
     ~LurkerSprite() {
+    }
+	
+    bool allowCreation() {
+        return (currentPixel >= LURKER_MIN_PIXEL_1 && currentPixel <= LURKER_MAX_PIXEL_1) || (currentPixel >= LURKER_MIN_PIXEL_2 && currentPixel <= LURKER_MAX_PIXEL_2) || (currentPixel >= LURKER_MIN_PIXEL_3 && currentPixel <= LURKER_MAX_PIXEL_3);
     }
 	
     boolean UpdateNow() {
@@ -589,7 +599,7 @@ public:
     }
 
     bool Update() {
-		debug(2);
+		// debug(eyeColor);
         if (! this->UpdateNow()) {
             return false;
         }
@@ -600,21 +610,21 @@ public:
 		// close or open the eyes a step by adding blinkDirection to eye color
 		eyeColor += blinkDirection;
 		
-		this->eyes[0] = 0x020202; // colorSets[colorPalette][eyeColor];
-		this->eyes[eyeWidth] = 0x020202; //colorSets[colorPalette][eyeColor];
+		// this->eyes[0] = 0x020202; // colorSets[colorPalette][eyeColor];
+		this->eyes[0] = colorSets[2][eyeColor];
+		this->eyes[eyeWidth] = colorSets[2][eyeColor]; //colorSets[colorPalette][eyeColor];
 		
 		
 		// stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
 		
-		// stripcpy(leds, eyes, currentPixel, eyeLength, eyeLength);
-		stripcpy(leds, eyes, 40, 6, 6);
+		stripcpy(leds, eyes, currentPixel, eyeLength, eyeLength);
+		// stripcpy(leds, eyes, 40, 2, 2);
 		return true;
 	}
 };
 
 
 // Traveling Eye Sprite Test
-
 
 class TravelEyeTestSprite : public Sprite {
   private:
@@ -754,12 +764,8 @@ class TravelEyeTestSprite : public Sprite {
     }
 };
 
-
-
 // Loop test class
-
 // Travel, pause, play loop 2-5 times, move on
-
 
 class LoopTestSprite : public Sprite {
   private:
@@ -1041,7 +1047,6 @@ class FragmentTestSprite : public Sprite {
     }
 };
 
-
 // Animation sprites from last year
 /*
 class W8V1ScannerDebrisV1Sprite : public Sprite {
@@ -1178,7 +1183,6 @@ class W8V1ScannerDebrisV1Sprite : public Sprite {
 };
 */
 
-
 class W8V1ScannerDebrisV1ReverseSprite : public Sprite {
   private:
     int updateInterval;
@@ -1314,8 +1318,6 @@ class W8V1ScannerDebrisV1ReverseSprite : public Sprite {
         return true;
     }
 };
-
-
 
 /*
 class ScannerSprite : public Sprite {
@@ -1574,7 +1576,10 @@ void loop() {
         // Sprite *s1 = new FragmentTestSprite();
         // Sprite *s1 = new LoopTestSprite();
 		// Sprite *s1 = new TravelEyeTestSprite();
-		Sprite *s1 = new LurkerSprite(42,1);
+		
+		int lurkerSpawnPixel = random(41,64);
+		Sprite *s1 = new LurkerSprite(lurkerSpawnPixel,1);
+		// TODO: check to see if another lurker already exists at this pixel, despawn if so
 
         if (! spriteManager->Add(s1)) {
             delete s1;
