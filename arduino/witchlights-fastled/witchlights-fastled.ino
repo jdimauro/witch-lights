@@ -477,6 +477,7 @@ private:
 	// TODO: make eye dimness slightly variable on spawn
 	int SetMaxEyeColor() {
 		// random 3-5
+		return random(3,5 +1);
 	}
 	
 	int	SetBlinkMaxCount() {
@@ -575,7 +576,7 @@ public:
         this->eyeWidth = eyew;							// can we set this on spawn? Make it semi-random within params? 
 		this->blinkDirection = 1;						// want to start with eyes closed and open them
 		this->eyeColor = 0;								// eyes closed = 0
-		this->eyeMaxColor = 5;							// up to 5 in the color set
+		this->eyeMaxColor = SetMaxEyeColor();			// up to 5 in the color set
 		this->blinkMaxCount = SetBlinkMaxCount();
 		this->blinkTiming = SetBlinkTiming();
 		this->lastBlinkTime = millis();
@@ -908,7 +909,7 @@ class LoopTestSprite : public Sprite {
 };
 
 class MotherSprite : public Sprite {
-  private:
+private:
     int updateInterval;
     int currentPixel;
     bool isLooping;
@@ -936,11 +937,117 @@ class MotherSprite : public Sprite {
     	// https://gist.github.com/kriegsman/d0a5ed3c8f38c64adcb4837dafb6e690
     	// https://gist.github.com/kriegsman/1f7ccbbfa492a73c015e
     }
+	
+	// use updateInterval and map() to make tails longer when going faster (reduce the fade factor) and shorter when going slower (increase fade factor)
+	void DimTrail(int tailPixel) {
+		if (tailPixel < 0) return;
+		if (! leds[tailPixel]) return;
+		
+		leds[tailPixel].fadeToBlackBy(128);
+		tailPixel --;
+		DimTrail(tailPixel);
+	}
 
-  public:
+    void TravelToLocation(int dest, int accel) {
+        // move to a destination with an acceleration factor
+        nextInflection = currentPixel + dest;
+        accelerationFactor = accel;
+    }
+
+    int TravelDirection() {
+    	// return + for moving in a positive direction, - for moving backwards
+    	if (nextInflection > currentPixel) {
+    		return 1;
+    	} else if (nextInflection == currentPixel) {
+    		return 0;
+    	} else {
+    		return -1;
+    	}
+    }
+
+    void StartTravel() {
+        // Transition from loop mode to travel mode
+        isLooping = false;
+        currentPixel += 0;
+        SetNextInflection();
+        this->scanCount = 0;
+        this->scanCountTotal = GetNewScanCountTotal(); // set to 1 for fragments
+        this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
+		this->accelerationFactor = 1;
+        // I hate this. One-off to get rid of the straggler when coming out of scan mode.
+        leds[currentPixel - 6] = CRGB::Black;
+        leds[currentPixel - 8] = CRGB::Black;
+        leds[currentPixel - 9] = CRGB::Black;  
+        leds[currentPixel - 10] = CRGB::Black;
+    }
+
+    bool UpdateTravel() {
+        stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
+    	// step backwards and fade the trail
+		DimTrail(currentPixel);
+		
+		if (accelerationFactor < 0) DimTrail(currentPixel -3);
+
+        currentPixel += TravelDirection();
+
+        updateInterval -= accelerationFactor;
+
+        if (updateInterval < 0) {
+            updateInterval = 0;
+        } 
+
+        // Transition from travel mode to scanning.
+        // TODO: Rework this so it works in both directions? 
+        if (currentPixel >= nextInflection) {
+        	// if we've reached our next destination, and we're accelerating, we need to brake
+        	if (accelerationFactor >= 0) {
+        		// int brakeDistance = random(10,20);
+        		TravelToLocation(6,-18);	// this should reduce speed over the next few pixels?
+        	} else {
+        		StartLoop();
+        	}
+			// StartLoop();
+        }
+
+        // Terminate if we go off the end of the strip
+        if (currentPixel > NUM_LEDS) {
+           this->MarkDone();
+        }
+
+        return true;
+    }
+
+    bool StartLoop() {
+        // Transition from travel mode to loop mode
+        // Safety. Since I don't trust my math, once we enter scanning mode, ALWAYS go back to the constant speed for scanning
+        // regardless of what the math said.
+        // updateInterval = SCANNER_DELAY_INTERVAL_IN_MS;
+		updateInterval = 30;
+		// accelerationFactor = 1;
+        isLooping = true;
+        scanningFrame = 0;
+        currentPixel -= 0;
+
+        return true;
+    }
+
+    bool UpdateLoop() {
+		// replace this with an algorithm
+        stripcpy(leds, af_l_mother + afc_l_mother_ANIMATION_FRAME_WIDTH * scanningFrame, currentPixel, afc_l_mother_ANIMATION_FRAME_WIDTH, afc_l_mother_ANIMATION_FRAME_WIDTH);
+        if (++scanningFrame == afc_l_mother_ANIMATION_FRAMES) {
+            scanningFrame = 0;
+            ++scanCount;
+        }
+		
+		DimTrail(currentPixel);
+
+        return true;
+    }
+
+public:
     MotherSprite() : Sprite() {
         // Initial state.
-        this->currentPixel = -8;  // The first pixel of the pattern is black.
+        this->currentPixel = -2;  // The first pixel of the pattern is black.
         this->scanningFrame = 0;
         this->isLooping = false;
         this->lastInflection = 0;
@@ -968,13 +1075,14 @@ class MotherSprite : public Sprite {
 
         // this->patternLength = 10;
 
-        this->pattern[0] = colorSets[colorPalette][8];
+		this->pattern[0] = colorSets[colorPalette][8];
         this->pattern[1] = colorSets[colorPalette][8];
+        // this->pattern[2] = colorSets[colorPalette][8];
 
         this->patternLength = 2;
 
-        for (int i = 0; i < afc_l_pulsar_a_ANIMATION_FRAME_WIDTH * afc_l_pulsar_a_ANIMATION_FRAMES; i++) {
-            af_l_pulsar_a[i] = afc_l_pulsar_a[i] > ' ' ? colorSets[colorPalette][afc_l_pulsar_a[i] - '0'] : CRGB::Black;
+        for (int i = 0; i < afc_l_mother_ANIMATION_FRAME_WIDTH * afc_l_mother_ANIMATION_FRAMES; i++) {
+            af_l_mother[i] = afc_l_mother[i] > ' ' ? colorSets[colorPalette][afc_l_mother[i] - '0'] : CRGB::Black;
         }
     }
 
@@ -988,108 +1096,6 @@ class MotherSprite : public Sprite {
       } else {
         return false;
       }
-    }
-
-    bool DimColor(int i) {
-        // leds[i].fadeToBlackBy( 128 ); // Fade completely to black = 256; 128/256 = .5, so this fades by half
-    	if (leds[i]) { // returns false if the coordinate you specify is black
-    		leds[i].fadeToBlackBy(128);
-    		return true;
-    	} else {
-    		return false;
-    	}
-    }
-
-    void TravelToLocation(int dest, int accel) {
-        // move to a destination with an acceleration factor
-        nextInflection = currentPixel + dest;
-        accelerationFactor = accel;
-    }
-
-    int TravelDirection() {
-    	// return + for moving in a positive direction, - for moving backwards
-    	if (nextInflection > currentPixel) {
-    		return 1;
-    	} else if (nextInflection == currentPixel) {
-    		return 0;
-    	} else {
-    		return -1;
-    	}
-    }
-
-    void StartTravel() {
-        // Transition from loop mode to travel mode
-        isLooping = false;
-        currentPixel += 8;
-        SetNextInflection();
-        this->scanCount = 0;
-        this->scanCountTotal = GetNewScanCountTotal(); // set to 1 for fragments
-        this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
-        // I hate this. One-off to get rid of the straggler when coming out of scan mode.
-        leds[currentPixel - 6] = CRGB::Black;
-        leds[currentPixel - 8] = CRGB::Black;
-        leds[currentPixel - 9] = CRGB::Black;  
-        leds[currentPixel - 10] = CRGB::Black;
-    }
-
-    bool UpdateTravel() {
-    	// currentPixel was moved at end of last travel
-        // In travel mode, move forwards
-        stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
-    	// step backwards and fade the trail
-
-
-        ++currentPixel;
-
-        updateInterval -= accelerationFactor;
-
-
-        if (updateInterval < 0) {
-            updateInterval = 0;
-        } else if (updateInterval > SPRITE_STARTING_DELAY_INTERVAL_IN_MS) {
-            updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
-        }
-
-        // Transition from travel mode to scanning.
-        // Rework this so it works in both directions? 
-        if (currentPixel >= nextInflection) {
-        	// if we've reached our next destination, and we're accelerating, we need to brake
-        	if (accelerationFactor >= 0) {
-        		brakeDistance = random(3,10);
-        		TravelToLocation(brakeDistance,-4);	// this should reduce speed over the next few pixels?
-        	} else {
-        		StartLoop();
-        	}
-        }
-
-        // Terminate if we go off the end of the strip
-        if (currentPixel > NUM_LEDS) {
-           this->MarkDone();
-        }
-
-        return true;
-    }
-
-    bool StartLoop() {
-        // Transition from travel mode to loop mode
-        // Safety. Since I don't trust my math, once we enter scanning mode, ALWAYS go back to the constant speed for scanning
-        // regardless of what the math said.
-        // updateInterval = SCANNER_DELAY_INTERVAL_IN_MS;
-        isLooping = true;
-        scanningFrame = 0;
-        currentPixel -= 8;
-
-        return true;
-    }
-
-    bool UpdateLoop() {
-        stripcpy(leds, af_l_pulsar_a + afc_l_pulsar_a_ANIMATION_FRAME_WIDTH * scanningFrame, currentPixel, afc_l_pulsar_a_ANIMATION_FRAME_WIDTH, afc_l_pulsar_a_ANIMATION_FRAME_WIDTH);
-        if (++scanningFrame == afc_l_pulsar_a_ANIMATION_FRAMES) {
-            scanningFrame = 0;
-            ++scanCount;
-        }
-
-        return true;
     }
 
     bool Update() {
@@ -1800,9 +1806,8 @@ void loop() {
         // Sprite *s1 = new W8V1ScannerDebrisV1Sprite();
         // Sprite *s1 = new AnimationTestSprite();
         // Sprite *s1 = new FragmentTestSprite();
-        Sprite *s1 = new LoopTestSprite();
-		
-
+        // Sprite *s1 = new LoopTestSprite();
+		Sprite *s1 = new MotherSprite();
 
         if (! spriteManager->Add(s1)) {
             delete s1;
@@ -1811,7 +1816,6 @@ void loop() {
 
     if (sensor2->IsActuated()) {
         //Sprite *s2 = new W8V1ScannerDebrisV1ReverseSprite();
-        // debugNeg(42);
         /*
         if (! spriteManager->Add(s2)) {
             delete s2;
