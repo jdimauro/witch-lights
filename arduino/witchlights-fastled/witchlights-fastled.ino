@@ -922,12 +922,13 @@ class MotherSprite : public Sprite {
   private:
     int updateInterval;
     int currentPixel;
-    bool isScanning;
+    bool isLooping;
     int scanningFrame;
     int lastInflection;
     int nextInflection;
     int scanCount;
     int scanCountTotal;
+    int accelerationFactor;
 
     // pattern is one black pixel plus remaining pixels in order of increasing brightness with brightest pixel doubled.
     CRGB pattern[NUM_COLORS_PER_SET + 1];
@@ -947,13 +948,14 @@ class MotherSprite : public Sprite {
         // Initial state.
         this->currentPixel = -8;  // The first pixel of the pattern is black.
         this->scanningFrame = 0;
-        this->isScanning = false;
+        this->isLooping = false;
         this->lastInflection = 0;
         this->nextInflection = 0;
         SetNextInflection();
         this->scanCount = 0;
         this->scanCountTotal = GetNewScanCountTotal();
         this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
+        this->accelerationFactor = 1;
 
         // Choose a random color palette from the palettes available.
         int colorPalette = random(0, NUM_COLORSETS);
@@ -989,30 +991,90 @@ class MotherSprite : public Sprite {
       }
     }
 
-    bool DimColor() {
+    bool DimColor(int i) {
         // leds[i].fadeToBlackBy( 128 ); // Fade completely to black = 256; 128/256 = .5, so this fades by half
-
+    	if (leds[i]) { // returns false if the coordinate you specify is black
+    		leds[i].fadeToBlackBy(128);
+    		return true;
+    	} else {
+    		return false;
+    	}
     }
 
     bool MoveToLocation(int dest, int accel) {
         // move to a destination with an acceleration factor
+
+        return true;
     }
 
     bool StartTravel() {
         // Transition from loop mode to travel mode
+        isLooping = false;
+        currentPixel += 8;
+        SetNextInflection();
+        this->scanCount = 0;
+        this->scanCountTotal = GetNewScanCountTotal(); // set to 1 for fragments
+        this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
+        // I hate this. One-off to get rid of the straggler when coming out of scan mode.
+        leds[currentPixel - 6] = CRGB::Black;
+        leds[currentPixel - 8] = CRGB::Black;
+        leds[currentPixel - 9] = CRGB::Black;  
+        leds[currentPixel - 10] = CRGB::Black;
 
+        return true;
     }
 
     bool UpdateTravel() {
         // In travel mode, move forwards
+        stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
+        ++currentPixel;
+
+        // ???
+        if (currentPixel >= nextInflection - (SCANNER_DELAY_INTERVAL_IN_MS - 1)) {
+            updateInterval += accelerationFactor;
+        } else {
+            updateInterval -= accelerationFactor;
+        }
+
+        if (updateInterval < 1) {
+            updateInterval = 1;
+        } else if (updateInterval > SPRITE_STARTING_DELAY_INTERVAL_IN_MS) {
+            updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
+        }
+
+        // Transition from travel mode to scanning.
+        if (currentPixel >= nextInflection) {
+        	StartLoop();
+        }
+
+        // Terminate if we go off the end of the strip
+        if (currentPixel > NUM_LEDS) {
+           this->MarkDone();
+        }
+
+        return true;
     }
 
     bool StartLoop() {
         // Transition from travel mode to loop mode
+        // Safety. Since I don't trust my math, once we enter scanning mode, ALWAYS go back to the constant speed for scanning
+        // regardless of what the math said.
+        // updateInterval = SCANNER_DELAY_INTERVAL_IN_MS;
+        isLooping = true;
+        scanningFrame = 0;
+        currentPixel -= 8;
+
+        return true;
     }
 
     bool UpdateLoop() {
+        stripcpy(leds, af_l_pulsar_a + afc_l_pulsar_a_ANIMATION_FRAME_WIDTH * scanningFrame, currentPixel, afc_l_pulsar_a_ANIMATION_FRAME_WIDTH, afc_l_pulsar_a_ANIMATION_FRAME_WIDTH);
+        if (++scanningFrame == afc_l_pulsar_a_ANIMATION_FRAMES) {
+            scanningFrame = 0;
+            ++scanCount;
+        }
 
+        return true;
     }
 
     bool Update() {
@@ -1020,58 +1082,16 @@ class MotherSprite : public Sprite {
             return false;
         }
         
-        // debug(nextInflection);
         // Going from scanning to travel mode.
-        if (isScanning && scanCount == scanCountTotal) {
-            isScanning = false;
-            currentPixel += 8;
-            SetNextInflection();
-            this->scanCount = 0;
-            this->scanCountTotal = GetNewScanCountTotal(); // set to 1 for fragments
-            this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
-            leds[currentPixel - 6] = CRGB::Black;
-            leds[currentPixel - 8] = CRGB::Black;
-            leds[currentPixel - 9] = CRGB::Black;  // I hate this. One-off to get rid of the straggler when coming out of scan mode.
-            leds[currentPixel - 10] = CRGB::Black;
+        if (isLooping && scanCount == scanCountTotal) {
+        	StartTravel();
         }
 
-        if (! isScanning) {
+        if (! isLooping) {
             // Traveling and continuing to travel.
-            stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
-            ++currentPixel;
-
-            if (currentPixel >= nextInflection - (SCANNER_DELAY_INTERVAL_IN_MS - 1)) {
-                updateInterval += 1;
-            } else {
-                updateInterval -= 1;
-            }
-
-            if (updateInterval < 1) {
-                updateInterval = 1;
-            } else if (updateInterval > SPRITE_STARTING_DELAY_INTERVAL_IN_MS) {
-                updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
-            }
-
-            // Transition from travel mode to scanning.
-            if (currentPixel >= nextInflection) {
-                // Safety. Since I don't trust my math, once we enter scanning mode, ALWAYS go back to the constant speed for scanning
-                // regardless of what the math said.
-                updateInterval = SCANNER_DELAY_INTERVAL_IN_MS;
-                isScanning = true;
-                scanningFrame = 0;
-                currentPixel -= 8;
-            }
-
-            if (currentPixel > NUM_LEDS) {
-               this->MarkDone();
-            }
+        	UpdateTravel();
         } else {
-            stripcpy(leds, af_l_pulsar_a + afc_l_pulsar_a_ANIMATION_FRAME_WIDTH * scanningFrame, currentPixel, afc_l_pulsar_a_ANIMATION_FRAME_WIDTH, afc_l_pulsar_a_ANIMATION_FRAME_WIDTH);
-            if (++scanningFrame == afc_l_pulsar_a_ANIMATION_FRAMES) {
-                scanningFrame = 0;
-                ++scanCount;
-                // SetNextInflection();
-            }
+        	UpdateLoop();
         }
 
         return true;
