@@ -36,10 +36,13 @@
 #define LURKER_BLINK_MIN_FREQUENCY	2500
 #define LURKER_BLINK_MAX_FREQUENCY	6000
 
-#define LURKER_MIN_PIXEL_1  100
-#define LURKER_MAX_PIXEL_1  150
-#define LURKER_MIN_PIXEL_2  260
-#define LURKER_MAX_PIXEL_2  310
+#define LURKER_BLINK_SHUT_MIN_TIMING 	50
+#define LURKER_BLINK_SHUT_MAX_TIMING	500
+
+#define LURKER_MIN_PIXEL_1  40
+#define LURKER_MAX_PIXEL_1  75
+#define LURKER_MIN_PIXEL_2  100
+#define LURKER_MAX_PIXEL_2  148
 #define LURKER_MIN_PIXEL_3	400
 #define LURKER_MAX_PIXEL_3	450
 
@@ -471,6 +474,11 @@ private:
 		return random(BLINK_SPRITE_MAX_BLINK_SPEED, BLINK_SPRITE_MIN_BLINK_SPEED + 1);
 	}
 	
+	// TODO: make eye dimness slightly variable on spawn
+	int SetMaxEyeColor() {
+		// random 3-5
+	}
+	
 	int	SetBlinkMaxCount() {
 		// debug(4);
 		return random(BLINK_MIN_COUNT,BLINK_MAX_COUNT + 1);
@@ -479,7 +487,7 @@ private:
 	
 	int SetBlinkTiming() {
 		// debug(5);
-		return random(200,1000); // ms; testing to see what looks good, these are rough guesses
+		return random(LURKER_BLINK_SHUT_MIN_TIMING,LURKER_BLINK_SHUT_MAX_TIMING + 1); // ms; testing to see what looks good, these are rough guesses
 	}
 	
 
@@ -494,15 +502,7 @@ private:
 	}
 	
 	// TODO: blink in multiple sets
-	int SetBlinkDirection() {
-		// if 0:
-		// check to see if eyecolor = ??maxeyecolor??; if so, we're starting a blink.
-			// Check to see if millis - lastBlinkTime is over the blinkFrequency. 
-			// if so, return -1, else 0
-		// check to see if eyecolor = 0, if so, we're mid-blink.
-		// check if millis - lastBlinkTime >= blinkTiming 
-			// if so, return +1, else 0
-		
+	int Blink() {
 		if (blinkDirection == 0) {
 			if (eyeColor == eyeMaxColor) {
 				// we are staring.
@@ -533,11 +533,7 @@ private:
 				}
 			}
 		}
-		
-		// if -1:
-		// Check to see if eyeColor = 0
-		// if eyecolor > 0, return -1
-		
+
 		if (blinkDirection == -1) {
 			// have we reached the end of the blink?
 			if (eyeColor <= 0) {
@@ -550,9 +546,6 @@ private:
 			}
 		}
 		
-		// if 1:
-		// Check if eyecolor == max, if so, return 0
-		// 
 		if (blinkDirection == 1) {
 			if (eyeColor >= eyeMaxColor) {
 				// we have just completed a single blink
@@ -574,7 +567,7 @@ private:
 public:
     LurkerSprite(int spawnPixel, int eyew) : Sprite() {
         // Initial state.
-        this->currentPixel = spawnPixel;  // OK, so I want to set this to a random between factors (RBF) value based on the value of currentPixel in a passing TravelSprite when it passes through areas where BlinkSprites can "awaken". So... I set a method here, right? AwakenAtPixel()? I'm assuming we can hand a BlinkSprite off the value of currentPixel at the time of spawn from the sprite that "woke" it? 
+        this->currentPixel = spawnPixel;
         this->updateInterval = SetInitialBlinkSpeed();
 		this->lifetimeBlinks = SetLifeSpan(); 
 		this->blinkCount = -1;							// When first opening the eyes, it "counts" as a blink, and setting to -1 means we don't count it against lifespan
@@ -587,17 +580,12 @@ public:
 		this->blinkTiming = SetBlinkTiming();
 		this->lastBlinkTime = millis();
 		
-		// int colorPalette = random(0, NUM_COLORSETS);
-		int colorPalette = 2; 							// yellow to start
+		// this->colorPalette = random(0, NUM_COLORSETS);
+		this->colorPalette = 2; 							// yellow to start
 
-		// TODO: fix eye color lookup; it's not drawing because it's not pulling correctly from colorsets? 
 
-		// this->eyes[0] = colorSets[colorPalette][eyeColor];
-// 		this->eyes[eyeWidth] = colorSets[colorPalette][eyeColor];
-
-		this->eyes[0] = colorSets[2][eyeColor];
-		this->eyes[eyeWidth] = colorSets[2][eyeColor];
-		
+		this->eyes[0] = colorSets[colorPalette][eyeColor];
+		this->eyes[eyeWidth] = colorSets[colorPalette][eyeColor];
         this->eyeLength = 2;
     }
 
@@ -623,17 +611,18 @@ public:
             return false;
         }
 		
+		// debug(colorPalette);
 		// Decide if we're going to blink, and set the value to do it
-		blinkDirection = SetBlinkDirection();
+		blinkDirection = Blink();
 		
 		// close or open the eyes a step by adding blinkDirection to eye color
 		eyeColor += blinkDirection;
 		
 		// so when we use colorPalette to call the color set, we don't get a value returned?
 		// TODO: figure this out
-		// this->eyes[0] = 0x020202; // colorSets[colorPalette][eyeColor];
-		this->eyes[0] = colorSets[2][eyeColor];
-		this->eyes[eyeWidth] = colorSets[2][eyeColor]; //colorSets[colorPalette][eyeColor];
+		// this->eyes[0] = 0x020202; // 
+		this->eyes[0] = colorSets[colorPalette][eyeColor]; // colorSets[2][eyeColor];
+		this->eyes[eyeWidth] = colorSets[colorPalette][eyeColor]; // colorSets[2][eyeColor]; 
 		
 		stripcpy(leds, eyes, currentPixel, eyeLength, eyeLength);
 		return true;
