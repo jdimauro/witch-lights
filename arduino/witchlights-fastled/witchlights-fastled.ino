@@ -943,6 +943,11 @@ class MotherSprite : public Sprite {
         return random(SCANNER_MIN_SCANS, SCANNER_MAX_SCANS + 1);
     }
 
+    void FadeToColor() {
+    	// https://gist.github.com/kriegsman/d0a5ed3c8f38c64adcb4837dafb6e690
+    	// https://gist.github.com/kriegsman/1f7ccbbfa492a73c015e
+    }
+
   public:
     MotherSprite() : Sprite() {
         // Initial state.
@@ -961,18 +966,23 @@ class MotherSprite : public Sprite {
         int colorPalette = random(0, NUM_COLORSETS);
 
         // Set the colors in the pattern.
-        this->pattern[0] = colorSets[colorPalette][0];
-        this->pattern[1] = colorSets[colorPalette][1];
-        this->pattern[2] = colorSets[colorPalette][2];
-        this->pattern[3] = colorSets[colorPalette][3];
-        this->pattern[4] = colorSets[colorPalette][4];
-        this->pattern[5] = colorSets[colorPalette][5];
-        this->pattern[6] = colorSets[colorPalette][6];
-        this->pattern[7] = colorSets[colorPalette][7];
-        this->pattern[8] = colorSets[colorPalette][8];
-        this->pattern[9] = colorSets[colorPalette][8];
+        // this->pattern[0] = colorSets[colorPalette][0];
+        // this->pattern[1] = colorSets[colorPalette][1];
+        // this->pattern[2] = colorSets[colorPalette][2];
+        // this->pattern[3] = colorSets[colorPalette][3];
+        // this->pattern[4] = colorSets[colorPalette][4];
+        // this->pattern[5] = colorSets[colorPalette][5];
+        // this->pattern[6] = colorSets[colorPalette][6];
+        // this->pattern[7] = colorSets[colorPalette][7];
+        // this->pattern[8] = colorSets[colorPalette][8];
+        // this->pattern[9] = colorSets[colorPalette][8];
 
-        this->patternLength = 10;
+        // this->patternLength = 10;
+
+        this->pattern[0] = colorSets[colorPalette][8];
+        this->pattern[1] = colorSets[colorPalette][8];
+
+        this->patternLength = 2;
 
         for (int i = 0; i < afc_l_pulsar_a_ANIMATION_FRAME_WIDTH * afc_l_pulsar_a_ANIMATION_FRAMES; i++) {
             af_l_pulsar_a[i] = afc_l_pulsar_a[i] > ' ' ? colorSets[colorPalette][afc_l_pulsar_a[i] - '0'] : CRGB::Black;
@@ -1001,13 +1011,24 @@ class MotherSprite : public Sprite {
     	}
     }
 
-    bool MoveToLocation(int dest, int accel) {
+    void TravelToLocation(int dest, int accel) {
         // move to a destination with an acceleration factor
-
-        return true;
+        nextInflection = currentPixel + dest;
+        accelerationFactor = accel;
     }
 
-    bool StartTravel() {
+    int TravelDirection() {
+    	// return + for moving in a positive direction, - for moving backwards
+    	if (nextInflection > currentPixel) {
+    		return 1;
+    	} else if (nextInflection == currentPixel) {
+    		return 0;
+    	} else {
+    		return -1;
+    	}
+    }
+
+    void StartTravel() {
         // Transition from loop mode to travel mode
         isLooping = false;
         currentPixel += 8;
@@ -1020,31 +1041,36 @@ class MotherSprite : public Sprite {
         leds[currentPixel - 8] = CRGB::Black;
         leds[currentPixel - 9] = CRGB::Black;  
         leds[currentPixel - 10] = CRGB::Black;
-
-        return true;
     }
 
     bool UpdateTravel() {
+    	// currentPixel was moved at end of last travel
         // In travel mode, move forwards
         stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
+    	// step backwards and fade the trail
+
+
         ++currentPixel;
 
-        // ???
-        if (currentPixel >= nextInflection - (SCANNER_DELAY_INTERVAL_IN_MS - 1)) {
-            updateInterval += accelerationFactor;
-        } else {
-            updateInterval -= accelerationFactor;
-        }
+        updateInterval -= accelerationFactor;
 
-        if (updateInterval < 1) {
-            updateInterval = 1;
+
+        if (updateInterval < 0) {
+            updateInterval = 0;
         } else if (updateInterval > SPRITE_STARTING_DELAY_INTERVAL_IN_MS) {
             updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
         }
 
         // Transition from travel mode to scanning.
+        // Rework this so it works in both directions? 
         if (currentPixel >= nextInflection) {
-        	StartLoop();
+        	// if we've reached our next destination, and we're accelerating, we need to brake
+        	if (accelerationFactor >= 0) {
+        		brakeDistance = random(3,10);
+        		TravelToLocation(brakeDistance,-4);	// this should reduce speed over the next few pixels?
+        	} else {
+        		StartLoop();
+        	}
         }
 
         // Terminate if we go off the end of the strip
