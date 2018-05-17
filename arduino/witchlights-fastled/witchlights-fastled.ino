@@ -2325,6 +2325,5 @@ void createAnimationFrames() {
      strcat(afc_f_eye_full_a, "           123456788 ");
      strcat(afc_f_eye_full_a, "            123456788");
 	 strcat(afc_f_eye_full_a, "                     ");
-	
->>>>>>> 8e7770576e2174d9b4630e79bc11271c2b7cbd0d
+
 }
