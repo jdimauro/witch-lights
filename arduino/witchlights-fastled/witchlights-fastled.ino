@@ -41,7 +41,7 @@
 
 #define LURKER_MIN_PIXEL_1  40
 #define LURKER_MAX_PIXEL_1  75
-#define LURKER_MIN_PIXEL_2  100
+#define LURKER_MIN_PIXEL_2  120
 #define LURKER_MAX_PIXEL_2  148
 #define LURKER_MIN_PIXEL_3	400
 #define LURKER_MAX_PIXEL_3	450
@@ -612,16 +612,17 @@ public:
             return false;
         }
 		
-		// debug(colorPalette);
+		if (! this->allowCreation()) {
+			this->MarkDone();
+			return false;
+		}
+		
 		// Decide if we're going to blink, and set the value to do it
 		blinkDirection = Blink();
 		
 		// close or open the eyes a step by adding blinkDirection to eye color
 		eyeColor += blinkDirection;
 		
-		// so when we use colorPalette to call the color set, we don't get a value returned?
-		// TODO: figure this out
-		// this->eyes[0] = 0x020202; // 
 		this->eyes[0] = colorSets[colorPalette][eyeColor]; // colorSets[2][eyeColor];
 		this->eyes[eyeWidth] = colorSets[colorPalette][eyeColor]; // colorSets[2][eyeColor]; 
 		
@@ -919,10 +920,16 @@ private:
     int scanCount;
     int scanCountTotal;
     int accelerationFactor;
+	int dimFactor;
 
-    // pattern is one black pixel plus remaining pixels in order of increasing brightness with brightest pixel doubled.
-    CRGB pattern[NUM_COLORS_PER_SET + 1];
-    int patternLength = NUM_COLORS_PER_SET + 1;
+    CRGB pattern[2];
+    int patternLength = 2;
+
+	// use updateInterval and map() to make tails longer when going faster (reduce the fade factor) and shorter when going slower (increase fade factor)
+	int SetDimFactor(int interval) {
+		// map 
+		return map(interval, 0, 40, 68, 192);
+	}
 
     void SetNextInflection() {
         lastInflection = nextInflection;
@@ -936,16 +943,17 @@ private:
     void FadeToColor() {
     	// https://gist.github.com/kriegsman/d0a5ed3c8f38c64adcb4837dafb6e690
     	// https://gist.github.com/kriegsman/1f7ccbbfa492a73c015e
+		// want to have the sprite's two bright pixels fade from one color set to another
     }
 	
-	// use updateInterval and map() to make tails longer when going faster (reduce the fade factor) and shorter when going slower (increase fade factor)
-	void DimTrail(int tailPixel) {
+	// add int direction and make tailpixel += direction, and when direction is "backwards", offset the dimtrail by 3 pixels to prevent dimming the sprite
+	void DimTrail(int tailPixel, int dimFactor) {
 		if (tailPixel < 0) return;
 		if (! leds[tailPixel]) return;
 		
-		leds[tailPixel].fadeToBlackBy(128);
+		leds[tailPixel].fadeToBlackBy(dimFactor);
 		tailPixel --;
-		DimTrail(tailPixel);
+		DimTrail(tailPixel, dimFactor);
 	}
 
     void TravelToLocation(int dest, int accel) {
@@ -982,11 +990,16 @@ private:
     }
 
     bool UpdateTravel() {
+		// write pattern to leds
         stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
-    	// step backwards and fade the trail
-		DimTrail(currentPixel);
 		
-		if (accelerationFactor < 0) DimTrail(currentPixel -3);
+		// set dim factor
+		dimFactor = SetDimFactor(updateInterval);
+		
+    	// step backwards and fade the trail
+		DimTrail(currentPixel, dimFactor);
+		
+		// if (accelerationFactor < 0) DimTrail(currentPixel -3, dimFactor);
 
         currentPixel += TravelDirection();
 
@@ -1006,7 +1019,6 @@ private:
         	} else {
         		StartLoop();
         	}
-			// StartLoop();
         }
 
         // Terminate if we go off the end of the strip
@@ -1019,11 +1031,7 @@ private:
 
     bool StartLoop() {
         // Transition from travel mode to loop mode
-        // Safety. Since I don't trust my math, once we enter scanning mode, ALWAYS go back to the constant speed for scanning
-        // regardless of what the math said.
-        // updateInterval = SCANNER_DELAY_INTERVAL_IN_MS;
 		updateInterval = 30;
-		// accelerationFactor = 1;
         isLooping = true;
         scanningFrame = 0;
         currentPixel -= 0;
@@ -1034,15 +1042,20 @@ private:
     bool UpdateLoop() {
 		// replace this with an algorithm
         stripcpy(leds, af_l_mother + afc_l_mother_ANIMATION_FRAME_WIDTH * scanningFrame, currentPixel, afc_l_mother_ANIMATION_FRAME_WIDTH, afc_l_mother_ANIMATION_FRAME_WIDTH);
+
         if (++scanningFrame == afc_l_mother_ANIMATION_FRAMES) {
             scanningFrame = 0;
             ++scanCount;
         }
-		
-		DimTrail(currentPixel);
+
+		DimTrail(currentPixel, dimFactor);
 
         return true;
     }
+	
+	int FadeLoop(int i) {
+		// step through colors from 8 to 7 down to 0 and back up again
+	}
 
 public:
     MotherSprite() : Sprite() {
@@ -1057,27 +1070,14 @@ public:
         this->scanCountTotal = GetNewScanCountTotal();
         this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
         this->accelerationFactor = 1;
+		this->dimFactor = SetDimFactor(updateInterval);
 
         // Choose a random color palette from the palettes available.
         int colorPalette = random(0, NUM_COLORSETS);
 
         // Set the colors in the pattern.
-        // this->pattern[0] = colorSets[colorPalette][0];
-        // this->pattern[1] = colorSets[colorPalette][1];
-        // this->pattern[2] = colorSets[colorPalette][2];
-        // this->pattern[3] = colorSets[colorPalette][3];
-        // this->pattern[4] = colorSets[colorPalette][4];
-        // this->pattern[5] = colorSets[colorPalette][5];
-        // this->pattern[6] = colorSets[colorPalette][6];
-        // this->pattern[7] = colorSets[colorPalette][7];
-        // this->pattern[8] = colorSets[colorPalette][8];
-        // this->pattern[9] = colorSets[colorPalette][8];
-
-        // this->patternLength = 10;
-
 		this->pattern[0] = colorSets[colorPalette][8];
         this->pattern[1] = colorSets[colorPalette][8];
-        // this->pattern[2] = colorSets[colorPalette][8];
 
         this->patternLength = 2;
 
@@ -1742,6 +1742,8 @@ bool testSpritesCreated;
 
 int starttime = millis();
 
+bool spawnLurkers = true; // TODO: set this with a jumper to an input pin
+
 void setup() {
 
     createColorsets();
@@ -1788,7 +1790,7 @@ void loop() {
     }
 
 	// Spawn lurkers randomly
-	if (random(0,1000) == 0) {
+	if (random(0,1000) == 0 && spawnLurkers) {
 		// debug(3);
 		int lurkerSpawnPixel = random(40,149);
 		Sprite *s1 = new LurkerSprite(lurkerSpawnPixel,1); 
