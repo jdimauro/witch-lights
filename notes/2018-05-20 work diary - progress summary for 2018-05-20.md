@@ -30,5 +30,20 @@ After the faerie sprite in the above video slows to a stop, it idles across 3 pi
 
 [sl]: http://s-a-w-s.blogspot.com
 
+That isn't the full desired result, though. What I need to do next is to write a `colorFade()` function to transition smoothly between pixel values. 
+
+I've found example code as gists on GitHub. Both use FastLED functions for the fade, which have so far resulted in good animation performance, so I'm game to see how they go. 
+
+* [Example One](https://gist.github.com/kriegsman/1f7ccbbfa492a73c015e)
+* [Example Two](https://gist.github.com/kriegsman/d0a5ed3c8f38c64adcb4837dafb6e690)
+
+I have so far not looked at the code at all to see how suitible it may be. That's for tomorrow, I believe. 
+
+## Transition from idle to travel
+
+There's a visual discontinuity at the moment where the animation transitions from `isIdling` to `false`; at that moment, it chooses a new destination, and draws the `travel` sprite. Unfortunately, the last frame of the idle animation and the travel sprite do not match perfectly. 
+
+So one my my next action items is to fix that. 
+
 ## Faeries go both ways
 
