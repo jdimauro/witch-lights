@@ -944,8 +944,18 @@ private:
 
     void SetNextInflection() {
         lastInflection = nextInflection;
-        nextInflection += random(SCANNER_MIN_STOP_DISTANCE, SCANNER_MAX_STOP_DISTANCE + 1);
+		totalTraveldistance = random(SCANNER_MIN_STOP_DISTANCE, SCANNER_MAX_STOP_DISTANCE + 1);
+        nextInflection += totalTraveldistance // * TravelDirectionSwitch();
     }
+	
+	int TravelDirectionSwitch() {
+		// returns -1 or 1 randomly
+		if (random(0,2) == 0) {
+			return -1;
+		} else {
+			return 1;
+		}
+	}
 
     int GetNewidleCountTotal() {
         return random(SCANNER_MIN_SCANS, SCANNER_MAX_SCANS + 1);
