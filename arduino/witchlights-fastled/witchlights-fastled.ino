@@ -944,8 +944,9 @@ private:
 
     void SetNextInflection() {
         lastInflection = nextInflection;
-		totalTraveldistance = random(SCANNER_MIN_STOP_DISTANCE, SCANNER_MAX_STOP_DISTANCE + 1);
-        nextInflection += totalTraveldistance // * TravelDirectionSwitch();
+		int travelDistance = random(SCANNER_MIN_STOP_DISTANCE, SCANNER_MAX_STOP_DISTANCE + 1);
+        nextInflection += travelDistance * TravelDirectionSwitch();
+		if (currentPixel > 0 || currentPixel < NUM_LEDS) nextInflection = abs(nextInflection);
     }
 	
 	int TravelDirectionSwitch() {
@@ -1005,18 +1006,11 @@ private:
         this->idleCountTotal = GetNewidleCountTotal(); // set to 1 for fragments
         this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
 		this->accelerationFactor = 1;
-		// need to set a bool here so that updateTravel() knows to fade the values towards 840
+		// need to set a bool here so that updateTravel() knows to fade the values towards 848?
 		this->pixelA = 8;
 		this->pixelB = 4;
-		this->pixelC = 0;
+		this->pixelC = 8;
 		UpdatePattern();
-        // I hate this. One-off to get rid of the straggler when coming out of scan mode.
-		/*
-        leds[currentPixel - 6] = CRGB::Black;
-        leds[currentPixel - 8] = CRGB::Black;
-        leds[currentPixel - 9] = CRGB::Black;  
-        leds[currentPixel - 10] = CRGB::Black;
-		*/
     }
 
     bool UpdateTravel() {
@@ -1100,6 +1094,7 @@ private:
 		stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
 
 		DimTrail(currentPixel, dimFactor, -1);
+		DimTrail(currentPixel +3, dimFactor, 1);
 		
 		if (EffectiveFrame(idlingFrame) == 0) {
 			++idleCount;
@@ -1128,6 +1123,7 @@ private:
 	    return abs(EffectiveFrame(frame) -8);
 	}
 	
+	// TODO: fix this
 	int AccelerateIdle(int frame) {
 		if (EffectiveFrame(frame) == 9 || EffectiveFrame(frame) == 0) {
 			updateInterval = 0;
@@ -1148,7 +1144,7 @@ private:
 public:
     MotherSprite() : Sprite() {
         // Initial state.
-        this->currentPixel = -2;  // The first pixel of the pattern is black.
+        this->currentPixel = -3;
         this->idlingFrame = 0;
         this->isIdling = false;
         this->lastInflection = 0;
@@ -1172,7 +1168,7 @@ public:
 
 		this->pixelA = 8;
 		this->pixelB = 4;
-		this->pixelC = 0;
+		this->pixelC = 8;
 
         // Set the colors in the pattern.
 		UpdatePattern();
@@ -1849,14 +1845,11 @@ bool testSpritesCreated;
 
 int starttime = millis();
 
-bool spawnLurkers = false; // TODO: set this with a jumper to an input pin
+bool spawnLurkers = true; // TODO: set this with a jumper to an input pin
 
 void setup() {
-
     createColorsets();
-
     createAnimationFrames();
-
 
     isBooted = false;
     testSpritesCreated = false;
