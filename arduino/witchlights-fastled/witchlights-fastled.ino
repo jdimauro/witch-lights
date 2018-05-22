@@ -1069,8 +1069,14 @@ private:
 		
 		if (isBraking) {
 			// braking here
-			// debug(2);
-			double accelerationFunction = sqrt(brakeDistance);
+			double accelerationFunction;
+			if (brakeDistance != 0) {
+				// debug(2);
+				// accelerationFunction = sqrt(brakeDistance * 16);
+				accelerationFunction = sqrt(); // square root of the distance traveled since starting to brake; record brake pixel and have currentPixel % brakePixel?   idea: function of the number of pixels we've been braking for?
+			} else {
+				accelerationFunction = 0;
+			}
 			accelerationFactor = - accelerationFunction; // need to cast to int? Apparently not. 
 			// int debugPixel = abs(accelerationFactor);
 			// debug(debugPixel);
@@ -1101,11 +1107,12 @@ private:
 		if (isWaiting) {
 			waitCount++;
 		}
-		debug(4);
+		// debug(4);
 		dimFactor = 128;
         // Transition from travel mode to loop mode
 		updateInterval = 1;
         isIdling = true;
+		// if (isIdling) debug(5);
         idlingFrame = 0;
         currentPixel -= 0; // pretty sure we don't need this unless we're doing char animation
 		fadeSteps = 0;
@@ -1126,7 +1133,6 @@ private:
 			return true;
 		} else {
 			fadeSteps++;
-			return false;
 		}
 		
 		UpdatePattern();
