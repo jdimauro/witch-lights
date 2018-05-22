@@ -67,6 +67,13 @@
 #define TREE_START_5		323
 #define TREE_END_5			334
 
+// debug or animation modes
+// TODO: set this with a jumper to an input pin
+bool spawnLurkers = true; 			// IMPORTANT: set to FALSE for all public video before Firefly 2018!
+bool randomInflection = true;		// Randomly makes faerie sprite dance back and forth, instead of mainly going "forwards". 
+bool spawnFaeries = true;			// TODO Spawn a new faerie when one reaches the end; helpful to keep a constant background of sprite animation for evaluation
+bool placeLurkers = false;			// TODO Dimly lights up range of pixels where lurkers are "allowed" to spawn, for install time
+bool placeTrees = false;			// TODO Dimly lights up range of pixels green where trees are defined, also for installs
 
 
 // currently set this to be consistent for animation design
@@ -82,7 +89,7 @@
 #define ANIMATION_FRAME_WIDTH     23
 #define ANIMATION_FRAMES          28
 
-// this is obviously a temporary hack, we don't want to have to specify constants for every single animation at the start, do we?
+// animation frame counts
 
 #define SPARKLE_ANIMATION_FRAME_WIDTH 23
 #define SPARKLE_ANIMATION_FRAMES      46
@@ -915,8 +922,13 @@ private:
     int currentPixel;
     bool isIdling;
     int idlingFrame;
+	bool isWaiting;
+	int waitCount;
+	bool isBraking;
+	int brakeDistance;
     int lastInflection;
     int nextInflection;
+	int travelDistance;
     int idleCount;
     int idleCountTotal;
     int accelerationFactor;
@@ -932,6 +944,7 @@ private:
 	int totalTravelDistance;
 	int currentDistance;
 	float brakePercentage;
+	
 
     CRGB pattern[3];
     int patternLength = 3;
@@ -945,8 +958,17 @@ private:
     void SetNextInflection() {
         lastInflection = nextInflection;
 		int travelDistance = random(SCANNER_MIN_STOP_DISTANCE, SCANNER_MAX_STOP_DISTANCE + 1);
-        nextInflection += travelDistance * TravelDirectionSwitch();
-		if (currentPixel > 0 || currentPixel < NUM_LEDS) nextInflection = abs(nextInflection);
+		// bool randomInflection 
+		if (randomInflection) {
+			nextInflection += travelDistance * TravelDirectionSwitch();
+		} else {
+			nextInflection += travelDistance;
+		}
+        
+		if (currentPixel < 0 || currentPixel > NUM_LEDS || currentPixel < 60) {
+			int forwards = abs(nextInflection);
+			nextInflection = forwards; // not working??
+		}
     }
 	
 	int TravelDirectionSwitch() {
@@ -983,6 +1005,8 @@ private:
         // move to a destination with an acceleration factor
         nextInflection = currentPixel + dest;
         accelerationFactor = accel;
+		bool isBraking = false;
+		int brakeDistance = 0;
     }
 
     int TravelDirection() {
@@ -1027,32 +1051,41 @@ private:
 		// if (accelerationFactor < 0) DimTrail(currentPixel -3, dimFactor);
 
         currentPixel += TravelDirection();
-
-        updateInterval -= accelerationFactor;
+		currentDistance = DistanceFromDestination();
+		// debug(currentDistance);
+		travelDistance = currentPixel % totalTravelDistance;
+		
+		// Check for brake distance
+		if (currentDistance < totalTravelDistance * brakePercentage && accelerationFactor >= 0) {
+			// debug(currentDistance);
+			isBraking = true;
+			brakeDistance = currentDistance - totalTravelDistance;
+			// debug(1);
+			
+			// accelerationFactor = -16;
+		} else {
+			isBraking = false;
+		}
+		
+		if (isBraking) {
+			// braking here
+			// debug(2);
+			double accelerationFunction = sqrt(brakeDistance);
+			accelerationFactor = - accelerationFunction; // need to cast to int? Apparently not. 
+			// int debugPixel = abs(accelerationFactor);
+			// debug(debugPixel);
+		} 
+		
+		updateInterval -= accelerationFactor;
 
         if (updateInterval < 0) {
             updateInterval = 0;
         } 
-
-        // Transition from travel mode to scanning.
-        // TODO: Rework this so it works in both directions? 
 		
-		currentDistance = DistanceFromDestination();
-		
-		
-		if (currentDistance < totalTravelDistance * brakePercentage && accelerationFactor >= 0) {
-			// debug(currentDistance);
-			accelerationFactor = -16;
-		}
 		
         if (currentDistance == 0) {
-        	// if we've reached our next destination, and we're accelerating, we need to brake
-        	// if (accelerationFactor >= 0) {
-        		// int brakeDistance = random(10,20);
-        		// TravelToLocation(6,-18);	// this should reduce speed over the next few pixels?
-        	// } else {
-        		StartIdle();
-        	// }
+			// debug(3);
+        	StartIdle();
         }
 
         // Terminate if we go off the end of the strip
@@ -1064,11 +1097,17 @@ private:
     }
 
     bool StartIdle() {
+		// If we're in wait mode, we'll count one instance of running an idle animation as one "wait" cycle, which is a series of small moves, in random directions, and idle cycles. 
+		if (isWaiting) {
+			waitCount++;
+		}
+		debug(4);
+		dimFactor = 128;
         // Transition from travel mode to loop mode
 		updateInterval = 1;
         isIdling = true;
         idlingFrame = 0;
-        currentPixel -= 0;
+        currentPixel -= 0; // pretty sure we don't need this unless we're doing char animation
 		fadeSteps = 0;
 
         return true;
@@ -1084,6 +1123,7 @@ private:
 			
 			fadeSteps = 0;
 			idlingFrame++;
+			return true;
 		} else {
 			fadeSteps++;
 			return false;
@@ -1093,6 +1133,7 @@ private:
 		
 		stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
 
+		dimFactor += 16; // attempt to fix the way trail fade looks when idling, 16 = sweet spot? Adjusting by 8s
 		DimTrail(currentPixel, dimFactor, -1);
 		DimTrail(currentPixel +3, dimFactor, 1);
 		
@@ -1162,6 +1203,8 @@ public:
 		this->totalTravelDistance = DistanceFromDestination();
 		this->currentDistance = totalTravelDistance;
 		this->brakePercentage = .15;
+		this->isBraking = false;
+		this->brakeDistance;
 
         // Choose a random color palette from the palettes available.
         this->colorPalette = random(0, NUM_COLORSETS);
@@ -1845,7 +1888,6 @@ bool testSpritesCreated;
 
 int starttime = millis();
 
-bool spawnLurkers = true; // TODO: set this with a jumper to an input pin
 
 void setup() {
     createColorsets();

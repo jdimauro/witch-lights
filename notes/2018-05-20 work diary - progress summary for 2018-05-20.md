@@ -37,7 +37,7 @@ I've found example code as gists on GitHub. Both use FastLED functions for the f
 * [Example One](https://gist.github.com/kriegsman/1f7ccbbfa492a73c015e)
 * [Example Two](https://gist.github.com/kriegsman/d0a5ed3c8f38c64adcb4837dafb6e690)
 
-I have so far not looked at the code at all to see how suitible it may be. That's for tomorrow, I believe. 
+I have so far not looked at the code at all to see how suitible it may be. That's for later, I believe. 
 
 ## Transition from idle to travel
 
@@ -47,3 +47,8 @@ So one my my next action items is to fix that.
 
 ## Faeries go both ways
 
+Last year's build of the Witch Lights concealed a dirty secret: sprites only had the capacity to move in one direction. 
+
+Basically, a 
+
+https://vimeo.com/271040882
