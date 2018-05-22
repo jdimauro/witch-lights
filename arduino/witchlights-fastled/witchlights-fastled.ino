@@ -1072,8 +1072,8 @@ private:
 			double accelerationFunction;
 			if (brakeDistance != 0) {
 				// debug(2);
-				// accelerationFunction = sqrt(brakeDistance * 16);
-				accelerationFunction = sqrt(); // square root of the distance traveled since starting to brake; record brake pixel and have currentPixel % brakePixel?   idea: function of the number of pixels we've been braking for?
+				accelerationFunction = sqrt(brakeDistance * 32);
+				// accelerationFunction = sqrt(); // square root of the distance traveled since starting to brake; record brake pixel and have currentPixel % brakePixel?   idea: function of the number of pixels we've been braking for?
 			} else {
 				accelerationFunction = 0;
 			}
