@@ -20,7 +20,7 @@
 #define TEST_PATTERN_FRAME_DELAY_IN_MS       1
 
 #define SCANNER_MIN_SCANS    6
-#define SCANNER_MAX_SCANS    8
+#define SCANNER_MAX_SCANS    9
 
 // lurker sprite constants
 
@@ -69,7 +69,7 @@
 
 // debug or animation modes
 // TODO: set this with a jumper to an input pin
-bool spawnLurkers = true; 			// IMPORTANT: set to FALSE for all public video before Firefly 2018!
+bool spawnLurkers = false; 			// IMPORTANT: set to FALSE for all public video before Firefly 2018!
 bool randomInflection = true;		// Randomly makes faerie sprite dance back and forth, instead of mainly going "forwards". 
 bool spawnFaeries = true;			// TODO Spawn a new faerie when one reaches the end; helpful to keep a constant background of sprite animation for evaluation
 bool placeLurkers = false;			// TODO Dimly lights up range of pixels where lurkers are "allowed" to spawn, for install time
@@ -80,7 +80,7 @@ bool placeTrees = false;			// TODO Dimly lights up range of pixels green where t
 #define SCANNER_MIN_STOP_DISTANCE    35   // This probably shouldn't be smaller than 40. If it is scanners may get stuck in place if they don't have enough "exit velocity". // 40
 #define SCANNER_MAX_STOP_DISTANCE    60   // 120
 
-#define SPRITE_STARTING_DELAY_INTERVAL_IN_MS   40 // 40
+#define SPRITE_STARTING_DELAY_INTERVAL_IN_MS   50 // 40
 #define SCANNER_DELAY_INTERVAL_IN_MS           20
 
 // For testing use only. In production, set this equal to 1. Use this to exaggerate the acceleration effects. 10-20 is good for testing.
@@ -926,12 +926,14 @@ private:
 	int waitCount;
 	bool isBraking;
 	int brakeDistance;
+	int brakePixel;
     int lastInflection;
     int nextInflection;
 	int travelDistance;
     int idleCount;
     int idleCountTotal;
-    int accelerationFactor;
+    float accelerationFactor;	// make these semi-randomly set parameters on create; range from 0.5 to 2? 
+	float brakeFactor;
 	int dimFactor;
 	int idleFrameCount;		// how many frames the idle algorithm uses
 	int pixelA;
@@ -952,23 +954,18 @@ private:
 	// use updateInterval and map() to make tails longer when going faster (reduce the fade factor) and shorter when going slower (increase fade factor)
 	int SetDimFactor(int interval) {
 		// map 
-		return map(interval, 0, 40, 68, 192);
+		return map(interval, 0, SPRITE_STARTING_DELAY_INTERVAL_IN_MS, 68, 192);
 	}
 
     void SetNextInflection() {
         lastInflection = nextInflection;
 		int travelDistance = random(SCANNER_MIN_STOP_DISTANCE, SCANNER_MAX_STOP_DISTANCE + 1);
-		// bool randomInflection 
-		if (randomInflection) {
+		if (randomInflection && currentPixel > 60) {
 			nextInflection += travelDistance * TravelDirectionSwitch();
 		} else {
 			nextInflection += travelDistance;
 		}
-        
-		if (currentPixel < 0 || currentPixel > NUM_LEDS || currentPixel < 60) {
-			int forwards = abs(nextInflection);
-			nextInflection = forwards; // not working??
-		}
+    
     }
 	
 	int TravelDirectionSwitch() {
@@ -1029,7 +1026,7 @@ private:
         this->idleCount = 0;
         this->idleCountTotal = GetNewidleCountTotal(); // set to 1 for fragments
         this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
-		this->accelerationFactor = 1;
+		// this->accelerationFactor = 1;
 		// need to set a bool here so that updateTravel() knows to fade the values towards 848?
 		this->pixelA = 8;
 		this->pixelB = 4;
@@ -1038,19 +1035,28 @@ private:
     }
 
     int AccelerateTravel() {
-
+		// Decide whether braking or accelerating
+		if (currentDistance < totalTravelDistance * brakePercentage) {
+			if (!isBraking) {
+				isBraking = true;
+				brakeDistance = abs(currentDistance - totalTravelDistance);
+				brakePixel = currentPixel;
+			}
+		} else {
+			isBraking = false;
+		}
+		// Accelerate or brake by returning positive or negative values to subtract from updateInterval
     	if (! isBraking) {
-    		// for now, we'll keep accelerating by subtracting 1ms per interval
-    		return 1;
+			int x = abs(currentDistance - totalTravelDistance);
+    		return round(sqrt(x) * accelerationFactor);
     	} else if (isBraking) {
-    		// temporarily return a fixed quantity so we know it's working
-    		// double tempAccelerationFactor = sqrt(64);
-    		return -16;
+			int x = abs(currentPixel - brakePixel);
+    		return -1 * round(sqrt(x) * brakeFactor);
     	}
     }
 
     bool UpdateTravel() {
-		// write pattern to leds
+		// First, write current CRGB pattern to leds
         stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
 		
 		// set dim factor
@@ -1059,47 +1065,21 @@ private:
     	// step backwards and fade the trail
 		DimTrail(currentPixel, dimFactor, -1);
 		DimTrail(currentPixel+3, dimFactor, 1);
-		
-		// if (accelerationFactor < 0) DimTrail(currentPixel -3, dimFactor);
+
+		// Next up, prepare for the next UpdateTravel() by moving currentPixel, and setting the next updateInterval value
 
         currentPixel += TravelDirection();
 		currentDistance = DistanceFromDestination();
 		// debug(currentDistance);
-		travelDistance = currentPixel % totalTravelDistance;
-		
-		// Check for brake distance
-		if (currentDistance < totalTravelDistance * brakePercentage && accelerationFactor >= 0) {
-			// debug(currentDistance);
-			isBraking = true;
-			brakeDistance = currentDistance - totalTravelDistance;
-		} else {
-			isBraking = false;
-		}
-		
-/*		if (isBraking) {
-			// braking here
-			double accelerationFunction;
-			if (brakeDistance != 0) {
-				// debug(2);
-				accelerationFunction = sqrt(brakeDistance * 32);
-				// accelerationFunction = sqrt(); // square root of the distance traveled since starting to brake; record brake pixel and have currentPixel % brakePixel?   idea: function of the number of pixels we've been braking for?
-			} else {
-				accelerationFunction = 0;
-			}
-			accelerationFactor = - accelerationFunction; // need to cast to int? Apparently not. 
-			// int debugPixel = abs(accelerationFactor);
-			// debug(debugPixel);
-		} */
-		
-		// updateInterval -= accelerationFactor;
 
 		updateInterval -= AccelerateTravel();
+		// debug(updateInterval);
 
         if (updateInterval < 0) {
             updateInterval = 0;
         } 
 		
-		
+		// If we have reached the destination pixel, our next stop is running the idle animation
         if (currentDistance == 0) {
 			// debug(3);
         	StartIdle();
@@ -1131,7 +1111,7 @@ private:
         return true;
     }
 
-    bool UpdateIdle() {
+    bool UpdateIdle() {		
 		if (fadeSteps >= colorInertia) {
 			pixelA = IdlePixelA(idlingFrame);
 			pixelB = IdlePixelB(idlingFrame);
@@ -1141,7 +1121,6 @@ private:
 			
 			fadeSteps = 0;
 			idlingFrame++;
-			return true;
 		} else {
 			fadeSteps++;
 		}
@@ -1153,6 +1132,19 @@ private:
 		dimFactor += 16; // attempt to fix the way trail fade looks when idling, 16 = sweet spot? Adjusting by 8s
 		DimTrail(currentPixel, dimFactor, -1);
 		DimTrail(currentPixel +3, dimFactor, 1);
+		
+		bool moveIt = leds[currentPixel - 1];
+		if (!moveIt) {
+			moveIt = leds[currentPixel + 3];
+		}
+		
+		if (EffectiveFrame(idlingFrame) == 0 && random(0,3) == 0 && !moveIt) { // pixelA == 7
+			currentPixel --;
+			updateInterval = 18; // updateInterval * 2;
+		} else if (EffectiveFrame(idlingFrame) == 8 && random(0,3) == 0 && !moveIt) { // pixelC == 7
+			currentPixel ++;
+			updateInterval = 18; // updateInterval * 2;
+		}
 		
 		if (EffectiveFrame(idlingFrame) == 0) {
 			++idleCount;
@@ -1186,7 +1178,7 @@ private:
 		if (EffectiveFrame(frame) == 9 || EffectiveFrame(frame) == 0) {
 			updateInterval = 0;
 		}
-		return frame % 8;
+		return (frame % 8) * 1.2;
 	}
 	
 	void UpdatePattern() {
@@ -1211,7 +1203,7 @@ public:
         this->idleCount = 0;
         this->idleCountTotal = GetNewidleCountTotal();
         this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
-        this->accelerationFactor = 1;
+		this->brakePixel;
 		this->dimFactor = SetDimFactor(updateInterval);
 		this->idleFrameCount = 16;
 		this->fadeSteps = 0;
@@ -1219,10 +1211,15 @@ public:
 		this->idleToTravel = true;
 		this->totalTravelDistance = DistanceFromDestination();
 		this->currentDistance = totalTravelDistance;
-		this->brakePercentage = .15;
 		this->isBraking = false;
 		this->brakeDistance;
-
+		
+		//To be set semi-randomly for all sprites, making them move just a bit differently so that they never mirror each other
+		this->brakePercentage = .15;		
+        this->accelerationFactor = (random(100,350) / 100); // 0.75
+		this->brakeFactor = random(500,1000) / 100; // 8
+		
+		
         // Choose a random color palette from the palettes available.
         this->colorPalette = random(0, NUM_COLORSETS);
 
@@ -1259,7 +1256,7 @@ public:
         
         // Going from scanning to travel mode.
         if (isIdling && idleCount == idleCountTotal) {
-			// need to put in a transition animation from idle to travel here
+			// need to put in a transition animation from idle to travel here?
 			
         	StartTravel();
         }
