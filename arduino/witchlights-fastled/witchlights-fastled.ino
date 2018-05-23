@@ -1037,6 +1037,18 @@ private:
 		UpdatePattern();
     }
 
+    int AccelerateTravel() {
+
+    	if (! isBraking) {
+    		// for now, we'll keep accelerating by subtracting 1ms per interval
+    		return 1;
+    	} else if (isBraking) {
+    		// temporarily return a fixed quantity so we know it's working
+    		// double tempAccelerationFactor = sqrt(64);
+    		return -16;
+    	}
+    }
+
     bool UpdateTravel() {
 		// write pattern to leds
         stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
@@ -1060,14 +1072,11 @@ private:
 			// debug(currentDistance);
 			isBraking = true;
 			brakeDistance = currentDistance - totalTravelDistance;
-			// debug(1);
-			
-			// accelerationFactor = -16;
 		} else {
 			isBraking = false;
 		}
 		
-		if (isBraking) {
+/*		if (isBraking) {
 			// braking here
 			double accelerationFunction;
 			if (brakeDistance != 0) {
@@ -1080,9 +1089,11 @@ private:
 			accelerationFactor = - accelerationFunction; // need to cast to int? Apparently not. 
 			// int debugPixel = abs(accelerationFactor);
 			// debug(debugPixel);
-		} 
+		} */
 		
-		updateInterval -= accelerationFactor;
+		// updateInterval -= accelerationFactor;
+
+		updateInterval -= AccelerateTravel();
 
         if (updateInterval < 0) {
             updateInterval = 0;
