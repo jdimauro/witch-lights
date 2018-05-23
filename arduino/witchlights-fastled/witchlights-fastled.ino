@@ -997,6 +997,16 @@ private:
 		tailPixel += direction;
 		DimTrail(tailPixel, dimFactor, direction);
 	}
+	
+	void FadeOutTrail(int tailPixel, int dimFactor, int direction) {
+		if (tailPixel < 0) return;
+		if (tailPixel > NUM_LEDS) return;
+		if (! leds[tailPixel]) return;
+		
+		// Recursively run DimTrail() at tailPixel+1, so trail fades from the dim end
+		DimTrail(tailPixel, dimFactor, direction);
+		FadeOutTrail(tailPixel - direction, dimFactor, direction);
+	}
 
     void TravelToLocation(int dest, int accel) {
         // move to a destination with an acceleration factor
@@ -1133,18 +1143,21 @@ private:
 		DimTrail(currentPixel, dimFactor, -1);
 		DimTrail(currentPixel +3, dimFactor, 1);
 		
+		/*
 		bool moveIt = leds[currentPixel - 1];
 		if (!moveIt) {
 			moveIt = leds[currentPixel + 3];
 		}
 		
-		if (EffectiveFrame(idlingFrame) == 0 && random(0,3) == 0 && !moveIt) { // pixelA == 7
+		if (EffectiveFrame(idlingFrame) == 0 && random(0,3) == 0 && !moveIt) { // pixelA == 8
 			currentPixel --;
 			updateInterval = 18; // updateInterval * 2;
-		} else if (EffectiveFrame(idlingFrame) == 8 && random(0,3) == 0 && !moveIt) { // pixelC == 7
+		} else if (EffectiveFrame(idlingFrame) == 8 && random(0,3) == 0 && !moveIt) { // pixelC == 8
 			currentPixel ++;
 			updateInterval = 18; // updateInterval * 2;
 		}
+		*/
+		
 		
 		if (EffectiveFrame(idlingFrame) == 0) {
 			++idleCount;
@@ -1940,6 +1953,7 @@ void loop() {
 
         if (spriteManager->SpriteCount() == 0) {
             isBooted = true;
+			Sprite *s1 = new MotherSprite();
         }
 
         return;
