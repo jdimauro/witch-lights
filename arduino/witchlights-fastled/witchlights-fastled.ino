@@ -22,6 +22,9 @@
 #define SCANNER_MIN_SCANS    6
 #define SCANNER_MAX_SCANS    9
 
+#define NO_IDLE_MIN_1		80
+#define NO_IDLE_MAX_1		110
+
 // lurker sprite constants
 
 #define BLINK_SPRITE_MIN_LIFETIME		3
@@ -960,13 +963,16 @@ private:
     void SetNextInflection() {
         lastInflection = nextInflection;
 		int travelDistance = random(SCANNER_MIN_STOP_DISTANCE, SCANNER_MAX_STOP_DISTANCE + 1);
+		
 		if (randomInflection && currentPixel > 60) {
 			nextInflection += travelDistance * TravelDirectionSwitch();
 		} else {
 			nextInflection += travelDistance;
 		}
-    
+    	
     }
+	
+
 	
 	int TravelDirectionSwitch() {
 		// returns -1 or 1 randomly
@@ -1005,7 +1011,7 @@ private:
 		
 		// Recursively run DimTrail() at tailPixel+1, so trail fades from the dim end
 		DimTrail(tailPixel, dimFactor, direction);
-		FadeOutTrail(tailPixel - direction, dimFactor, direction);
+		FadeOutTrail(tailPixel + direction, dimFactor, direction);
 	}
 
     void TravelToLocation(int dest, int accel) {
@@ -1036,11 +1042,11 @@ private:
         this->idleCount = 0;
         this->idleCountTotal = GetNewidleCountTotal(); // set to 1 for fragments
         this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
-		// this->accelerationFactor = 1;
 		// need to set a bool here so that updateTravel() knows to fade the values towards 848?
-		this->pixelA = 8;
-		this->pixelB = 4;
-		this->pixelC = 8;
+		// idleToTravel
+		this->pixelA = 6;
+		this->pixelB = 8;
+		this->pixelC = 6;
 		UpdatePattern();
     }
 
@@ -1138,10 +1144,16 @@ private:
 		UpdatePattern();
 		
 		stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
+		
+		dimFactor = 128;
+		FadeOutTrail(currentPixel, dimFactor, -1);
+		FadeOutTrail(currentPixel + 3, dimFactor, 1);
 
+		/*
 		dimFactor += 16; // attempt to fix the way trail fade looks when idling, 16 = sweet spot? Adjusting by 8s
 		DimTrail(currentPixel, dimFactor, -1);
 		DimTrail(currentPixel +3, dimFactor, 1);
+		*/
 		
 		/*
 		bool moveIt = leds[currentPixel - 1];
@@ -1236,9 +1248,9 @@ public:
         // Choose a random color palette from the palettes available.
         this->colorPalette = random(0, NUM_COLORSETS);
 
-		this->pixelA = 8;
-		this->pixelB = 4;
-		this->pixelC = 8;
+		this->pixelA = 6;
+		this->pixelB = 8;
+		this->pixelC = 6;
 
         // Set the colors in the pattern.
 		UpdatePattern();
