@@ -10,8 +10,9 @@ Last year, we were seriously concerned about the performance of the Arduino whil
 
 So this year, instead of a pre-rendered pixel trail for the faerie sprites, I added a `DimTrail()` method. 
 
-When I move the `pattern` CRGB sprite one pixel fowards, it doesn't turn off the LED that, in the previous interval, was the rear-most pixel of the `pattern`. So I call `DimTrail()` on that pixel, and it gets faded by ~50% using a FastLED function. The `DimTrail()` method is recursive, so it then steps back one pixel and fades again, and so on, until it detects that it's reached a black pixel, at which point it exits. 
+When I move the `pattern` CRGB sprite one pixel fowards, it doesn't turn off the LED that, in the previous interval, was the rear-most pixel of the `pattern`. So I call `DimTrail()` on that pixel, and it gets faded by ~50% using a FastLED function. The `DimTrail()` method is recursive, so it then steps back one pixel and fades again, and so on, until it detects that it's reached a black pixel, at which point it exits.  
 
+```
 	// add int direction and make tailpixel += direction, and when direction is "backwards", offset the dimtrail by 3 pixels to prevent dimming the sprite
 	void DimTrail(int tailPixel, int dimFactor, int direction) {
 		if (tailPixel < 0) return;
@@ -22,7 +23,7 @@ When I move the `pattern` CRGB sprite one pixel fowards, it doesn't turn off the
 		tailPixel += direction;
 		DimTrail(tailPixel, dimFactor, direction);
 	}
-
+```
 The FastLED `fadeToBlackBy` function operates in 1/256ths, meaning that if you feed it 128, it fades 50%, if you feed it 64, it fades 25%, and so on. So I also wrote a function that maps `updateInterval` (the variable framerate) to `dimFactor`, so that now when faerie sprites move slowly, they start with a short trail, and when they accelerate to move quickly, they stretch out a long trail behind them. 
 
 That's great, but when the sprites *stop* for their idle animation, the trail fade doesn't look right. 
@@ -95,7 +96,7 @@ I've found example code as gists on GitHub. Both use FastLED functions for the f
 * [Example One](https://gist.github.com/kriegsman/1f7ccbbfa492a73c015e)
 * [Example Two](https://gist.github.com/kriegsman/d0a5ed3c8f38c64adcb4837dafb6e690)
 
-I have so far not looked at the code at all to see how suitible it may be. That's for later, I believe. 
+I have so far not looked at the code at all to see how suitible it may be. So that'll happen soon. 
 
 ## Transition from idle to travel
 
@@ -107,6 +108,66 @@ So one of my next action items is to fix that.
 
 Last year's build of the Witch Lights concealed a dirty secret: sprites only had the capacity to move in one direction. 
 
-Basically, a sprite started at `0`, and when in travel mode, 
+Basically, a sprite started at `0`, and when in travel mode, it moved by adding 1 to `CurrentPixel`. When `CurrentPixel` was > `NUM_LEDS`, the sprite was marked done. (Or it started at `NUM_LEDS` and traveled towards `0`.)
 
-https://vimeo.com/271040882
+What I *want*, though, is for faeries to make one long travel move in the "forwards" direction (whichever way that happens to be for this particular sprite), and then make a bunch of small, random moves in either direction, basically flitting about while waiting for people to catch up along the path. 
+
+So that means that all the movement logic needed to be examined and re-written. Which I will not get into here. But basically, it happened. 
+
+[Faeries traveling in both directions][vid3]
+
+[vid3]: https://vimeo.com/271040882
+
+So that's working, too. 
+
+## Reverse the polarity of the neutron flow
+
+The [Witch Lights][wl] have two long-range motion sensors, one at each end. When someone on the "far" end triggers a sensor, we have to spawn a faerie sprite that starts at `NUM_LEDS` (the far end), and travels towards pixel `0`. 
+
+[wl]: https://witchlights.com/
+
+There are lots of details involved in making sprites travel in the "other" direction; for example, when transitioning from travel mode to idle, the idle pixel animation has to run in reverse. And the logic to check whether the sprite is "done" (and can be deleted from memory) has to know the sprite's direction, and so on. 
+
+Or. 
+
+When we run an `Update()` method, when we take what we've animated and send it to the LEDs, what we actually do is call a function called `stripcpy`. That function takes the CRGB struct that we've been manipulating, looks up `currentPixel`, and then uses `memcpy` to write our pixels to the `leds` CRGB struct. 
+
+OK. So. 
+
+What if we told `stripcpy` to count from the *other* direction, and write the CRGB data *backwards*? 
+
+In theory, you'd get a perfect mirror image of the animation you're running. The sprite logic would always run from pixel `0` to `NUM_LEDS`, but it would draw to the pixels as though it was running in the other direction. 
+
+That simplifies the requirement for direction-checking logic all through the various methods of the sprite class, and only requires that sprites be created with a `drawDirection` value, which then gets passed to all `stripcpy` calls. 
+
+That's the theory. I haven't tried it out yet. But I'm eager to try it. If it works, that's a huge simplification, reducing the number of potential logic bugs in Travel mode. 
+
+It would very slightly complicate collision detection, but I'm pretty sure that's easily solved. 
+
+## Up Next
+
+Here's the todo list:
+
+* Add "flit" behavior, so that faeries make long travel moves towards `NUM_LEDS`, then a number of short, random moves in either direction, with short idles, and then move on with another long travel move
+
+* Make `stripcpy` run backwards
+
+* Add jumper-pin modes (set some pins to auto-pullup, and then jumper them to ground to activate various modes for setup and documentation)
+
+* Collision detection
+
+* Adjust `accelerationFactor` and `brakeFactor` randomization, maybe make them values passed to sprites on creation?
+
+* Create subclasses of the current sprite and change the idle animation
+
+* Fix the visual glitch when transitioning from idle to travel modes (FadeColor?)
+
+* Define zones of pixels where faerie sprites should not stop and idle
+	* areas where the trail coils around a tree
+	* zones at the very beginning and end of pixel strips
+
+* Use collision detection to make faeries more likely to stop and flit around near other faeries
+
+* Double-check memory usage and possible memory leaks caused by my messing with things I do not sufficiently understand
+
+And other things. Secret things. 
