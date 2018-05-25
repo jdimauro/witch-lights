@@ -72,6 +72,7 @@
 
 // debug or animation modes
 // TODO: set this with a jumper to an input pin
+bool debugMode = false;				// turns on debug() statements
 bool spawnLurkers = false; 			// IMPORTANT: set to FALSE for all public video before Firefly 2018!
 bool randomInflection = true;		// Randomly makes faerie sprite dance back and forth, instead of mainly going "forwards". 
 bool spawnFaeries = true;			// TODO Spawn a new faerie when one reaches the end; helpful to keep a constant background of sprite animation for evaluation
@@ -938,6 +939,7 @@ private:
     float accelerationFactor;	// make these semi-randomly set parameters on create; range from 0.5 to 2? 
 	float brakeFactor;
 	int dimFactor;
+	int trailLength;		// range from 32 to 80
 	int idleFrameCount;		// how many frames the idle algorithm uses
 	int pixelA;
 	int pixelB;
@@ -957,7 +959,11 @@ private:
 	// use updateInterval and map() to make tails longer when going faster (reduce the fade factor) and shorter when going slower (increase fade factor)
 	int SetDimFactor(int interval) {
 		// map 
-		return map(interval, 0, SPRITE_STARTING_DELAY_INTERVAL_IN_MS, 68, 192);
+		return map(interval, 0, SPRITE_STARTING_DELAY_INTERVAL_IN_MS, trailLength, 192);
+	}
+
+	int SetTrailLength() {
+		return random(33,81);
 	}
 
     void SetNextInflection() {
@@ -969,7 +975,7 @@ private:
 		} else {
 			nextInflection += travelDistance;
 		}
-    	
+    
     }
 	
 
@@ -1086,7 +1092,7 @@ private:
 
         currentPixel += TravelDirection();
 		currentDistance = DistanceFromDestination();
-		// debug(currentDistance);
+		debug(currentDistance);
 
 		updateInterval -= AccelerateTravel();
 		// debug(updateInterval);
@@ -1148,12 +1154,6 @@ private:
 		dimFactor = 128;
 		FadeOutTrail(currentPixel, dimFactor, -1);
 		FadeOutTrail(currentPixel + 3, dimFactor, 1);
-
-		/*
-		dimFactor += 16; // attempt to fix the way trail fade looks when idling, 16 = sweet spot? Adjusting by 8s
-		DimTrail(currentPixel, dimFactor, -1);
-		DimTrail(currentPixel +3, dimFactor, 1);
-		*/
 		
 		/*
 		bool moveIt = leds[currentPixel - 1];
@@ -1212,6 +1212,16 @@ private:
 		this->pattern[2] = colorSets[colorPalette][pixelC];
 	}
 	
+	void UpdatePatternWithSparkles() {
+		int randomA = random(0,pixelA + 1);
+		int randomB = random(0,pixelB + 1);
+		int randomC = random(0,pixelC + 1);
+		
+		this->pattern[0] = colorSets[colorPalette][randomA];
+        this->pattern[1] = colorSets[colorPalette][randomB];
+		this->pattern[2] = colorSets[colorPalette][randomC];
+	}
+	
 	int DistanceFromDestination() {
 		return abs(currentPixel - nextInflection);
 	}
@@ -1229,6 +1239,7 @@ public:
         this->idleCountTotal = GetNewidleCountTotal();
         this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
 		this->brakePixel;
+		this->trailLength = SetTrailLength();
 		this->dimFactor = SetDimFactor(updateInterval);
 		this->idleFrameCount = 16;
 		this->fadeSteps = 0;
@@ -2025,16 +2036,19 @@ void resetStrip() {
 }
 
 void debug(int number) {
+	if (!debugMode) return;
     fill_solid(leds, NUM_LEDS, CRGB::Black);
     fill_solid(leds, number < NUM_LEDS ? number : NUM_LEDS, 0x202020);
     FastLED.show();
 }
 
 void debugNeg(int number) {
+	if (!debugMode) return;
     fill_solid(leds + NUM_LEDS - number, number < NUM_LEDS ? number : NUM_LEDS, 0x202020);
 }
 
 void debugN(int startPos, int number) {
+	if (!debugMode) return;
     fill_solid(leds + startPos, number < (NUM_LEDS - startPos) ? number : NUM_LEDS - startPos, 0x202020);
 }
 
