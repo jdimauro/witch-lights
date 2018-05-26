@@ -4,23 +4,32 @@
 #define PSTR // Make Arduino Due happy
 #endif
 
+// debug or animation modes
+// TODO: set this with a jumper to an input pin
+bool debugMode = false;					// turns on debug() statements
+bool spawnLurkers = false;			// IMPORTANT: set to FALSE for all public video before Firefly 2018!
+bool randomInflection = true;		// Randomly makes faerie sprite dance back and forth, instead of mainly going "forwards". 
+bool spawnFaeries = true;				// TODO Spawn a new faerie randomly; helpful to keep a constant background of sprite animation for evaluation
+bool placeLurkers = false;			// TODO Dimly lights up range of pixels where lurkers are "allowed" to spawn, for install time
+bool placeTrees = false;				// TODO Dimly lights up range of pixels green where trees are defined, also for installs
+
+// FastLED constants
 #define NUM_LEDS						750
 #define MAXSPRITES						20
 
 #define NUM_COLORSETS					5
 #define NUM_COLORS_PER_SET		9
 
+// Data pins
 #define PIR_SENSOR_1_PIN		 3
 #define PIR_SENSOR_2_PIN		 4
 #define NEOPIXEL_DATA_PIN		 6								// Pin for neopixels
 
-#define INFRARED_SENSOR_TIMEOUT_IN_MS		1000	// Ten seconds.
+// Sensor time-out (in production, set tp 10000)
+#define INFRARED_SENSOR_TIMEOUT_IN_MS		1000	// in milliseconds
 
-#define SCANNER_SPRITE_FRAME_DELAY_IN_MS		 1
-#define TEST_PATTERN_FRAME_DELAY_IN_MS			 1
-
-#define SCANNER_MIN_SCANS		 6
-#define SCANNER_MAX_SCANS		 9
+#define SCANNER_SPRITE_FRAME_DELAY_IN_MS			1
+#define TEST_PATTERN_FRAME_DELAY_IN_MS				1
 
 #define FAERIE_MIN_IDLE							4
 #define FAERIE_MAX_IDLE							9
@@ -37,8 +46,16 @@
 #define FAERIE_MIN_TRAIL_LENGTH			80	// The lower the value, the longer the trail generated, but also the more FastLED functions get called per update per sprite. 
 #define FAERIE_MAX_TRAIL_LENGTH			33
 
-#define NO_IDLE_MIN_1		80
-#define NO_IDLE_MAX_1		110
+#define NO_IDLE_MIN_1								80
+#define NO_IDLE_MAX_1								110
+
+// currently set this to be consistent for animation design
+#define FAERIE_MIN_LONG_TRAVEL			90	// This probably shouldn't be smaller than 40. If it is scanners may get stuck in place if they don't have enough "exit velocity". // 40
+#define FAERIE_MAX_LONG_TRAVEL			120	// 120
+
+#define SPRITE_STARTING_DELAY_INTERVAL_IN_MS	 50 // 40
+#define SCANNER_DELAY_INTERVAL_IN_MS					 20
+
 
 // lurker sprite constants
 
@@ -49,7 +66,7 @@
 #define BLINK_SPRITE_MIN_BLINK_SPEED	45
 
 #define BLINK_MIN_COUNT		1
-#define BLINK_MAX_COUNT		4			
+#define BLINK_MAX_COUNT		4
 
 #define LURKER_BLINK_MIN_FREQUENCY	2500
 #define LURKER_BLINK_MAX_FREQUENCY	6000
@@ -85,25 +102,9 @@
 #define TREE_START_5		323
 #define TREE_END_5			334
 
-// debug or animation modes
-// TODO: set this with a jumper to an input pin
-bool debugMode = false;				// turns on debug() statements
-bool spawnLurkers = false;			// IMPORTANT: set to FALSE for all public video before Firefly 2018!
-bool randomInflection = true;		// Randomly makes faerie sprite dance back and forth, instead of mainly going "forwards". 
-bool spawnFaeries = true;			// TODO Spawn a new faerie when one reaches the end; helpful to keep a constant background of sprite animation for evaluation
-bool placeLurkers = false;			// TODO Dimly lights up range of pixels where lurkers are "allowed" to spawn, for install time
-bool placeTrees = false;			// TODO Dimly lights up range of pixels green where trees are defined, also for installs
-
-
-// currently set this to be consistent for animation design
-#define SCANNER_MIN_STOP_DISTANCE		 35		// This probably shouldn't be smaller than 40. If it is scanners may get stuck in place if they don't have enough "exit velocity". // 40
-#define SCANNER_MAX_STOP_DISTANCE		 60		// 120
-
-#define SPRITE_STARTING_DELAY_INTERVAL_IN_MS	 50 // 40
-#define SCANNER_DELAY_INTERVAL_IN_MS					 20
-
 // For testing use only. In production, set this equal to 1. Use this to exaggerate the acceleration effects. 10-20 is good for testing.
 #define ACCELERATION_DELAY_OBVIOUSNESS_FACTOR				 1
+
 
 #define ANIMATION_FRAME_WIDTH			23
 #define ANIMATION_FRAMES					28
@@ -340,11 +341,11 @@ class AnimationTestSprite : public Sprite {
 
 		void SetNextInflection() {
 				lastInflection = nextInflection;
-				nextInflection += random(SCANNER_MIN_STOP_DISTANCE, SCANNER_MAX_STOP_DISTANCE + 1);
+				nextInflection += random(FAERIE_MIN_LONG_TRAVEL, FAERIE_MAX_LONG_TRAVEL + 1);
 		}
 
 		int GetNewScanCountTotal() {
-				return random(SCANNER_MIN_SCANS, SCANNER_MAX_SCANS + 1);
+				return random(FAERIE_MIN_IDLE, FAERIE_MAX_IDLE + 1);
 		}
 
 	public:
@@ -669,11 +670,11 @@ class LoopTestSprite : public Sprite {
 
 		void SetNextInflection() {
 				lastInflection = nextInflection;
-				nextInflection += random(SCANNER_MIN_STOP_DISTANCE, SCANNER_MAX_STOP_DISTANCE + 1);
+				nextInflection += random(FAERIE_MIN_LONG_TRAVEL, FAERIE_MAX_LONG_TRAVEL + 1);
 		}
 
 		int GetNewScanCountTotal() {
-				return random(SCANNER_MIN_SCANS, SCANNER_MAX_SCANS + 1);
+				return random(FAERIE_MIN_IDLE, FAERIE_MAX_IDLE + 1);
 		}
 
 	public:
@@ -786,7 +787,7 @@ class LoopTestSprite : public Sprite {
 		}
 };
 
-class MotherSprite : public Sprite {
+class FaerieSprite : public Sprite {
 private:
 	int updateInterval;
 	int minInterval;
@@ -837,7 +838,7 @@ private:
 		lastInflection = nextInflection;
 		
 		if (! isWaiting) {
-			int travelDistance = random(SCANNER_MIN_STOP_DISTANCE, SCANNER_MAX_STOP_DISTANCE) + 1;
+			int travelDistance = random(FAERIE_MIN_LONG_TRAVEL, FAERIE_MAX_LONG_TRAVEL) + 1;
 			
 			// TODO when direction (1 or -1) is added as a sprite param on create, use that to make the sprite "advance" in the sprite's general direction(?)
 			if (randomInflection && currentPixel > 60) {
@@ -1109,7 +1110,7 @@ private:
 	}
 
 public:
-	MotherSprite() : Sprite() {
+	FaerieSprite() : Sprite() {
 		// Initial state.
 		this->currentPixel = -3;
 		this->idlingFrame = 0;
@@ -1159,7 +1160,7 @@ public:
 		*/
 	}
 
-	~MotherSprite() {
+	~FaerieSprite() {
 	}
 
 	boolean UpdateNow() {
@@ -1226,11 +1227,11 @@ class FragmentTestSprite : public Sprite {
 
 		void SetNextInflection() {
 				lastInflection = nextInflection;
-				nextInflection += random(SCANNER_MIN_STOP_DISTANCE, SCANNER_MAX_STOP_DISTANCE + 1);
+				nextInflection += random(FAERIE_MIN_LONG_TRAVEL, FAERIE_MAX_LONG_TRAVEL + 1);
 		}
 
 		int GetNewScanCountTotal() {
-				return random(SCANNER_MIN_SCANS, SCANNER_MAX_SCANS + 1);
+				return random(FAERIE_MIN_IDLE, FAERIE_MAX_IDLE + 1);
 		}
 
 	public:
@@ -1371,11 +1372,11 @@ class W8V1ScannerDebrisV1Sprite : public Sprite {
 
 		void SetNextInflection() {
 				lastInflection = nextInflection;
-				nextInflection += random(SCANNER_MIN_STOP_DISTANCE, SCANNER_MAX_STOP_DISTANCE + 1);
+				nextInflection += random(FAERIE_MIN_LONG_TRAVEL, FAERIE_MAX_LONG_TRAVEL + 1);
 		}
 
 		int GetNewScanCountTotal() {
-				return random(SCANNER_MIN_SCANS, SCANNER_MAX_SCANS + 1);
+				return random(FAERIE_MIN_IDLE, FAERIE_MAX_IDLE + 1);
 		}
 
 	public:
@@ -1506,11 +1507,11 @@ class W8V1ScannerDebrisV1ReverseSprite : public Sprite {
 
 		void SetNextInflection() {
 				lastInflection = nextInflection;
-				nextInflection -= random(SCANNER_MIN_STOP_DISTANCE, SCANNER_MAX_STOP_DISTANCE + 1);
+				nextInflection -= random(FAERIE_MIN_LONG_TRAVEL, FAERIE_MAX_LONG_TRAVEL + 1);
 		}
 
 		int GetNewScanCountTotal() {
-				return random(SCANNER_MIN_SCANS, SCANNER_MAX_SCANS + 1);
+				return random(FAERIE_MIN_IDLE, FAERIE_MAX_IDLE + 1);
 		}
 
 	public:
@@ -1640,11 +1641,11 @@ class ScannerSprite : public Sprite {
 		int patternLength = NUM_COLORS_PER_SET + 1;
 
 		void SetNextInflection() {
-				nextInflection += random(SCANNER_MIN_STOP_DISTANCE, SCANNER_MAX_STOP_DISTANCE + 1);
+				nextInflection += random(FAERIE_MIN_LONG_TRAVEL, FAERIE_MAX_LONG_TRAVEL + 1);
 		}
 
 		int GetNewScanCountTotal() {
-				return random(SCANNER_MIN_SCANS, SCANNER_MAX_SCANS + 1);
+				return random(FAERIE_MIN_IDLE, FAERIE_MAX_IDLE + 1);
 		}
 
 	public:
@@ -1867,7 +1868,7 @@ void loop() {
 
 				if (spriteManager->SpriteCount() == 0) {
 						isBooted = true;
-			Sprite *s1 = new MotherSprite();
+			Sprite *s1 = new FaerieSprite();
 				}
 
 				return;
@@ -1893,7 +1894,7 @@ void loop() {
 				// Sprite *s1 = new AnimationTestSprite();
 				// Sprite *s1 = new FragmentTestSprite();
 				// Sprite *s1 = new LoopTestSprite();
-		Sprite *s1 = new MotherSprite();
+		Sprite *s1 = new FaerieSprite();
 
 				if (! spriteManager->Add(s1)) {
 						delete s1;
