@@ -22,6 +22,9 @@
 #define SCANNER_MIN_SCANS		 6
 #define SCANNER_MAX_SCANS		 9
 
+#define FAERIE_FLIT_MIN_DISTANCE		10
+#define FAERIE_FLIT_MAX_DISTANCE		40
+
 #define NO_IDLE_MIN_1		80
 #define NO_IDLE_MAX_1		110
 
@@ -634,145 +637,6 @@ public:
 };
 
 
-// Traveling Eye Sprite Test
-
-class TravelEyeTestSprite : public Sprite {
-	private:
-		int updateInterval;
-		int currentPixel;
-		bool isScanning;
-		int scanningFrame;
-		int lastInflection;
-		int nextInflection;
-		int scanCount;
-		int scanCountTotal;
-
-		// pattern is one black pixel plus remaining pixels in order of increasing brightness with brightest pixel doubled.
-		CRGB pattern[NUM_COLORS_PER_SET + 1];
-		int patternLength = NUM_COLORS_PER_SET + 1;
-
-		void SetNextInflection() {
-			lastInflection = nextInflection;
-			nextInflection += random(SCANNER_MIN_STOP_DISTANCE, SCANNER_MAX_STOP_DISTANCE + 1);
-		}
-
-		int GetNewScanCountTotal() {
-			return random(SCANNER_MIN_SCANS, SCANNER_MAX_SCANS + 1);
-		}
-
-	public:
-		TravelEyeTestSprite() : Sprite() {
-			// Initial state.
-			this->currentPixel = -8;	// The first pixel of the pattern is black.
-			this->scanningFrame = 0;
-			this->isScanning = false;
-			this->lastInflection = 0;
-			this->nextInflection = 0;
-			SetNextInflection();
-			this->scanCount = 0;
-			// this->scanCountTotal = GetNewScanCountTotal();
-			this->scanCountTotal = 1;
-			this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
-
-			// Choose a random color palette from the palettes available.
-			int colorPalette = random(0, NUM_COLORSETS);
-
-			// Set the colors in the pattern.
-			this->pattern[0] = colorSets[colorPalette][0];
-			this->pattern[1] = colorSets[colorPalette][1];
-			this->pattern[2] = colorSets[colorPalette][2];
-			this->pattern[3] = colorSets[colorPalette][3];
-			this->pattern[4] = colorSets[colorPalette][4];
-			this->pattern[5] = colorSets[colorPalette][5];
-			this->pattern[6] = colorSets[colorPalette][6];
-			this->pattern[7] = colorSets[colorPalette][7];
-			this->pattern[8] = colorSets[colorPalette][8];
-			this->pattern[9] = colorSets[colorPalette][8];
-
-			this->patternLength = 10;
-
-			for (int i = 0; i < afc_f_eye_full_a_ANIMATION_FRAME_WIDTH * afc_f_eye_full_a_ANIMATION_FRAMES; i++) {
-					af_f_eye_full_a[i] = afc_f_eye_full_a[i] > ' ' ? colorSets[colorPalette][afc_f_eye_full_a[i] - '0'] : CRGB::Black;
-			}
-		}
-
-		~TravelEyeTestSprite() {
-		}
-
-		boolean UpdateNow() {
-			if (millis() - lastUpdateTime >= ACCELERATION_DELAY_OBVIOUSNESS_FACTOR * updateInterval) {
-				lastUpdateTime = millis();
-				return true;
-			} else {
-				return false;
-			}
-		}
-
-		bool Update() {
-				if (! this->UpdateNow()) {
-						return false;
-				}
-		
-		// debug(nextInflection);
-		// Going from scanning to travel mode.
-		if (isScanning && scanCount == scanCountTotal) {
-			isScanning = false;
-			currentPixel += afc_f_eye_full_a_ANIMATION_FRAME_WIDTH;
-			currentPixel -= 8;
-			SetNextInflection();
-			this->scanCount = 0;
-			// this->scanCountTotal = GetNewScanCountTotal(); // set to 1 for fragments
-			this->scanCountTotal = 1;
-			this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
-			leds[currentPixel - 6] = CRGB::Black;
-			leds[currentPixel - 8] = CRGB::Black;
-			leds[currentPixel - 9] = CRGB::Black;	 // I hate this. One-off to get rid of the straggler when coming out of scan mode.
-			leds[currentPixel - 10] = CRGB::Black;
-		}
-
-		if (! isScanning) {
-				// Traveling and continuing to travel.
-				stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
-				++currentPixel;
-
-				if (currentPixel >= nextInflection - (SCANNER_DELAY_INTERVAL_IN_MS - 1)) {
-						updateInterval += 1;
-				} else {
-						updateInterval -= 1;
-				}
-
-				if (updateInterval < 1) {
-						updateInterval = 1;
-				} else if (updateInterval > SPRITE_STARTING_DELAY_INTERVAL_IN_MS) {
-						updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
-				}
-
-				// Transition from travel mode to scanning.
-				if (currentPixel >= nextInflection) {
-						// Safety. Since I don't trust my math, once we enter scanning mode, ALWAYS go back to the constant speed for scanning
-						// regardless of what the math said.
-						// updateInterval = SCANNER_DELAY_INTERVAL_IN_MS;
-				updateInterval = 60;
-								isScanning = true;
-								scanningFrame = 0;
-								currentPixel -= 0;
-						}
-
-						if (currentPixel > NUM_LEDS) {
-							 this->MarkDone();
-						}
-				} else {
-						stripcpy(leds, af_f_eye_full_a + afc_f_eye_full_a_ANIMATION_FRAME_WIDTH * scanningFrame, currentPixel, afc_f_eye_full_a_ANIMATION_FRAME_WIDTH, afc_f_eye_full_a_ANIMATION_FRAME_WIDTH);
-						if (++scanningFrame == afc_f_eye_full_a_ANIMATION_FRAMES) {
-								scanningFrame = 0;
-								++scanCount;
-						}
-				}
-
-				return true;
-		}
-};
-
 // Loop test class
 // Travel, pause, play loop 2-5 times, move on
 
@@ -914,10 +778,12 @@ class MotherSprite : public Sprite {
 private:
 	int updateInterval;
 	int currentPixel;
+	int currentLocation;
 	bool isIdling;
 	int idlingFrame;
 	bool isWaiting;
 	int waitCount;
+	int waitCountTotal;
 	bool isBraking;
 	int brakeDistance;
 	int brakePixel;
@@ -926,11 +792,11 @@ private:
 	int travelDistance;
 	int idleCount;
 	int idleCountTotal;
-	float accelerationFactor; // make these semi-randomly set parameters on create; range from 0.5 to 2? 
+	float accelerationFactor;	// make these semi-randomly set parameters on create; range from 0.5 to 2? 
 	float brakeFactor;
 	int dimFactor;
-	int trailLength;		// range from 32 to 80
-	int idleFrameCount;		// how many frames the idle algorithm uses
+	int trailLength;					// range from 32 to 80
+	int idleFrameCount;				// how many frames the idle algorithm uses
 	int pixelA;
 	int pixelB;
 	int pixelC;
@@ -956,8 +822,14 @@ private:
 
 	void SetNextInflection() {
 		lastInflection = nextInflection;
-		int travelDistance = random(SCANNER_MIN_STOP_DISTANCE, SCANNER_MAX_STOP_DISTANCE + 1);
-	
+		
+		if (! isWaiting) {
+			int travelDistance = random(SCANNER_MIN_STOP_DISTANCE, SCANNER_MAX_STOP_DISTANCE + 1);
+		} else {
+			int travelDistance = random(FAERIE_FLIT_MIN_DISTANCE, FAERIE_FLIT_MAX_DISTANCE + 1) * TravelDirectionSwitch();
+		}
+
+		// TODO when direction (1 or -1) is added as a sprite param on create, use that to make the sprite "advance" in the sprite's general direction(?)
 		if (randomInflection && currentPixel > 60) {
 			nextInflection += travelDistance * TravelDirectionSwitch();
 		} else {
@@ -1060,27 +932,6 @@ private:
 		UpdatePattern();
 	}
 
-	int AccelerateTravel() {
-		// Decide whether braking or accelerating
-		if (currentDistance < totalTravelDistance * brakePercentage) {
-			if (!isBraking) {
-				isBraking = true;
-				brakeDistance = abs(currentDistance - totalTravelDistance);
-				brakePixel = currentPixel;
-			}
-		} else {
-			isBraking = false;
-		}
-		// Accelerate or brake by returning positive or negative values to subtract from updateInterval
-		if (! isBraking) {
-		int x = abs(currentDistance - totalTravelDistance);
-			return round(sqrt(x) * accelerationFactor);
-		} else if (isBraking) {
-		int x = abs(currentPixel - brakePixel);
-			return -1 * round(sqrt(x) * brakeFactor);
-		}
-	}
-
 	bool UpdateTravel() {
 		// First, write current CRGB pattern to leds
 		stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
@@ -1102,7 +953,7 @@ private:
 		// debug(updateInterval);
 
 		if (updateInterval < 0) {
-				updateInterval = 0;
+			updateInterval = 0;
 		} 
 		
 		// If we have reached the destination pixel, our next stop is running the idle animation
@@ -1123,6 +974,7 @@ private:
 		if (isWaiting) {
 			waitCount++;
 		}
+		
 		dimFactor = 128;
 		
 		// Transition from travel mode to loop mode
@@ -1152,6 +1004,7 @@ private:
 		}
 
 		UpdatePattern();
+		// UpdatePatternWithSparkles();
 
 		stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
 	
@@ -1193,6 +1046,27 @@ private:
 		return (frame % 8) * 1.2;
 	}
 	
+	int AccelerateTravel() {
+		// Decide whether braking or accelerating
+		if (currentDistance < totalTravelDistance * brakePercentage) {
+			if (!isBraking) {
+				isBraking = true;
+				brakeDistance = abs(currentDistance - totalTravelDistance);
+				brakePixel = currentPixel;
+			}
+		} else {
+			isBraking = false;
+		}
+		// Accelerate or brake by returning positive or negative values to subtract from updateInterval
+		if (! isBraking) {
+		int x = abs(currentDistance - totalTravelDistance);
+			return round(sqrt(x) * accelerationFactor);
+		} else if (isBraking) {
+		int x = abs(currentPixel - brakePixel);
+			return -1 * round(sqrt(x) * brakeFactor);
+		}
+	}
+	
 	void UpdatePattern() {
 		this->pattern[0] = colorSets[colorPalette][pixelA];
 		this->pattern[1] = colorSets[colorPalette][pixelB];
@@ -1224,6 +1098,8 @@ public:
 		SetNextInflection();
 		this->idleCount = 0;
 		this->idleCountTotal = GetNewidleCountTotal();
+		this->waitCount = 0;
+		this->waitCountTotal = random(3,9); // TODO: method to set this and define constants
 		this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
 		this->brakePixel;
 		this->trailLength = SetTrailLength();
@@ -1242,19 +1118,18 @@ public:
 		this->accelerationFactor = (random(100,350) / 100); // 0.75
 		this->brakeFactor = random(500,1000) / 100; // 8
 		
-		
 		// Choose a random color palette from the palettes available.
 		this->colorPalette = random(0, NUM_COLORSETS);
-
 		this->pixelA = 6;
 		this->pixelB = 8;
 		this->pixelC = 6;
 
-				// Set the colors in the pattern.
+		// Set the colors in the pattern.
 		UpdatePattern();
 
 		this->patternLength = 3;
 
+		// Required for pixel animation:
 		/*
 		for (int i = 0; i < afc_l_mother_ANIMATION_FRAME_WIDTH * afc_l_mother_ANIMATION_FRAMES; i++) {
 			af_l_mother[i] = afc_l_mother[i] > ' ' ? colorSets[colorPalette][afc_l_mother[i] - '0'] : CRGB::Black;
@@ -1282,6 +1157,11 @@ public:
 		// Going from scanning to travel mode.
 		if (isIdling && idleCount == idleCountTotal) {
 		// need to put in a transition animation from idle to travel here?
+
+			if (isWaiting && waitCount == waitCountTotal) {
+				isWaiting = false;
+				waitCountTotal = random(3,9); // TODO method
+			}
 
 			StartTravel();
 		}
@@ -2551,6 +2431,6 @@ void createAnimationFrames() {
 		 strcat(afc_f_eye_full_a, "						23456787	");
 		 strcat(afc_f_eye_full_a, "						123456788 ");
 		 strcat(afc_f_eye_full_a, "						 123456788");
-	 strcat(afc_f_eye_full_a, "											");
+		 strcat(afc_f_eye_full_a, "											");
 
 }
