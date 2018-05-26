@@ -12,6 +12,7 @@ bool randomInflection = false;		// Randomly makes faerie sprite dance back and f
 bool spawnFaeries = true;				// TODO Spawn a new faerie randomly; helpful to keep a constant background of sprite animation for evaluation
 bool placeLurkers = false;			// TODO Dimly lights up range of pixels where lurkers are "allowed" to spawn, for install time
 bool placeTrees = false;				// TODO Dimly lights up range of pixels green where trees are defined, also for installs
+bool placeNoIdle = false;				// TODO same, for specifying zones where faeries will not stop to idle
 
 // FastLED constants
 #define NUM_LEDS						750
@@ -46,8 +47,38 @@ bool placeTrees = false;				// TODO Dimly lights up range of pixels green where 
 #define FAERIE_MIN_TRAIL_LENGTH			80	// The lower the value, the longer the trail generated, but also the more FastLED functions get called per update per sprite. 
 #define FAERIE_MAX_TRAIL_LENGTH			33
 
-#define NO_IDLE_MIN_1								80
-#define NO_IDLE_MAX_1								110
+// 1st 5: ban idling across the very ends of LED strips, it looks weird
+#define NO_IDLE_MIN_1								145
+#define NO_IDLE_MAX_1								155
+
+#define NO_IDLE_MIN_2								295
+#define NO_IDLE_MAX_2								305
+
+#define NO_IDLE_MIN_3								445
+#define NO_IDLE_MAX_3								455
+
+#define NO_IDLE_MIN_4								595
+#define NO_IDLE_MAX_4								605
+
+#define NO_IDLE_MIN_5								745
+#define NO_IDLE_MAX_5								755
+
+
+// Set these values to define areas (such as behind trees) where faeries should not idle
+#define NO_IDLE_MIN_6								80
+#define NO_IDLE_MAX_6								111
+
+#define NO_IDLE_MIN_7								-1
+#define NO_IDLE_MAX_7								-2
+
+#define NO_IDLE_MIN_8								-3
+#define NO_IDLE_MAX_8								-4
+
+#define NO_IDLE_MIN_9								-1
+#define NO_IDLE_MAX_9								-2
+
+#define NO_IDLE_MIN_10							-3
+#define NO_IDLE_MAX_10							-4
 
 // currently set this to be consistent for animation design
 #define FAERIE_MIN_LONG_TRAVEL			90	// This probably shouldn't be smaller than 40. If it is scanners may get stuck in place if they don't have enough "exit velocity". // 40
@@ -837,19 +868,39 @@ private:
 	void SetNextInflection() {
 		lastInflection = nextInflection;
 		
-		if (! isWaiting) {
-			int travelDistance = random(FAERIE_MIN_LONG_TRAVEL, FAERIE_MAX_LONG_TRAVEL) + 1;
-			
-			// TODO when direction (1 or -1) is added as a sprite param on create, use that to make the sprite "advance" in the sprite's general direction(?)
-			if (randomInflection && currentPixel > 60) {
-				nextInflection += travelDistance * TravelDirectionSwitch();
-				return;
-			}
+		int travelDistance = random(FAERIE_MIN_LONG_TRAVEL, FAERIE_MAX_LONG_TRAVEL) + 1;
+		
+		// TODO when direction (1 or -1) is added as a sprite param on create, use that to make the sprite "advance" in the sprite's general direction(?)
+		if (randomInflection && currentPixel > 60) {
+			nextInflection += travelDistance * TravelDirectionSwitch();
+			return;
 		} else {
-			int travelDistance = (random(FAERIE_FLIT_MIN_DISTANCE, FAERIE_FLIT_MAX_DISTANCE) + 1) * TravelDirectionSwitch();
 			nextInflection += travelDistance;
-			debug(3);
 		}
+		
+		while (! CheckForNoIdle(nextInflection)) {
+			nextInflection += random(FAERIE_FLIT_MIN_DISTANCE, FAERIE_FLIT_MAX_DISTANCE) + 1;
+			
+			if (CheckForNoIdle(nextInflection)) return;
+		}
+	}
+	
+	bool CheckForNoIdle(int targetPixel) {
+		// if (targetPixel >= NO_IDLE_MIN_6 && targetPixel <= NO_IDLE_MAX_6) {
+		// 	return false;
+		// } else {
+		// 	return true;
+		// }
+		bool returnValue = false;
+		returnValue |= (targetPixel >= NO_IDLE_MIN_6 && targetPixel <= NO_IDLE_MAX_6); // what's the most efficient way to test all these conditions and return false if the target pixel is inside any of the ranges?
+		return !returnValue; // we want to return false if any of the tests returned true
+	}
+	
+	void SetNextWaitTravelTarget() {
+		lastInflection = nextInflection;
+		int travelDistance = (random(FAERIE_FLIT_MIN_DISTANCE, FAERIE_FLIT_MAX_DISTANCE) + 1) * TravelDirectionSwitch();
+		nextInflection += travelDistance;
+		// debug(3);
 	}
 
 	int TravelDirectionSwitch() {
@@ -1078,7 +1129,7 @@ private:
 			return round(sqrt(x) * accelerationFactor);
 		} else if (isBraking) {
 		int x = abs(currentPixel - brakePixel);
-			return -1 * round(sqrt(x) * brakeFactor);
+			return -1 * round((sqrt(x)-sqrt(x-1)) * brakeFactor);
 		}
 	}
 	
