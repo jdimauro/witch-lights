@@ -34,6 +34,9 @@
 #define FAERIE_MIN_WAIT							3
 #define FAERIE_MAX_WAIT							9
 
+#define FAERIE_MIN_TRAIL_LENGTH			80	// The lower the value, the longer the trail generated, but also the more FastLED functions get called per update per sprite. 
+#define FAERIE_MAX_TRAIL_LENGTH			33
+
 #define NO_IDLE_MIN_1		80
 #define NO_IDLE_MAX_1		110
 
@@ -827,22 +830,22 @@ private:
 	}
 
 	int SetTrailLength() {
-		return random(33,81);
+		return random(FAERIE_MAX_TRAIL_LENGTH, FAERIE_MIN_TRAIL_LENGTH) + 1;
 	}
 
 	void SetNextInflection() {
 		lastInflection = nextInflection;
 		
 		if (! isWaiting) {
-			int travelDistance = random(SCANNER_MIN_STOP_DISTANCE, SCANNER_MAX_STOP_DISTANCE + 1);
+			int travelDistance = random(SCANNER_MIN_STOP_DISTANCE, SCANNER_MAX_STOP_DISTANCE) + 1;
+			
+			// TODO when direction (1 or -1) is added as a sprite param on create, use that to make the sprite "advance" in the sprite's general direction(?)
+			if (randomInflection && currentPixel > 60) {
+				nextInflection += travelDistance * TravelDirectionSwitch();
+				return;
+			}
 		} else {
-			int travelDistance = random(FAERIE_FLIT_MIN_DISTANCE, FAERIE_FLIT_MAX_DISTANCE + 1) * TravelDirectionSwitch();
-		}
-
-		// TODO when direction (1 or -1) is added as a sprite param on create, use that to make the sprite "advance" in the sprite's general direction(?)
-		if (randomInflection && currentPixel > 60) {
-			nextInflection += travelDistance * TravelDirectionSwitch();
-		} else {
+			int travelDistance = (random(FAERIE_FLIT_MIN_DISTANCE, FAERIE_FLIT_MAX_DISTANCE) + 1) * TravelDirectionSwitch();
 			nextInflection += travelDistance;
 		}
 	}
