@@ -1106,7 +1106,7 @@ private:
 	}
 	
 	int SetWaitCount() {
-		return random(FAERIE_MIN_WAIT,FAERIE_MAX_WAIT) + 1; // TODO: method to set this and define constants
+		return random(FAERIE_MIN_WAIT,FAERIE_MAX_WAIT) + 1;
 	}
 
 public:
