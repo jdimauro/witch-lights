@@ -32,11 +32,14 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define SCANNER_SPRITE_FRAME_DELAY_IN_MS			1
 #define TEST_PATTERN_FRAME_DELAY_IN_MS				1
 
-#define FAERIE_MIN_IDLE							4
-#define FAERIE_MAX_IDLE							9
+#define FAERIE_MIN_IDLE							2
+#define FAERIE_MAX_IDLE							6
 
-#define FAERIE_FLIT_MIN_DISTANCE		10
-#define FAERIE_FLIT_MAX_DISTANCE		40
+#define FAERIE_FLIT_MIN_DISTANCE		6
+#define FAERIE_FLIT_MAX_DISTANCE		15
+
+#define FAERIE_FLIT_MIN_START_INTERVAL	40
+#define FAERIE_FLIT_MAX_START_INTERVAL	60
 
 #define FAERIE_MIN_SPEED						1
 #define FAERIE_MAX_SPEED 						10
@@ -146,9 +149,6 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define SPARKLE_ANIMATION_FRAME_WIDTH 23
 #define SPARKLE_ANIMATION_FRAMES			46
 
-#define TIMINGTEST_ANIMATION_FRAME_WIDTH	58
-#define TIMINGTEST_ANIMATION_FRAMES				26
-
 #define afc_f_slow_stop_ANIMATION_FRAME_WIDTH		17
 #define afc_f_slow_stop_ANIMATION_FRAMES				65
 
@@ -158,11 +158,6 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define afc_l_pulsar_a_ANIMATION_FRAME_WIDTH		24
 #define afc_l_pulsar_a_ANIMATION_FRAMES					22
 
-#define afc_l_mother_ANIMATION_FRAME_WIDTH			3
-#define afc_l_mother_ANIMATION_FRAMES						10
-
-#define afc_f_eye_full_a_ANIMATION_FRAME_WIDTH	21
-#define afc_f_eye_full_a_ANIMATION_FRAMES			58
 
 // ...TO HERE.
 
@@ -177,20 +172,8 @@ CRGB leds[NUM_LEDS];
 
 CRGB colorSets[NUM_COLORSETS][NUM_COLORS_PER_SET];
 
-// char animationFramesChars[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
-// CRGB animationFrames[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
-
-// char animationFramesCharsReverse[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
-// CRGB animationFramesReverse[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
-
-// char afc_w8v1[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
-// CRGB af_w8v1[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
-
 char afc_w8v1r[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
 CRGB af_w8v1r[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
-
-// char afc_timing_test[TIMINGTEST_ANIMATION_FRAME_WIDTH * TIMINGTEST_ANIMATION_FRAMES];
-// CRGB af_timing_test[TIMINGTEST_ANIMATION_FRAME_WIDTH * TIMINGTEST_ANIMATION_FRAMES];
 
 // char afc_2_sparkle_a[SPARKLE_ANIMATION_FRAME_WIDTH * SPARKLE_ANIMATION_FRAMES];
 // CRGB af_2_sparkle_a[SPARKLE_ANIMATION_FRAME_WIDTH * SPARKLE_ANIMATION_FRAMES];
@@ -204,12 +187,6 @@ CRGB af_f_slow_stop_c[afc_f_slow_stop_c_ANIMATION_FRAME_WIDTH * afc_f_slow_stop_
 char afc_l_pulsar_a[afc_l_pulsar_a_ANIMATION_FRAME_WIDTH * afc_l_pulsar_a_ANIMATION_FRAMES];
 CRGB af_l_pulsar_a[afc_l_pulsar_a_ANIMATION_FRAME_WIDTH * afc_l_pulsar_a_ANIMATION_FRAMES];
 
-
-char afc_l_mother[afc_l_mother_ANIMATION_FRAME_WIDTH * afc_l_mother_ANIMATION_FRAMES];
-CRGB af_l_mother[afc_l_mother_ANIMATION_FRAME_WIDTH * afc_l_mother_ANIMATION_FRAMES];
-
-char afc_f_eye_full_a[afc_f_eye_full_a_ANIMATION_FRAME_WIDTH * afc_f_eye_full_a_ANIMATION_FRAMES];
-CRGB af_f_eye_full_a[afc_f_eye_full_a_ANIMATION_FRAME_WIDTH * afc_f_eye_full_a_ANIMATION_FRAMES];
 
 // Function prototypes.
 void resetStrip(void);
@@ -905,7 +882,11 @@ private:
 		lastInflection = nextInflection;
 		int travelDistance = (random(FAERIE_FLIT_MIN_DISTANCE, FAERIE_FLIT_MAX_DISTANCE) + 1) * TravelDirectionSwitch();
 		nextInflection += travelDistance;
-		// debug(3);
+		
+		while (! CheckForNoIdle(nextInflection)) {
+			nextInflection += random(FAERIE_FLIT_MIN_DISTANCE, FAERIE_FLIT_MAX_DISTANCE) + 1;
+			if (CheckForNoIdle(nextInflection)) return;
+		}
 	}
 
 	int TravelDirectionSwitch() {
@@ -948,14 +929,6 @@ private:
 		FadeOutTrail(tailPixel + direction, dimFactor, direction);
 	}
 
-	void TravelToLocation(int dest, int accel) {
-		// move to a destination with an acceleration factor
-		nextInflection = currentPixel + dest;
-		accelerationFactor = accel;
-		bool isBraking = false;
-		int brakeDistance = 0;
-	}
-
 	int TravelDirection() {
 		// return + for moving in a positive direction, - for moving backwards
 		if (nextInflection > currentPixel) {
@@ -966,127 +939,37 @@ private:
 			return -1;
 		}
 	}
-
-	/*	
-	void JitterLocation() {
-
-		bool moveIt = leds[currentPixel - 1];
-		if (!moveIt) {
-			moveIt = leds[currentPixel + 3];
-		}
-		
-		if (EffectiveFrame(idlingFrame) == 0 && random(0,3) == 0 && !moveIt) { // pixelA == 8
-			currentPixel --;
-			updateInterval = 18; // updateInterval * 2;
-		} else if (EffectiveFrame(idlingFrame) == 8 && random(0,3) == 0 && !moveIt) { // pixelC == 8
-			currentPixel ++;
-			updateInterval = 18; // updateInterval * 2;
-		}
-
-	}
-	*/
 	
-	void StartTravel() {
-		// Transition from loop mode to travel mode
-		isIdling = false;
-		currentPixel += 0;
-		SetNextInflection();
-		totalTravelDistance = DistanceFromDestination();
-		this->idleCount = 0;
-		this->idleCountTotal = GetNewidleCountTotal(); // set to 1 for fragments
-		this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
-		// need to set a bool here so that updateTravel() knows to fade the values towards 848?
-		// idleToTravel
-		this->pixelA = 6;
-		this->pixelB = 8;
-		this->pixelC = 6;
-		UpdatePattern();
+	void UpdatePattern() {
+		this->pattern[0] = colorSets[colorPalette][pixelA];
+		this->pattern[1] = colorSets[colorPalette][pixelB];
+		this->pattern[2] = colorSets[colorPalette][pixelC];
 	}
-
-	bool UpdateTravel() {
-		// First, write current CRGB pattern to leds
-		stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
-		
-		// set dim factor
-		dimFactor = SetDimFactor(updateInterval);
-		
-		// step backwards and fade the trail
-		DimTrail(currentPixel, dimFactor, -1);
-		DimTrail(currentPixel+3, dimFactor, 1);
-
-		// Next up, prepare for the next UpdateTravel() by moving currentPixel, and setting the next updateInterval value
-
-		currentPixel += TravelDirection();
-		currentDistance = DistanceFromDestination();
-		// debug(currentDistance);
-
-		updateInterval -= AccelerateTravel();
-		// debug(updateInterval);
-
-		if (updateInterval < minInterval) {
-			updateInterval = minInterval;
-		} 
-		
-		// If we have reached the destination pixel, our next stop is running the idle animation
-		if (currentDistance == 0) {
-			StartIdle();
-		}
-
-		// Terminate if we go off the end of the strip
-		if (currentPixel > NUM_LEDS) {
-			 this->MarkDone();
-		}
-
-		return true;
-	}
-
-	bool StartIdle() {
-		// If we're in wait mode, we'll count one instance of running an idle animation as one "wait" cycle, which is a series of small moves, in random directions, and idle cycles. 
-		if (isWaiting) {
-			waitCount++;
-		}
-		
-		dimFactor = 128;
-		
-		// Transition from travel mode to loop mode
-		updateInterval = 1;
-		isIdling = true;
-		idlingFrame = 0;
-		
-		currentPixel -= 0; // pretty sure we don't need this unless we're doing char animation
-		
-		fadeSteps = 0;
-		
-		return true;
-	}
-
-	bool UpdateIdle() {
-		if (fadeSteps >= colorInertia) {
-			pixelA = IdlePixelA(idlingFrame);
-			pixelB = IdlePixelB(idlingFrame);
-			pixelC = IdlePixelC(idlingFrame);
-		
-			updateInterval += AccelerateIdle(idlingFrame);
-		
-			fadeSteps = 0;
-			idlingFrame++;
-		} else {
-			fadeSteps++;
-		}
-
-		UpdatePattern();
-		// UpdatePatternWithSparkles();
-
-		stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
 	
-		FadeOutTrail(currentPixel, dimFactor, -1);
-		FadeOutTrail(currentPixel + 3, dimFactor, 1);
-	
-		if (EffectiveFrame(idlingFrame) == 0) {
-			++idleCount;
-		}
+	void UpdatePatternWithSparkles() {
+		int randomA = random(0,pixelA + 1);
+		int randomB = random(0,pixelB + 1);
+		int randomC = random(0,pixelC + 1);
 		
-		return true;
+		this->pattern[0] = colorSets[colorPalette][randomA];
+		this->pattern[1] = colorSets[colorPalette][randomB];
+		this->pattern[2] = colorSets[colorPalette][randomC];
+	}
+	
+	int DistanceFromDestination() {
+		return abs(currentPixel - nextInflection);
+	}
+
+	int SetMaxSpeed() {
+		return random(FAERIE_MIN_SPEED, FAERIE_MAX_SPEED) + 1;
+	}
+	
+	int SetWaitCount() {
+		return random(FAERIE_MIN_WAIT,FAERIE_MAX_WAIT) + 1;
+	}
+	
+	int SetWaitInterval() {
+		return random(FAERIE_FLIT_MIN_START_INTERVAL, FAERIE_FLIT_MAX_START_INTERVAL) + 1;
 	}
 	
 	int EffectiveFrame(int frame) {
@@ -1137,33 +1020,140 @@ private:
 			return -1 * round((sqrt(x)-sqrt(x-1)) * brakeFactor);
 		}
 	}
-	
-	void UpdatePattern() {
-		this->pattern[0] = colorSets[colorPalette][pixelA];
-		this->pattern[1] = colorSets[colorPalette][pixelB];
-		this->pattern[2] = colorSets[colorPalette][pixelC];
-	}
-	
-	void UpdatePatternWithSparkles() {
-		int randomA = random(0,pixelA + 1);
-		int randomB = random(0,pixelB + 1);
-		int randomC = random(0,pixelC + 1);
+
+	/*	
+	void JitterLocation() {
+
+		bool moveIt = leds[currentPixel - 1];
+		if (!moveIt) {
+			moveIt = leds[currentPixel + 3];
+		}
 		
-		this->pattern[0] = colorSets[colorPalette][randomA];
-		this->pattern[1] = colorSets[colorPalette][randomB];
-		this->pattern[2] = colorSets[colorPalette][randomC];
+		if (EffectiveFrame(idlingFrame) == 0 && random(0,3) == 0 && !moveIt) { // pixelA == 8
+			currentPixel --;
+			updateInterval = 18; // updateInterval * 2;
+		} else if (EffectiveFrame(idlingFrame) == 8 && random(0,3) == 0 && !moveIt) { // pixelC == 8
+			currentPixel ++;
+			updateInterval = 18; // updateInterval * 2;
+		}
+
 	}
+	*/
 	
-	int DistanceFromDestination() {
-		return abs(currentPixel - nextInflection);
+	void StartTravel() {
+		// Transition from loop mode to travel mode
+		isIdling = false;
+		currentPixel += 0;
+		isWaiting ? SetNextWaitTravelTarget() : SetNextInflection();
+		totalTravelDistance = DistanceFromDestination();
+		this->idleCount = 0;
+		this->idleCountTotal = GetNewidleCountTotal(); // set to 1 for fragments
+
+		isWaiting ? this->updateInterval = SetWaitInterval() : this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
+		// need to set a bool here so that updateTravel() knows to fade the values towards 848?
+		// idleToTravel
+		this->pixelA = 6;
+		this->pixelB = 8;
+		this->pixelC = 6;
+		UpdatePattern();
 	}
 
-	int SetMaxSpeed() {
-		return random(FAERIE_MIN_SPEED, FAERIE_MAX_SPEED) + 1;
+	bool UpdateTravel() {
+		// First, write current CRGB pattern to leds
+		stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
+		
+		// set dim factor
+		dimFactor = SetDimFactor(updateInterval);
+		
+		// step backwards and fade the trail
+		DimTrail(currentPixel, dimFactor, -1);
+		DimTrail(currentPixel+3, dimFactor, 1);
+
+		// Next up, prepare for the next UpdateTravel() by moving currentPixel, and setting the next updateInterval value
+
+		currentPixel += TravelDirection();
+		currentDistance = DistanceFromDestination();
+		// debug(currentDistance);
+
+		updateInterval -= AccelerateTravel();
+		// debug(updateInterval);
+
+		if (updateInterval < minInterval) {
+			updateInterval = minInterval;
+		} 
+		
+		// If we have reached the destination pixel, our next stop is running the idle animation
+		if (currentDistance == 0) {
+			StartIdle();
+		}
+
+		// Terminate if we go off the end of the strip
+		if (currentPixel > NUM_LEDS) {
+			 this->MarkDone();
+		}
+
+		return true;
+	}
+
+	bool StartIdle() {
+		// If we're in wait mode, we'll count one instance of running an idle animation as one "wait" cycle, which is a series of small moves, in random directions, and idle cycles. 
+		if (isWaiting) {
+			waitCount++;
+		} else {
+			isWaiting = true;
+		}
+		
+		dimFactor = 128;
+		
+		// Transition from travel mode to loop mode
+		updateInterval = 1;
+		isIdling = true;
+		idlingFrame = 0;
+		
+		currentPixel -= 0; // pretty sure we don't need this unless we're doing char animation
+		
+		fadeSteps = 0;
+		
+		return true;
+	}
+
+	bool UpdateIdle() {
+		if (fadeSteps >= colorInertia) {
+			pixelA = IdlePixelA(idlingFrame);
+			pixelB = IdlePixelB(idlingFrame);
+			pixelC = IdlePixelC(idlingFrame);
+		
+			updateInterval += AccelerateIdle(idlingFrame);
+		
+			fadeSteps = 0;
+			idlingFrame++;
+		} else {
+			fadeSteps++;
+		}
+
+		UpdatePattern();
+		// UpdatePatternWithSparkles();
+
+		stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
+	
+		FadeOutTrail(currentPixel, dimFactor, -1);
+		FadeOutTrail(currentPixel + 3, dimFactor, 1);
+	
+		if (EffectiveFrame(idlingFrame) == 0) {
+			++idleCount;
+		}
+		
+		return true;
 	}
 	
-	int SetWaitCount() {
-		return random(FAERIE_MIN_WAIT,FAERIE_MAX_WAIT) + 1;
+	bool StartWaiting() {
+		isWaiting = true;
+		waitCount = 0;
+		waitCountTotal = SetWaitCount();
+	}
+	
+	bool UpdateWaiting() {
+		
 	}
 
 public:
@@ -1238,8 +1228,9 @@ public:
 		if (isIdling && idleCount == idleCountTotal) {
 		// need to put in a transition animation from idle to travel here?
 
-			if (isWaiting && waitCount == waitCountTotal) {
+			if (isWaiting && waitCount >= waitCountTotal) {
 				isWaiting = false;
+				waitCount = 0;
 				waitCountTotal = SetWaitCount();
 			}
 
@@ -2175,40 +2166,6 @@ void createAnimationFrames() {
 		strcat(afc_w8v1r, "			 887654321				");
 		strcat(afc_w8v1r, "			887654321					");
 
-		// TODO: a "reverse direction for animation" animation fragment to play to turn sprites going the other way back once, and gets lined up to play the "forwards" animation
-		// (For example, if I want to animate a scanner but the animation loaded into memory starts going in the other direction, you can have the sprite reverse once, then spin around
-		//	and execute that animation, which always ends with the sprite in the right position for frame 1 of the scanner animation. Which presumes they all start off in the same position on the same start pixel? Note to self.)
-
-		strcpy(afc_timing_test, "123456788																								 ");
-		strcat(afc_timing_test, "1234567888																								 ");
-		strcat(afc_timing_test, "	 1234567888																							 ");
-		strcat(afc_timing_test, "			1234567888																					 ");
-		strcat(afc_timing_test, "				123456677888																			 ");
-		strcat(afc_timing_test, "				 1223344556667788																	 ");
-		strcat(afc_timing_test, "					111122233344556667788														 ");
-		strcat(afc_timing_test, "							 11111222233344556667788										 ");
-		strcat(afc_timing_test, "										11111222333444555666788								 ");
-		strcat(afc_timing_test, "													 1111112223344556788						 ");
-		strcat(afc_timing_test, "																	11111223456788					 ");
-		strcat(afc_timing_test, "																			11123456788					 ");
-		strcat(afc_timing_test, "																				 1123467831				 ");
-		strcat(afc_timing_test, "																						 12468531			 ");
-		strcat(afc_timing_test, "																							11386421		 ");
-		strcat(afc_timing_test, "																							 1287543211	 ");
-		strcat(afc_timing_test, "																								18865432211");
-		strcat(afc_timing_test, "																								886443211	 ");
-		strcat(afc_timing_test, "																							 88765431		 ");
-		strcat(afc_timing_test, "																						 4887654321		 ");
-		strcat(afc_timing_test, "																						 4886421			 ");
-		strcat(afc_timing_test, "																						 138831				 ");
-		strcat(afc_timing_test, "																						 138831				 ");
-		strcat(afc_timing_test, "																						 138831				 ");
-		strcat(afc_timing_test, "																						 138831				 ");
-		strcat(afc_timing_test, "																						 138831				 ");
-
-
-	
-
 		//											 12345678901234567890123
 		strcpy(afc_2_sparkle_a, "123456788							");
 		strcat(afc_2_sparkle_a, " 123456788							");
@@ -2443,74 +2400,4 @@ void createAnimationFrames() {
 		strcat(afc_f_slow_stop_c, "							12334456788 ");
 		strcat(afc_f_slow_stop_c, "								 123456788");
 		strcat(afc_f_slow_stop_c, "													");
-//												123
-		strcpy(afc_l_mother, "84 ");
-		strcat(afc_l_mother, "751");
-		strcat(afc_l_mother, "662");
-		strcat(afc_l_mother, "573");
-		strcat(afc_l_mother, "484");
-		strcat(afc_l_mother, "375");
-		strcat(afc_l_mother, "266");
-		strcat(afc_l_mother, "157");
-		strcat(afc_l_mother, " 48");
-	
-//														 123456789012345678901
-		 strcpy(afc_f_eye_full_a, "123456785						");
-		 strcat(afc_f_eye_full_a, " 123456785						");
-		 strcat(afc_f_eye_full_a, "	 12345685						");
-		 strcat(afc_f_eye_full_a, "		12345785					");
-		 strcat(afc_f_eye_full_a, "		 1234685					");
-		 strcat(afc_f_eye_full_a, "			123585					");
-		 strcat(afc_f_eye_full_a, "			 124785					");
-		 strcat(afc_f_eye_full_a, "				13685					");
-		 strcat(afc_f_eye_full_a, "				 2585					");
-		 strcat(afc_f_eye_full_a, "				 1485					");
-		 strcat(afc_f_eye_full_a, "					3785				");
-		 strcat(afc_f_eye_full_a, "					2685				");
-		 strcat(afc_f_eye_full_a, "					1585				");
-		 strcat(afc_f_eye_full_a, "					 485				");
-		 strcat(afc_f_eye_full_a, "					 385				");
-		 strcat(afc_f_eye_full_a, "					 285				");
-		 strcat(afc_f_eye_full_a, "					 185				");
-		 strcat(afc_f_eye_full_a, "						74				");
-		 strcat(afc_f_eye_full_a, "						63				");
-		 strcat(afc_f_eye_full_a, "						52				");
-		 strcat(afc_f_eye_full_a, "						55				");
-		 strcat(afc_f_eye_full_a, "					 5 6				");
-		 strcat(afc_f_eye_full_a, "					5	 7				");
-		 strcat(afc_f_eye_full_a, "				 5	5					");
-		 strcat(afc_f_eye_full_a, "				5	 5					");
-		 strcat(afc_f_eye_full_a, "			 5	5						");
-		 strcat(afc_f_eye_full_a, "			5	 5						");
-		 strcat(afc_f_eye_full_a, "		 5	5							");
-		 strcat(afc_f_eye_full_a, "		5	 5							");
-		 strcat(afc_f_eye_full_a, "	 5	5								");
-		 strcat(afc_f_eye_full_a, "	 4 5								");
-		 strcat(afc_f_eye_full_a, "	 35									");
-		 strcat(afc_f_eye_full_a, "	 25									");
-		 strcat(afc_f_eye_full_a, "	 35									");
-		 strcat(afc_f_eye_full_a, "	 4 5								");
-		 strcat(afc_f_eye_full_a, "	 5	5								");
-		 strcat(afc_f_eye_full_a, "		5	 5							");
-		 strcat(afc_f_eye_full_a, "		 5	5							");
-		 strcat(afc_f_eye_full_a, "			5	 5						");
-		 strcat(afc_f_eye_full_a, "			 5	5						");
-		 strcat(afc_f_eye_full_a, "				5	 5					");
-		 strcat(afc_f_eye_full_a, "				 5	5					");
-		 strcat(afc_f_eye_full_a, "					5	 4				");
-		 strcat(afc_f_eye_full_a, "					 5 3				");
-		 strcat(afc_f_eye_full_a, "						52				");
-		 strcat(afc_f_eye_full_a, "						62				");
-		 strcat(afc_f_eye_full_a, "						74				");
-		 strcat(afc_f_eye_full_a, "						85				");
-		 strcat(afc_f_eye_full_a, "						785				");
-		 strcat(afc_f_eye_full_a, "						6785			");
-		 strcat(afc_f_eye_full_a, "						56786			");
-		 strcat(afc_f_eye_full_a, "						456786		");
-		 strcat(afc_f_eye_full_a, "						3456787		");
-		 strcat(afc_f_eye_full_a, "						23456787	");
-		 strcat(afc_f_eye_full_a, "						123456788 ");
-		 strcat(afc_f_eye_full_a, "						 123456788");
-		 strcat(afc_f_eye_full_a, "											");
-
 }
