@@ -47,6 +47,13 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define FAERIE_MIN_TRAIL_LENGTH			80	// The lower the value, the longer the trail generated, but also the more FastLED functions get called per update per sprite. 
 #define FAERIE_MAX_TRAIL_LENGTH			33
 
+// currently set this to be consistent for animation design
+#define FAERIE_MIN_LONG_TRAVEL			85	// This range is dead center in my first "no idle" zone, so any problems with the no-idle functions will show up quickly
+#define FAERIE_MAX_LONG_TRAVEL			105	// 
+
+#define SPRITE_STARTING_DELAY_INTERVAL_IN_MS	 50 // 40
+#define SCANNER_DELAY_INTERVAL_IN_MS					 20
+
 // 1st 5: ban idling across the very ends of LED strips, it looks weird
 #define NO_IDLE_MIN_1								145
 #define NO_IDLE_MAX_1								155
@@ -80,12 +87,6 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define NO_IDLE_MIN_10							-3
 #define NO_IDLE_MAX_10							-4
 
-// currently set this to be consistent for animation design
-#define FAERIE_MIN_LONG_TRAVEL			90	// This probably shouldn't be smaller than 40. If it is scanners may get stuck in place if they don't have enough "exit velocity". // 40
-#define FAERIE_MAX_LONG_TRAVEL			120	// 120
-
-#define SPRITE_STARTING_DELAY_INTERVAL_IN_MS	 50 // 40
-#define SCANNER_DELAY_INTERVAL_IN_MS					 20
 
 
 // lurker sprite constants
@@ -880,19 +881,23 @@ private:
 		
 		while (! CheckForNoIdle(nextInflection)) {
 			nextInflection += random(FAERIE_FLIT_MIN_DISTANCE, FAERIE_FLIT_MAX_DISTANCE) + 1;
-			
 			if (CheckForNoIdle(nextInflection)) return;
 		}
 	}
 	
 	bool CheckForNoIdle(int targetPixel) {
-		// if (targetPixel >= NO_IDLE_MIN_6 && targetPixel <= NO_IDLE_MAX_6) {
-		// 	return false;
-		// } else {
-		// 	return true;
-		// }
 		bool returnValue = false;
-		returnValue |= (targetPixel >= NO_IDLE_MIN_6 && targetPixel <= NO_IDLE_MAX_6); // what's the most efficient way to test all these conditions and return false if the target pixel is inside any of the ranges?
+		// TODO: do this less brute force? Using SpriteVector?
+		returnValue |= (targetPixel >= NO_IDLE_MIN_1 && targetPixel <= NO_IDLE_MAX_1);
+		returnValue |= (targetPixel >= NO_IDLE_MIN_2 && targetPixel <= NO_IDLE_MAX_2);
+		returnValue |= (targetPixel >= NO_IDLE_MIN_3 && targetPixel <= NO_IDLE_MAX_3);
+		returnValue |= (targetPixel >= NO_IDLE_MIN_4 && targetPixel <= NO_IDLE_MAX_4);
+		returnValue |= (targetPixel >= NO_IDLE_MIN_5 && targetPixel <= NO_IDLE_MAX_5);
+		returnValue |= (targetPixel >= NO_IDLE_MIN_6 && targetPixel <= NO_IDLE_MAX_6);
+		returnValue |= (targetPixel >= NO_IDLE_MIN_7 && targetPixel <= NO_IDLE_MAX_7);
+		returnValue |= (targetPixel >= NO_IDLE_MIN_8 && targetPixel <= NO_IDLE_MAX_8);
+		returnValue |= (targetPixel >= NO_IDLE_MIN_9 && targetPixel <= NO_IDLE_MAX_9);
+		returnValue |= (targetPixel >= NO_IDLE_MIN_10 && targetPixel <= NO_IDLE_MAX_10);
 		return !returnValue; // we want to return false if any of the tests returned true
 	}
 	
