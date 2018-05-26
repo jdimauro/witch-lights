@@ -22,8 +22,17 @@
 #define SCANNER_MIN_SCANS		 6
 #define SCANNER_MAX_SCANS		 9
 
+#define FAERIE_MIN_IDLE							4
+#define FAERIE_MAX_IDLE							9
+
 #define FAERIE_FLIT_MIN_DISTANCE		10
 #define FAERIE_FLIT_MAX_DISTANCE		40
+
+#define FAERIE_MIN_SPEED						1
+#define FAERIE_MAX_SPEED 						10
+
+#define FAERIE_MIN_WAIT							3
+#define FAERIE_MAX_WAIT							9
 
 #define NO_IDLE_MIN_1		80
 #define NO_IDLE_MAX_1		110
@@ -777,6 +786,7 @@ class LoopTestSprite : public Sprite {
 class MotherSprite : public Sprite {
 private:
 	int updateInterval;
+	int minInterval;
 	int currentPixel;
 	int currentLocation;
 	bool isIdling;
@@ -847,7 +857,7 @@ private:
 	}
 
 	int GetNewidleCountTotal() {
-		return random(SCANNER_MIN_SCANS, SCANNER_MAX_SCANS + 1);
+		return random(FAERIE_MIN_IDLE, FAERIE_MAX_IDLE) + 1;
 	}
 
 	void FadeToColor() {
@@ -952,8 +962,8 @@ private:
 		updateInterval -= AccelerateTravel();
 		// debug(updateInterval);
 
-		if (updateInterval < 0) {
-			updateInterval = 0;
+		if (updateInterval < minInterval) {
+			updateInterval = minInterval;
 		} 
 		
 		// If we have reached the destination pixel, our next stop is running the idle animation
@@ -989,7 +999,7 @@ private:
 		return true;
 	}
 
-	bool UpdateIdle() {		
+	bool UpdateIdle() {
 		if (fadeSteps >= colorInertia) {
 			pixelA = IdlePixelA(idlingFrame);
 			pixelB = IdlePixelB(idlingFrame);
@@ -1087,6 +1097,14 @@ private:
 		return abs(currentPixel - nextInflection);
 	}
 
+	int SetMaxSpeed() {
+		return random(FAERIE_MIN_SPEED, FAERIE_MAX_SPEED) + 1;
+	}
+	
+	int SetWaitCount() {
+		return random(FAERIE_MIN_WAIT,FAERIE_MAX_WAIT) + 1; // TODO: method to set this and define constants
+	}
+
 public:
 	MotherSprite() : Sprite() {
 		// Initial state.
@@ -1099,8 +1117,9 @@ public:
 		this->idleCount = 0;
 		this->idleCountTotal = GetNewidleCountTotal();
 		this->waitCount = 0;
-		this->waitCountTotal = random(3,9); // TODO: method to set this and define constants
+		this->waitCountTotal = SetWaitCount();
 		this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
+		this->minInterval = SetMaxSpeed();
 		this->brakePixel;
 		this->trailLength = SetTrailLength();
 		this->dimFactor = SetDimFactor(updateInterval);
@@ -1160,7 +1179,7 @@ public:
 
 			if (isWaiting && waitCount == waitCountTotal) {
 				isWaiting = false;
-				waitCountTotal = random(3,9); // TODO method
+				waitCountTotal = SetWaitCount(); // TODO method
 			}
 
 			StartTravel();
