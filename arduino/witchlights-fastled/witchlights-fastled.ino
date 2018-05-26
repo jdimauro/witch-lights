@@ -6,9 +6,9 @@
 
 // debug or animation modes
 // TODO: set this with a jumper to an input pin
-bool debugMode = false;					// turns on debug() statements
+bool debugMode = true;					// turns on debug() statements
 bool spawnLurkers = false;			// IMPORTANT: set to FALSE for all public video before Firefly 2018!
-bool randomInflection = true;		// Randomly makes faerie sprite dance back and forth, instead of mainly going "forwards". 
+bool randomInflection = false;		// Randomly makes faerie sprite dance back and forth, instead of mainly going "forwards". 
 bool spawnFaeries = true;				// TODO Spawn a new faerie randomly; helpful to keep a constant background of sprite animation for evaluation
 bool placeLurkers = false;			// TODO Dimly lights up range of pixels where lurkers are "allowed" to spawn, for install time
 bool placeTrees = false;				// TODO Dimly lights up range of pixels green where trees are defined, also for installs
@@ -848,6 +848,7 @@ private:
 		} else {
 			int travelDistance = (random(FAERIE_FLIT_MIN_DISTANCE, FAERIE_FLIT_MAX_DISTANCE) + 1) * TravelDirectionSwitch();
 			nextInflection += travelDistance;
+			debug(3);
 		}
 	}
 
@@ -961,7 +962,7 @@ private:
 
 		currentPixel += TravelDirection();
 		currentDistance = DistanceFromDestination();
-		debug(currentDistance);
+		// debug(currentDistance);
 
 		updateInterval -= AccelerateTravel();
 		// debug(updateInterval);
@@ -1183,7 +1184,7 @@ public:
 
 			if (isWaiting && waitCount == waitCountTotal) {
 				isWaiting = false;
-				waitCountTotal = SetWaitCount(); // TODO method
+				waitCountTotal = SetWaitCount();
 			}
 
 			StartTravel();
