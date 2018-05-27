@@ -32,10 +32,10 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define SCANNER_SPRITE_FRAME_DELAY_IN_MS			1
 #define TEST_PATTERN_FRAME_DELAY_IN_MS				1
 
-#define FAERIE_MIN_IDLE							2
-#define FAERIE_MAX_IDLE							6
+#define FAERIE_MIN_IDLE							1
+#define FAERIE_MAX_IDLE							4
 
-#define FAERIE_FLIT_MIN_DISTANCE		6
+#define FAERIE_FLIT_MIN_DISTANCE		5
 #define FAERIE_FLIT_MAX_DISTANCE		15
 
 #define FAERIE_FLIT_MIN_START_INTERVAL	40
@@ -51,8 +51,8 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define FAERIE_MAX_TRAIL_LENGTH			33
 
 // currently set this to be consistent for animation design
-#define FAERIE_MIN_LONG_TRAVEL			85	// This range is dead center in my first "no idle" zone, so any problems with the no-idle functions will show up quickly
-#define FAERIE_MAX_LONG_TRAVEL			105	// 
+#define FAERIE_MIN_LONG_TRAVEL			50	// This range is dead center in my first "no idle" zone, so any problems with the no-idle functions will show up quickly
+#define FAERIE_MAX_LONG_TRAVEL			75	// 
 
 #define SPRITE_STARTING_DELAY_INTERVAL_IN_MS	 50 // 40
 #define SCANNER_DELAY_INTERVAL_IN_MS					 20
@@ -997,7 +997,7 @@ private:
 		if (EffectiveFrame(frame) == 9 || EffectiveFrame(frame) == 0) {
 			updateInterval = 0;
 		}
-		return (frame % 8) * 1.2;
+		return (frame % 8) * accelerationFactor;
 	}
 	
 	int AccelerateTravel() {
