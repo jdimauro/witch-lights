@@ -6,7 +6,7 @@
 
 // debug or animation modes
 // TODO: set this with a jumper to an input pin
-bool debugMode = true;					// turns on debug() statements
+bool debugMode = false;					// turns on debug() statements
 bool spawnLurkers = false;			// IMPORTANT: set to FALSE for all public video before Firefly 2018!
 bool randomInflection = false;		// Randomly makes faerie sprite dance back and forth, instead of mainly going "forwards". 
 bool spawnFaeries = true;				// TODO Spawn a new faerie randomly; helpful to keep a constant background of sprite animation for evaluation
@@ -38,8 +38,8 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define FAERIE_FLIT_MIN_DISTANCE		5
 #define FAERIE_FLIT_MAX_DISTANCE		15
 
-#define FAERIE_FLIT_MIN_START_INTERVAL	40
-#define FAERIE_FLIT_MAX_START_INTERVAL	60
+#define FAERIE_FLIT_MIN_START_INTERVAL	25
+#define FAERIE_FLIT_MAX_START_INTERVAL	35
 
 #define FAERIE_MIN_SPEED						1
 #define FAERIE_MAX_SPEED 						10
@@ -843,6 +843,22 @@ private:
 		return random(FAERIE_MAX_TRAIL_LENGTH, FAERIE_MIN_TRAIL_LENGTH) + 1;
 	}
 
+	float SetBrakeFactor(bool waiting) {
+		if (!waiting) {
+			return (random(500,900) + 1) / 100;
+		} else {
+			return (random(9000,19000) + 1) / 100;
+		}
+	}
+	
+	float SetAccelerationFactor(bool waiting) {
+		if (!waiting) {
+			return (random(100,350) + 1) / 100;
+		} else {
+			return (random(400,1000) + 1) / 100;
+		}
+	}
+
 	void SetNextInflection() {
 		lastInflection = nextInflection;
 		
@@ -997,7 +1013,7 @@ private:
 		if (EffectiveFrame(frame) == 9 || EffectiveFrame(frame) == 0) {
 			updateInterval = 0;
 		}
-		return (frame % 8) * accelerationFactor;
+		return (frame % 8) * 1.8;
 	}
 	
 	int AccelerateTravel() {
@@ -1011,13 +1027,18 @@ private:
 		} else {
 			isBraking = false;
 		}
+		
+		// When waiting (short moves) we use a different acceleration and braking factor than we do with longer moves. You need exaggerated acceleration and braking over shorter distances.
+		SetBrakeFactor(isWaiting);
+		SetAccelerationFactor(isWaiting);
+		
 		// Accelerate or brake by returning positive or negative values to subtract from updateInterval
 		if (! isBraking) {
 		int x = abs(currentDistance - totalTravelDistance);
 			return round(sqrt(x) * accelerationFactor);
 		} else if (isBraking) {
 		int x = abs(currentPixel - brakePixel);
-			return -1 * round((sqrt(x)-sqrt(x-1)) * brakeFactor);
+			return -1 * round(sqrt(x) * brakeFactor); // maybe I need a "waiting" brakeFactor?
 		}
 	}
 
@@ -1050,6 +1071,7 @@ private:
 		this->idleCountTotal = GetNewidleCountTotal(); // set to 1 for fragments
 
 		isWaiting ? this->updateInterval = SetWaitInterval() : this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
+		debug(updateInterval);
 		// need to set a bool here so that updateTravel() knows to fade the values towards 848?
 		// idleToTravel
 		this->pixelA = 6;
@@ -1076,7 +1098,7 @@ private:
 		// debug(currentDistance);
 
 		updateInterval -= AccelerateTravel();
-		// debug(updateInterval);
+		debug(updateInterval);
 
 		if (updateInterval < minInterval) {
 			updateInterval = minInterval;
@@ -1162,6 +1184,7 @@ public:
 		this->currentPixel = -3;
 		this->idlingFrame = 0;
 		this->isIdling = false;
+		this->isWaiting = false;
 		this->lastInflection = 0;
 		this->nextInflection = 0;
 		SetNextInflection();
@@ -1185,8 +1208,8 @@ public:
 		
 		//To be set semi-randomly for all sprites, making them move just a bit differently so that they never mirror each other
 		this->brakePercentage = .15;		
-		this->accelerationFactor = (random(100,350) / 100); // 0.75
-		this->brakeFactor = random(500,1000) / 100; // 8
+		this->accelerationFactor = SetAccelerationFactor(isWaiting); // 0.75
+		this->brakeFactor = SetBrakeFactor(isWaiting); // 8
 		
 		// Choose a random color palette from the palettes available.
 		this->colorPalette = random(0, NUM_COLORSETS);
