@@ -902,9 +902,10 @@ private:
 			if (CheckForNoIdle(nextInflection)) return;
 		}
 		*/
-		nextInflection = CoerceTargetPixel(nextInflection);
+		// nextInflection = CoerceTargetPixel(nextInflection);
 	}
 	
+	/*
 	bool CheckForNoIdle(int targetPixel) {
 		bool returnValue = false;
 		// TODO: do this less brute force? Using SpriteVector?
@@ -925,7 +926,7 @@ private:
 		//
 		// maybe, if check = true, int comparison = abs(targetPixel - NO_IDLE_MIN_1)? and use min()?
 	}
-
+	
 	int SetNoIdleTravelTarget(int targetPixel) {
 		(targetPixel >= NO_IDLE_MIN_1 && targetPixel <= NO_IDLE_MAX_1) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_1, NO_IDLE_MAX_1) : 0;
 		(targetPixel >= NO_IDLE_MIN_2 && targetPixel <= NO_IDLE_MAX_2) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_2, NO_IDLE_MAX_2) : 0;
@@ -938,7 +939,7 @@ private:
 		(targetPixel >= NO_IDLE_MIN_9 && targetPixel <= NO_IDLE_MAX_9) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_9, NO_IDLE_MAX_9) : 0;
 		(targetPixel >= NO_IDLE_MIN_10 && targetPixel <= NO_IDLE_MAX_10) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_10, NO_IDLE_MAX_10) : 0;
 	}
-
+	*/
 
 	int ReturnClosestPixel(int pixel, int min, int max) {
 		int minDistance = abs(pixel - min);
@@ -970,7 +971,7 @@ private:
 		}
 		*/
 
-		nextInflection = CoerceTargetPixel(nextInflection);
+		// nextInflection = CoerceTargetPixel(nextInflection);
 	}
 
 	int TravelDirectionSwitch() {
@@ -1016,10 +1017,6 @@ private:
 	int TravelDirection() {
 		// return + for moving in a positive direction, - for moving backwards
 		
-		// always want to move forwards if currentPixel < 42
-		// if (currentPixel < 42) return 1;
-		// (nope, doesn't work)
-		
 		if (nextInflection > currentPixel) {
 			return 1;
 		} else if (nextInflection == currentPixel) {
@@ -1029,10 +1026,6 @@ private:
 		}
 	}
 	
-	int ChangeTravelDirection() {
-		return !TravelDirection();
-	}
-	
 	void UpdatePattern() {
 		this->pattern[0] = colorSets[colorPalette][pixelA];
 		this->pattern[1] = colorSets[colorPalette][pixelB];
@@ -1040,9 +1033,9 @@ private:
 	}
 	
 	void UpdatePatternWithSparkles() {
-		int randomA = random(0,pixelA + 1);
-		int randomB = random(0,pixelB + 1);
-		int randomC = random(0,pixelC + 1);
+		int randomA = random(0,pixelA) + 1;
+		int randomB = random(0,pixelB) + 1;
+		int randomC = random(0,pixelC) + 1;
 		
 		this->pattern[0] = colorSets[colorPalette][randomA];
 		this->pattern[1] = colorSets[colorPalette][randomB];
@@ -1128,8 +1121,20 @@ private:
 			return round(sqrt(x) * accelerationFactor);
 		} else if (isBraking) {
 		int x = abs(currentPixel - brakePixel);
-			return -1 * round(sqrt(x) * brakeFactor); // maybe I need a "waiting" brakeFactor?
+			return -1 * round(sqrt(x) * brakeFactor); 
 		}
+	}
+
+	int ConstrainIntervalToMaxMin(int interval) {
+		if (interval < minInterval) {
+			return minInterval;
+		} 
+		
+		if (interval > maxInterval) {
+			return maxInterval;
+		}
+
+		return interval;
 	}
 
 	/*	
@@ -1156,6 +1161,7 @@ private:
 		isIdling = false;
 		currentPixel += 0;
 		isWaiting ? SetNextWaitTravelTarget() : SetNextInflection();
+		nextInflection = CoerceTargetPixel(nextInflection);
 		totalTravelDistance = DistanceFromDestination();
 		this->idleCount = 0;
 		this->idleCountTotal = GetNewidleCountTotal(); // set to 1 for fragments
@@ -1181,7 +1187,7 @@ private:
 		
 		// step backwards and fade the trail
 		DimTrail(currentPixel, dimFactor, -1);
-		DimTrail(currentPixel+3, dimFactor, 1);
+		DimTrail(currentPixel + patternLength, dimFactor, 1);
 
 		// Next up, prepare for the next UpdateTravel() by moving currentPixel, and setting the next updateInterval value
 
@@ -1190,8 +1196,12 @@ private:
 		// debug(currentDistance);
 
 		updateInterval -= AccelerateTravel();
-		debug(updateInterval);
+		// debug(updateInterval);
 
+		// Keep updateInterval between maximum and minimum values
+		updateInterval = ConstrainIntervalToMaxMin(updateInterval);
+
+		/*
 		if (updateInterval < minInterval) {
 			updateInterval = minInterval;
 		} 
@@ -1199,6 +1209,7 @@ private:
 		if (updateInterval > maxInterval) {
 			updateInterval = maxInterval;
 		}
+		*/
 		
 		// If we have reached the destination pixel, our next stop is running the idle animation
 		if (currentDistance == 0) {
@@ -1218,9 +1229,11 @@ private:
 		if (isWaiting) {
 			waitCount++;
 		} else {
+			// If we've started Idle() with isWaiting = false, then we've just done a long move, and it's time to start waiting. 
 			isWaiting = true;
 		}
 		
+		// For dimming trail after we stop
 		dimFactor = 128;
 		
 		// Transition from travel mode to loop mode
@@ -1255,7 +1268,7 @@ private:
 		stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
 	
 		FadeOutTrail(currentPixel, dimFactor, -1);
-		FadeOutTrail(currentPixel + 3, dimFactor, 1);
+		FadeOutTrail(currentPixel + patternLength, dimFactor, 1);
 	
 		if (EffectiveFrame(idlingFrame) == 0) {
 			++idleCount;
@@ -1268,10 +1281,6 @@ private:
 		isWaiting = true;
 		waitCount = 0;
 		waitCountTotal = SetWaitCount();
-	}
-	
-	bool UpdateWaiting() {
-		
 	}
 
 public:
