@@ -897,7 +897,28 @@ private:
 		//TODO: maybe return an int instead of true/false, and have that int be the closest "safe" pixel to move to, so that we don't traverse no_idle zones?
 		// Like, I need a function that compares targetPixel to the constants and determines which is closer, and then returns that constant +- random (1,6) or something
 		//
-		// maybe, if check = true, int comparison = abs(targetPixel - NO_IDLE_MIN_1)?
+		// maybe, if check = true, int comparison = abs(targetPixel - NO_IDLE_MIN_1)? and use min()?
+	}
+
+	int SetNoIdleTravelTarget(int targetPixel) {
+		int returnInt = 0;
+		returnInt |= (targetPixel >= NO_IDLE_MIN_1 && targetPixel <= NO_IDLE_MAX_1) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_1, NO_IDLE_MAX_1);
+		returnInt |= (targetPixel >= NO_IDLE_MIN_2 && targetPixel <= NO_IDLE_MAX_2) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_2, NO_IDLE_MAX_2);
+		returnInt |= (targetPixel >= NO_IDLE_MIN_3 && targetPixel <= NO_IDLE_MAX_3) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_3, NO_IDLE_MAX_3);
+		returnInt |= (targetPixel >= NO_IDLE_MIN_4 && targetPixel <= NO_IDLE_MAX_4) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_4, NO_IDLE_MAX_4);
+		returnInt |= (targetPixel >= NO_IDLE_MIN_5 && targetPixel <= NO_IDLE_MAX_5) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_5, NO_IDLE_MAX_5);
+		returnInt |= (targetPixel >= NO_IDLE_MIN_6 && targetPixel <= NO_IDLE_MAX_6) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_6, NO_IDLE_MAX_6);
+		returnInt |= (targetPixel >= NO_IDLE_MIN_7 && targetPixel <= NO_IDLE_MAX_7) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_7, NO_IDLE_MAX_7);
+		returnInt |= (targetPixel >= NO_IDLE_MIN_8 && targetPixel <= NO_IDLE_MAX_8) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_8, NO_IDLE_MAX_8);
+		returnInt |= (targetPixel >= NO_IDLE_MIN_9 && targetPixel <= NO_IDLE_MAX_9) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_9, NO_IDLE_MAX_9);
+		returnInt |= (targetPixel >= NO_IDLE_MIN_10 && targetPixel <= NO_IDLE_MAX_10) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_10, NO_IDLE_MAX_10);
+		return returnInt;
+	}
+
+	int ReturnClosestPixel(int pixel, int min, int max) {
+		int minDistance = abs(pixel - min);
+		int maxDistance = abs(pixel - max);
+		return (minDistance - maxDistance < 0) ? -(minDistance + random(3,6)) : (maxDistance + random(3,6));
 	}
 	
 	void SetNextWaitTravelTarget() {
