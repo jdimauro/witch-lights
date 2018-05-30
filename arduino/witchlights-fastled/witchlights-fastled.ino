@@ -93,6 +93,30 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define NO_IDLE_MIN_10							-3
 #define NO_IDLE_MAX_10							-4
 
+// Set starting range of any no_idle zones here
+int[] minNoIdle = new int[] { 
+	0, 
+	80,
+	145,
+	295,
+	445,
+	595,
+	718
+};
+
+// Set end range of no_idle zones here
+int[] maxNoIdle = new int[] { 
+	42, 
+	111,
+	155,
+	305,
+	455,
+	605,
+	750 
+};
+
+int numberOfNoIdleZones = 7;
+
 // lurker sprite constants
 
 #define BLINK_SPRITE_MIN_LIFETIME		3
@@ -868,15 +892,17 @@ private:
 		// TODO when direction (1 or -1) is added as a sprite param on create, use that to make the sprite "advance" in the sprite's general direction(?)
 		if (randomInflection && currentPixel > 60) {
 			nextInflection += travelDistance * TravelDirectionSwitch();
-			return;
 		} else {
 			nextInflection += travelDistance;
 		}
 		
+		/*
 		while (! CheckForNoIdle(nextInflection)) {
 			nextInflection += random(FAERIE_FLIT_MIN_DISTANCE, FAERIE_FLIT_MAX_DISTANCE) + 1;
 			if (CheckForNoIdle(nextInflection)) return;
 		}
+		*/
+		nextInflection = CoerceTargetPixel(nextInflection);
 	}
 	
 	bool CheckForNoIdle(int targetPixel) {
@@ -901,26 +927,35 @@ private:
 	}
 
 	int SetNoIdleTravelTarget(int targetPixel) {
-		int returnInt = 0;
-		returnInt |= (targetPixel >= NO_IDLE_MIN_1 && targetPixel <= NO_IDLE_MAX_1) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_1, NO_IDLE_MAX_1);
-		returnInt |= (targetPixel >= NO_IDLE_MIN_2 && targetPixel <= NO_IDLE_MAX_2) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_2, NO_IDLE_MAX_2);
-		returnInt |= (targetPixel >= NO_IDLE_MIN_3 && targetPixel <= NO_IDLE_MAX_3) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_3, NO_IDLE_MAX_3);
-		returnInt |= (targetPixel >= NO_IDLE_MIN_4 && targetPixel <= NO_IDLE_MAX_4) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_4, NO_IDLE_MAX_4);
-		returnInt |= (targetPixel >= NO_IDLE_MIN_5 && targetPixel <= NO_IDLE_MAX_5) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_5, NO_IDLE_MAX_5);
-		returnInt |= (targetPixel >= NO_IDLE_MIN_6 && targetPixel <= NO_IDLE_MAX_6) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_6, NO_IDLE_MAX_6);
-		returnInt |= (targetPixel >= NO_IDLE_MIN_7 && targetPixel <= NO_IDLE_MAX_7) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_7, NO_IDLE_MAX_7);
-		returnInt |= (targetPixel >= NO_IDLE_MIN_8 && targetPixel <= NO_IDLE_MAX_8) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_8, NO_IDLE_MAX_8);
-		returnInt |= (targetPixel >= NO_IDLE_MIN_9 && targetPixel <= NO_IDLE_MAX_9) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_9, NO_IDLE_MAX_9);
-		returnInt |= (targetPixel >= NO_IDLE_MIN_10 && targetPixel <= NO_IDLE_MAX_10) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_10, NO_IDLE_MAX_10);
-		return returnInt;
+		(targetPixel >= NO_IDLE_MIN_1 && targetPixel <= NO_IDLE_MAX_1) ? return ReturnClosestPixel(targetPixel, NO_IDLE_MIN_1, NO_IDLE_MAX_1);
+		(targetPixel >= NO_IDLE_MIN_2 && targetPixel <= NO_IDLE_MAX_2) ? return ReturnClosestPixel(targetPixel, NO_IDLE_MIN_2, NO_IDLE_MAX_2);
+		(targetPixel >= NO_IDLE_MIN_3 && targetPixel <= NO_IDLE_MAX_3) ? return ReturnClosestPixel(targetPixel, NO_IDLE_MIN_3, NO_IDLE_MAX_3);
+		(targetPixel >= NO_IDLE_MIN_4 && targetPixel <= NO_IDLE_MAX_4) ? return ReturnClosestPixel(targetPixel, NO_IDLE_MIN_4, NO_IDLE_MAX_4);
+		(targetPixel >= NO_IDLE_MIN_5 && targetPixel <= NO_IDLE_MAX_5) ? return ReturnClosestPixel(targetPixel, NO_IDLE_MIN_5, NO_IDLE_MAX_5);
+		(targetPixel >= NO_IDLE_MIN_6 && targetPixel <= NO_IDLE_MAX_6) ? return ReturnClosestPixel(targetPixel, NO_IDLE_MIN_6, NO_IDLE_MAX_6);
+		(targetPixel >= NO_IDLE_MIN_7 && targetPixel <= NO_IDLE_MAX_7) ? return ReturnClosestPixel(targetPixel, NO_IDLE_MIN_7, NO_IDLE_MAX_7);
+		(targetPixel >= NO_IDLE_MIN_8 && targetPixel <= NO_IDLE_MAX_8) ? return ReturnClosestPixel(targetPixel, NO_IDLE_MIN_8, NO_IDLE_MAX_8);
+		(targetPixel >= NO_IDLE_MIN_9 && targetPixel <= NO_IDLE_MAX_9) ? return ReturnClosestPixel(targetPixel, NO_IDLE_MIN_9, NO_IDLE_MAX_9);
+		(targetPixel >= NO_IDLE_MIN_10 && targetPixel <= NO_IDLE_MAX_10) ? return ReturnClosestPixel(targetPixel, NO_IDLE_MIN_10, NO_IDLE_MAX_10);
 	}
+
 
 	int ReturnClosestPixel(int pixel, int min, int max) {
 		int minDistance = abs(pixel - min);
 		int maxDistance = abs(pixel - max);
 		return (minDistance - maxDistance < 0) ? -(minDistance + random(3,6)) : (maxDistance + random(3,6));
 	}
-	
+
+	int CoerceTargetPixel(int targetPixel) {
+	    for (int i = 0; i < numberOfNoIdleZones; i++) {
+	        if (targetPixel >= minNoIdle[i] && targetPixel <= maxNoIdle[i]) {
+	            return ReturnClosestPixel(targetPixel, minNoIdle[i], maxNoIdle[i]);
+	        }
+	    } 
+
+	    return targetPixel;
+	}
+
 	void SetNextWaitTravelTarget() {
 		// TODO use collision detection when setting next inflection, so that faeries are never traveling TO the same target pixel (or within a range of that pixel, like +- 3)
 		
@@ -928,10 +963,14 @@ private:
 		int travelDistance = (random(FAERIE_FLIT_MIN_DISTANCE, FAERIE_FLIT_MAX_DISTANCE) + 1) * TravelDirectionSwitch();
 		nextInflection += travelDistance;
 		
+		/*
 		while (! CheckForNoIdle(nextInflection)) {
 			nextInflection += random(FAERIE_FLIT_MIN_DISTANCE, FAERIE_FLIT_MAX_DISTANCE) + 1;
 			if (CheckForNoIdle(nextInflection)) return;
 		}
+		*/
+
+		nextInflection = CoerceTargetPixel(nextInflection);
 	}
 
 	int TravelDirectionSwitch() {
