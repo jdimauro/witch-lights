@@ -1,0 +1,27 @@
+//                       1234567890123456789012345678901234567890123456012345678901
+strcpy(afc_timing-test, "123456788                                                 ");
+strcat(afc_timing-test, "1234567888                                                ");
+strcat(afc_timing-test, "  1234567888                                              ");
+strcat(afc_timing-test, "     1234567888                                           ");
+strcat(afc_timing-test, "       123456677888                                       ");
+strcat(afc_timing-test, "        1223344556667788                                  ");
+strcat(afc_timing-test, "         111122233344556667788                            ");
+strcat(afc_timing-test, "              11111222233344556667788                     ");
+strcat(afc_timing-test, "                   11111222333444555666788                ");
+strcat(afc_timing-test, "                          1111112223344556788             ");
+strcat(afc_timing-test, "                                 11111223456788           ");
+strcat(afc_timing-test, "                                     11123456788          ");
+strcat(afc_timing-test, "                                        1123467831        ");
+strcat(afc_timing-test, "                                            12468531      ");
+strcat(afc_timing-test, "                                             11386421     ");
+strcat(afc_timing-test, "                                              1287543211  ");
+strcat(afc_timing-test, "                                               18865432211");
+strcat(afc_timing-test, "                                               886443211  ");
+strcat(afc_timing-test, "                                              88765431    ");
+strcat(afc_timing-test, "                                            4887654321    ");
+strcat(afc_timing-test, "                                            4886421       ");
+strcat(afc_timing-test, "                                            138831        ");
+strcat(afc_timing-test, "                                            138831        ");
+strcat(afc_timing-test, "                                            138831        ");
+strcat(afc_timing-test, "                                            138831        ");
+strcat(afc_timing-test, "                                            138831        ");
