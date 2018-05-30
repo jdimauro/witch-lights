@@ -5,6 +5,7 @@ It may be desired to have sprites interact with each other when they come near e
 
 
 ## Definitions
+
 A "collision" in this sense is the change in a sprite's default behavior due to the proximity of another sprite.
 
 A collision occurs when a sprite's "trigger condition" is met. When this condition is true, the sprite will become "triggered" and begin its "collision behavior".

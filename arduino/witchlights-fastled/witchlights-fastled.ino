@@ -15,7 +15,7 @@ bool placeTrees = false;				// TODO Dimly lights up range of pixels green where 
 bool placeNoIdle = false;				// TODO same, for specifying zones where faeries will not stop to idle
 
 // FastLED constants
-#define NUM_LEDS						750
+#define NUM_LEDS							750
 #define MAXSPRITES						20
 
 #define NUM_COLORSETS					5
@@ -43,6 +43,9 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 
 #define FAERIE_MIN_SPEED						1
 #define FAERIE_MAX_SPEED 						10
+
+#define FAERIE_MIN_BRAKE						96
+#define FAERIE_MAX_BRAKE						112
 
 #define FAERIE_MIN_WAIT							3
 #define FAERIE_MAX_WAIT							9
@@ -78,19 +81,17 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define NO_IDLE_MIN_6								80
 #define NO_IDLE_MAX_6								111
 
-#define NO_IDLE_MIN_7								-1
-#define NO_IDLE_MAX_7								-2
+#define NO_IDLE_MIN_7								0
+#define NO_IDLE_MAX_7								42
 
-#define NO_IDLE_MIN_8								-3
-#define NO_IDLE_MAX_8								-4
+#define NO_IDLE_MIN_8								718
+#define NO_IDLE_MAX_8								750
 
 #define NO_IDLE_MIN_9								-1
 #define NO_IDLE_MAX_9								-2
 
 #define NO_IDLE_MIN_10							-3
 #define NO_IDLE_MAX_10							-4
-
-
 
 // lurker sprite constants
 
@@ -268,7 +269,6 @@ class Sprite {
 		int updateInterval;
 		boolean done;
 };
-
 
 class SpriteVector {
 	private:
@@ -800,6 +800,7 @@ class FaerieSprite : public Sprite {
 private:
 	int updateInterval;
 	int minInterval;
+	int maxInterval;
 	int currentPixel;
 	int currentLocation;
 	bool isIdling;
@@ -895,6 +896,8 @@ private:
 	}
 	
 	void SetNextWaitTravelTarget() {
+		// TODO use collision detection when setting next inflection, so that faeries are never traveling TO the same target pixel (or within a range of that pixel, like +- 3)
+		
 		lastInflection = nextInflection;
 		int travelDistance = (random(FAERIE_FLIT_MIN_DISTANCE, FAERIE_FLIT_MAX_DISTANCE) + 1) * TravelDirectionSwitch();
 		nextInflection += travelDistance;
@@ -947,6 +950,11 @@ private:
 
 	int TravelDirection() {
 		// return + for moving in a positive direction, - for moving backwards
+		
+		// always want to move forwards if currentPixel < 42
+		// if (currentPixel < 42) return 1;
+		// (nope, doesn't work)
+		
 		if (nextInflection > currentPixel) {
 			return 1;
 		} else if (nextInflection == currentPixel) {
@@ -954,6 +962,10 @@ private:
 		} else {
 			return -1;
 		}
+	}
+	
+	int ChangeTravelDirection() {
+		return !TravelDirection();
 	}
 	
 	void UpdatePattern() {
@@ -978,6 +990,18 @@ private:
 
 	int SetMaxSpeed() {
 		return random(FAERIE_MIN_SPEED, FAERIE_MAX_SPEED) + 1;
+	}
+	
+	int SetMaxBrake() {
+		return random(FAERIE_MIN_BRAKE, FAERIE_MAX_BRAKE) + 1;
+	}
+	
+	float SetBrakePercentage() {
+		if (!isWaiting) {
+			return .12;
+		} else {
+			return .45;
+		}
 	}
 	
 	int SetWaitCount() {
@@ -1071,6 +1095,8 @@ private:
 		this->idleCountTotal = GetNewidleCountTotal(); // set to 1 for fragments
 
 		isWaiting ? this->updateInterval = SetWaitInterval() : this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
+		this->brakePercentage = SetBrakePercentage();
+
 		debug(updateInterval);
 		// need to set a bool here so that updateTravel() knows to fade the values towards 848?
 		// idleToTravel
@@ -1103,6 +1129,10 @@ private:
 		if (updateInterval < minInterval) {
 			updateInterval = minInterval;
 		} 
+		
+		if (updateInterval > maxInterval) {
+			updateInterval = maxInterval;
+		}
 		
 		// If we have reached the destination pixel, our next stop is running the idle animation
 		if (currentDistance == 0) {
@@ -1194,6 +1224,7 @@ public:
 		this->waitCountTotal = SetWaitCount();
 		this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
 		this->minInterval = SetMaxSpeed();
+		this->maxInterval = SetMaxBrake();
 		this->brakePixel;
 		this->trailLength = SetTrailLength();
 		this->dimFactor = SetDimFactor(updateInterval);
@@ -1207,7 +1238,7 @@ public:
 		this->brakeDistance;
 		
 		//To be set semi-randomly for all sprites, making them move just a bit differently so that they never mirror each other
-		this->brakePercentage = .15;		
+		this->brakePercentage = SetBrakePercentage(); // .15 originally
 		this->accelerationFactor = SetAccelerationFactor(isWaiting); // 0.75
 		this->brakeFactor = SetBrakeFactor(isWaiting); // 8
 		
@@ -1938,38 +1969,45 @@ void loop() {
 				spriteManager->Update();
 
 				if (spriteManager->SpriteCount() == 0) {
-						isBooted = true;
-			Sprite *s1 = new FaerieSprite();
+					isBooted = true;
+					Sprite *s1 = new FaerieSprite();
 				}
 
 				return;
 		}
 
-	// Spawn lurkers randomly
-	if (random(0,1000) == 0 && spawnLurkers) {
-		// debug(3);
-		int lurkerSpawnPixel = random(40,149);
-		Sprite *s1 = new LurkerSprite(lurkerSpawnPixel,1); 
-		// TODO: check to see if another lurker already exists at this pixel, despawn if so
+		// Spawn lurkers randomly
+		if (random(0,1000) == 0 && spawnLurkers) {
+			// debug(3);
+			int lurkerSpawnPixel = random(40,149);
+			Sprite *s1 = new LurkerSprite(lurkerSpawnPixel,1); 
+			// TODO: check to see if another lurker already exists at this pixel, despawn if so
 		
-				if (! spriteManager->Add(s1)) {
-						delete s1;
-				} 
-	} else {
-		// debug(1);
-	}
+			if (! spriteManager->Add(s1)) {
+				delete s1;
+			} 
+		} else {
+			// debug(1);
+		}
+		
+		if (random(0,1000) == 0 && spawnFaeries) {
+			Sprite *s1 = new FaerieSprite(); 
+		
+			if (! spriteManager->Add(s1)) {
+				delete s1;
+			}
+			
+		} else {
+			// debug(1);
+		}
 
 		if (sensor1->IsActuated()) {
-				debug(1);
-				// Sprite *s1 = new W8V1ScannerDebrisV1Sprite();
-				// Sprite *s1 = new AnimationTestSprite();
-				// Sprite *s1 = new FragmentTestSprite();
-				// Sprite *s1 = new LoopTestSprite();
-		Sprite *s1 = new FaerieSprite();
+			debug(1);
+			Sprite *s1 = new FaerieSprite();
 
-				if (! spriteManager->Add(s1)) {
-						delete s1;
-				}
+			if (! spriteManager->Add(s1)) {
+					delete s1;
+			}
 		}
 
 		if (sensor2->IsActuated()) {
