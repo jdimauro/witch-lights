@@ -94,7 +94,7 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define NO_IDLE_MAX_10							-4
 
 // Set starting range of any no_idle zones here
-int[] minNoIdle = new int[] { 
+	int minNoIdle[] = { 
 	0, 
 	80,
 	145,
@@ -105,7 +105,7 @@ int[] minNoIdle = new int[] {
 };
 
 // Set end range of no_idle zones here
-int[] maxNoIdle = new int[] { 
+int maxNoIdle[] = { 
 	42, 
 	111,
 	155,
@@ -927,16 +927,16 @@ private:
 	}
 
 	int SetNoIdleTravelTarget(int targetPixel) {
-		(targetPixel >= NO_IDLE_MIN_1 && targetPixel <= NO_IDLE_MAX_1) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_1, NO_IDLE_MAX_1);
-		(targetPixel >= NO_IDLE_MIN_2 && targetPixel <= NO_IDLE_MAX_2) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_2, NO_IDLE_MAX_2);
-		(targetPixel >= NO_IDLE_MIN_3 && targetPixel <= NO_IDLE_MAX_3) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_3, NO_IDLE_MAX_3);
-		(targetPixel >= NO_IDLE_MIN_4 && targetPixel <= NO_IDLE_MAX_4) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_4, NO_IDLE_MAX_4);
-		(targetPixel >= NO_IDLE_MIN_5 && targetPixel <= NO_IDLE_MAX_5) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_5, NO_IDLE_MAX_5);
-		(targetPixel >= NO_IDLE_MIN_6 && targetPixel <= NO_IDLE_MAX_6) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_6, NO_IDLE_MAX_6);
-		(targetPixel >= NO_IDLE_MIN_7 && targetPixel <= NO_IDLE_MAX_7) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_7, NO_IDLE_MAX_7);
-		(targetPixel >= NO_IDLE_MIN_8 && targetPixel <= NO_IDLE_MAX_8) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_8, NO_IDLE_MAX_8);
-		(targetPixel >= NO_IDLE_MIN_9 && targetPixel <= NO_IDLE_MAX_9) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_9, NO_IDLE_MAX_9);
-		(targetPixel >= NO_IDLE_MIN_10 && targetPixel <= NO_IDLE_MAX_10) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_10, NO_IDLE_MAX_10);
+		(targetPixel >= NO_IDLE_MIN_1 && targetPixel <= NO_IDLE_MAX_1) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_1, NO_IDLE_MAX_1) : 0;
+		(targetPixel >= NO_IDLE_MIN_2 && targetPixel <= NO_IDLE_MAX_2) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_2, NO_IDLE_MAX_2) : 0;
+		(targetPixel >= NO_IDLE_MIN_3 && targetPixel <= NO_IDLE_MAX_3) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_3, NO_IDLE_MAX_3) : 0;
+		(targetPixel >= NO_IDLE_MIN_4 && targetPixel <= NO_IDLE_MAX_4) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_4, NO_IDLE_MAX_4) : 0;
+		(targetPixel >= NO_IDLE_MIN_5 && targetPixel <= NO_IDLE_MAX_5) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_5, NO_IDLE_MAX_5) : 0;
+		(targetPixel >= NO_IDLE_MIN_6 && targetPixel <= NO_IDLE_MAX_6) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_6, NO_IDLE_MAX_6) : 0;
+		(targetPixel >= NO_IDLE_MIN_7 && targetPixel <= NO_IDLE_MAX_7) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_7, NO_IDLE_MAX_7) : 0;
+		(targetPixel >= NO_IDLE_MIN_8 && targetPixel <= NO_IDLE_MAX_8) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_8, NO_IDLE_MAX_8) : 0;
+		(targetPixel >= NO_IDLE_MIN_9 && targetPixel <= NO_IDLE_MAX_9) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_9, NO_IDLE_MAX_9) : 0;
+		(targetPixel >= NO_IDLE_MIN_10 && targetPixel <= NO_IDLE_MAX_10) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_10, NO_IDLE_MAX_10) : 0;
 	}
 
 
