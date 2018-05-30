@@ -893,6 +893,11 @@ private:
 		returnValue |= (targetPixel >= NO_IDLE_MIN_9 && targetPixel <= NO_IDLE_MAX_9);
 		returnValue |= (targetPixel >= NO_IDLE_MIN_10 && targetPixel <= NO_IDLE_MAX_10);
 		return !returnValue; // we want to return false if any of the tests returned true
+
+		//TODO: maybe return an int instead of true/false, and have that int be the closest "safe" pixel to move to, so that we don't traverse no_idle zones?
+		// Like, I need a function that compares targetPixel to the constants and determines which is closer, and then returns that constant +- random (1,6) or something
+		//
+		// maybe, if check = true, int comparison = abs(targetPixel - NO_IDLE_MIN_1)?
 	}
 	
 	void SetNextWaitTravelTarget() {
