@@ -833,7 +833,6 @@ private:
 	int waitCount;
 	int waitCountTotal;
 	bool isBraking;
-	int brakeDistance;
 	int brakePixel;
 	int lastInflection;
 	int nextInflection;
@@ -1104,7 +1103,6 @@ private:
 		if (currentDistance < totalTravelDistance * brakePercentage) {
 			if (!isBraking) {
 				isBraking = true;
-				brakeDistance = abs(currentDistance - totalTravelDistance);
 				brakePixel = currentPixel;
 			}
 		} else {
@@ -1240,7 +1238,6 @@ private:
 		updateInterval = 1;
 		isIdling = true;
 		idlingFrame = 0;
-		
 		currentPixel -= 0; // pretty sure we don't need this unless we're doing char animation
 		
 		fadeSteps = 0;
@@ -1310,7 +1307,6 @@ public:
 		this->totalTravelDistance = DistanceFromDestination();
 		this->currentDistance = totalTravelDistance;
 		this->isBraking = false;
-		this->brakeDistance;
 		
 		//To be set semi-randomly for all sprites, making them move just a bit differently so that they never mirror each other
 		this->brakePercentage = SetBrakePercentage(); // .15 originally
