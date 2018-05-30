@@ -947,13 +947,13 @@ private:
 	}
 
 	int CoerceTargetPixel(int targetPixel) {
-	    for (int i = 0; i < numberOfNoIdleZones; i++) {
-	        if (targetPixel >= minNoIdle[i] && targetPixel <= maxNoIdle[i]) {
-	            return ReturnClosestPixel(targetPixel, minNoIdle[i], maxNoIdle[i]);
-	        }
-	    } 
+		for (int i = 0; i < numberOfNoIdleZones; i++) {
+			if (targetPixel >= minNoIdle[i] && targetPixel <= maxNoIdle[i]) {
+				return ReturnClosestPixel(targetPixel, minNoIdle[i], maxNoIdle[i]);
+			}
+		}
 
-	    return targetPixel;
+		return targetPixel;
 	}
 
 	void SetNextWaitTravelTarget() {
