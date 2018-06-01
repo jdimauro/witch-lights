@@ -15,7 +15,7 @@ bool placeTrees = false;				// TODO Dimly lights up range of pixels green where 
 bool placeNoIdle = false;				// TODO same, for specifying zones where faeries will not stop to idle
 
 // FastLED constants
-#define NUM_LEDS							750 // 750 or 600 in production
+#define NUM_LEDS							150 // 750 or 600 in production
 #define MAXSPRITES						20
 
 #define NUM_COLORSETS					5
@@ -903,6 +903,7 @@ private:
 		}
 	}
 	
+	
 	bool CheckForNoIdle(int targetPixel) {
 		bool returnValue = false;
 		// TODO: do this less brute force? Using SpriteVector?
@@ -917,6 +918,42 @@ private:
 		returnValue |= (targetPixel >= NO_IDLE_MIN_9 && targetPixel <= NO_IDLE_MAX_9);
 		returnValue |= (targetPixel >= NO_IDLE_MIN_10 && targetPixel <= NO_IDLE_MAX_10);
 		return !returnValue; // we want to return false if any of the tests returned true
+
+		//TODO: maybe return an int instead of true/false, and have that int be the closest "safe" pixel to move to, so that we don't traverse no_idle zones?
+		// Like, I need a function that compares targetPixel to the constants and determines which is closer, and then returns that constant +- random (1,6) or something
+		//
+		// maybe, if check = true, int comparison = abs(targetPixel - NO_IDLE_MIN_1)? and use min()?
+	}
+	
+	/*
+	int SetNoIdleTravelTarget(int targetPixel) {
+		(targetPixel >= NO_IDLE_MIN_1 && targetPixel <= NO_IDLE_MAX_1) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_1, NO_IDLE_MAX_1) : 0;
+		(targetPixel >= NO_IDLE_MIN_2 && targetPixel <= NO_IDLE_MAX_2) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_2, NO_IDLE_MAX_2) : 0;
+		(targetPixel >= NO_IDLE_MIN_3 && targetPixel <= NO_IDLE_MAX_3) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_3, NO_IDLE_MAX_3) : 0;
+		(targetPixel >= NO_IDLE_MIN_4 && targetPixel <= NO_IDLE_MAX_4) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_4, NO_IDLE_MAX_4) : 0;
+		(targetPixel >= NO_IDLE_MIN_5 && targetPixel <= NO_IDLE_MAX_5) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_5, NO_IDLE_MAX_5) : 0;
+		(targetPixel >= NO_IDLE_MIN_6 && targetPixel <= NO_IDLE_MAX_6) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_6, NO_IDLE_MAX_6) : 0;
+		(targetPixel >= NO_IDLE_MIN_7 && targetPixel <= NO_IDLE_MAX_7) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_7, NO_IDLE_MAX_7) : 0;
+		(targetPixel >= NO_IDLE_MIN_8 && targetPixel <= NO_IDLE_MAX_8) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_8, NO_IDLE_MAX_8) : 0;
+		(targetPixel >= NO_IDLE_MIN_9 && targetPixel <= NO_IDLE_MAX_9) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_9, NO_IDLE_MAX_9) : 0;
+		(targetPixel >= NO_IDLE_MIN_10 && targetPixel <= NO_IDLE_MAX_10) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_10, NO_IDLE_MAX_10) : 0;
+	}
+	*/
+
+	int ReturnClosestPixel(int pixel, int min, int max) {
+		int minDistance = abs(pixel - min);
+		int maxDistance = abs(pixel - max);
+		return (minDistance - maxDistance < 0) ? -(minDistance + random(3,6)) : (maxDistance + random(3,6));
+	}
+
+	int CoerceTargetPixel(int targetPixel) {
+		for (int i = 0; i < numberOfNoIdleZones; i++) {
+			if (targetPixel >= minNoIdle[i] && targetPixel <= maxNoIdle[i]) {
+				return ReturnClosestPixel(targetPixel, minNoIdle[i], maxNoIdle[i]);
+			}
+		}
+
+		return targetPixel;
 	}
 	
 	void SetNextWaitTravelTarget() {
