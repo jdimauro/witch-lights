@@ -93,6 +93,30 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define NO_IDLE_MIN_10							-3
 #define NO_IDLE_MAX_10							-4
 
+// Set starting range of any no_idle zones here
+	int minNoIdle[] = { 
+	0, 
+	80,
+	145,
+	295,
+	445,
+	595,
+	718
+};
+
+// Set end range of no_idle zones here
+int maxNoIdle[] = { 
+	42, 
+	111,
+	155,
+	305,
+	455,
+	605,
+	750 
+};
+
+int numberOfNoIdleZones = 7;
+
 // lurker sprite constants
 
 #define BLINK_SPRITE_MIN_LIFETIME		3
