@@ -997,6 +997,7 @@ private:
 	}
 	
 	float SetBrakePercentage() {
+		// TODO: map distance of move to brake percentage, brakefactor, accelerationfactor
 		if (!isWaiting) {
 			return .12;
 		} else {
