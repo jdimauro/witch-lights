@@ -15,7 +15,7 @@ bool placeTrees = false;				// TODO Dimly lights up range of pixels green where 
 bool placeNoIdle = false;				// TODO same, for specifying zones where faeries will not stop to idle
 
 // FastLED constants
-#define NUM_LEDS							750
+#define NUM_LEDS							750 // 750 or 600 in production
 #define MAXSPRITES						20
 
 #define NUM_COLORSETS					5
@@ -1139,9 +1139,12 @@ private:
 			StartIdle();
 		}
 
+		// TODO: test with 150 pixels
 		// Terminate if we go off the end of the strip
 		if (currentPixel > NUM_LEDS) {
-			 this->MarkDone();
+			FadeOutTrail(NUM_LEDS - 1, 255, -1);
+			// leds[NUM_LEDS -1] = CRGB::Black;
+			this->MarkDone();
 		}
 
 		return true;
