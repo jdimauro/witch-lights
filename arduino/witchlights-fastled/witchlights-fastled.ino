@@ -7,7 +7,7 @@
 // debug or animation modes
 // TODO: set this with a jumper to an input pin
 bool debugMode = true;					// turns on debug() statements
-bool spawnLurkers = false;			// IMPORTANT: set to FALSE for all public video before Firefly 2018!
+bool spawnLurkers = true;			// IMPORTANT: set to FALSE for all public video before Firefly 2018!
 bool randomInflection = false;		// Randomly makes faerie sprite dance back and forth, instead of mainly going "forwards". 
 bool spawnFaeries = true;				// TODO Spawn a new faerie randomly; helpful to keep a constant background of sprite animation for evaluation
 bool placeLurkers = false;			// TODO Dimly lights up range of pixels where lurkers are "allowed" to spawn, for install time
@@ -123,6 +123,9 @@ int minNoIdle[] = { 1, 80, 145, 295, 445, 595, 718 };
 int maxNoIdle[] = { 42, 111, 155, 305, 455, 605, 749 };
 
 int numberOfNoIdleZones = 7;
+int noIdleLoop = 6; // test
+
+#define NO_IDLE_LOOP_COUNT					7
 
 // lurker sprite constants
 
@@ -951,16 +954,17 @@ private:
 	int ReturnClosestPixel(int pixel, int minpix, int maxpix) {
 		int minDistance = abs(pixel - minpix);
 		// debug(minDistance);
-		// int maxDistance = abs(pixel - maxpix);
-		return pixel;
-		// return (minDistance - maxDistance < 0) ? -(minDistance + random(3,6)) : (maxDistance + random(3,6));
+		int maxDistance = abs(pixel - maxpix);
+		// return pixel;
+		return (minDistance - maxDistance < 0) ? -(minDistance + random(3,6)) : (maxDistance + random(3,6));
 	}
 
 	int CoerceTargetPixel(int targetPixel) {
-		for (int i = 0; i < numberOfNoIdleZones; i++) {
+		// int lookup = numberOfNoIdleZones - 1;
+		// int testNumber = minNoIdle[lookup];
+		// debug(lookup);
+		for (int i = 0; i >= NO_IDLE_LOOP_COUNT - 1; i++) { //Things that crash: numberOfNoIdleZones -1 // lookup
 			if (targetPixel >= minNoIdle[i] && targetPixel <= maxNoIdle[i]) {
-				// debug(3);
-				// debug(minNoIdle[i]); // minNoIdle[i] crashes
 				ReturnClosestPixel(targetPixel, minNoIdle[i], maxNoIdle[i]);
 				return targetPixel;
 			}
