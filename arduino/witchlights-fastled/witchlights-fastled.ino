@@ -60,65 +60,6 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define SPRITE_STARTING_DELAY_INTERVAL_IN_MS	 50 // 40
 #define SCANNER_DELAY_INTERVAL_IN_MS					 20
 
-// 1st 5: ban idling across the very ends of LED strips, it looks weird
-#define NO_IDLE_MIN_1								145
-#define NO_IDLE_MAX_1								155
-
-#define NO_IDLE_MIN_2								295
-#define NO_IDLE_MAX_2								305
-
-#define NO_IDLE_MIN_3								445
-#define NO_IDLE_MAX_3								455
-
-#define NO_IDLE_MIN_4								595
-#define NO_IDLE_MAX_4								605
-
-#define NO_IDLE_MIN_5								745
-#define NO_IDLE_MAX_5								755
-
-
-// Set these values to define areas (such as behind trees) where faeries should not idle
-#define NO_IDLE_MIN_6								80
-#define NO_IDLE_MAX_6								111
-
-#define NO_IDLE_MIN_7								0
-#define NO_IDLE_MAX_7								42
-
-#define NO_IDLE_MIN_8								718
-#define NO_IDLE_MAX_8								750
-
-#define NO_IDLE_MIN_9								-1
-#define NO_IDLE_MAX_9								-2
-
-#define NO_IDLE_MIN_10							-3
-#define NO_IDLE_MAX_10							-4
-
-/*
-// Set starting range of any no_idle zones here
-int minNoIdle[] = { 
-	0, 
-	80,
-	145,
-	295,
-	445,
-	595,
-	718
-};
-*/
-
-/*
-// Set end range of no_idle zones here
-int maxNoIdle[] = { 
-	42, 
-	111,
-	155,
-	305,
-	455,
-	605,
-	750
-};
-*/
-
 #define NO_IDLE_LOOP_COUNT					7			// number of no-idle zones in the array
 
 // lurker sprite constants
