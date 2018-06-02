@@ -122,10 +122,7 @@ int maxNoIdle[] = {
 int minNoIdle[] = { 1, 80, 145, 295, 445, 595, 718 };
 int maxNoIdle[] = { 42, 111, 155, 305, 455, 605, 749 };
 
-int numberOfNoIdleZones = 7;
-int noIdleLoop = 6; // test
-
-#define NO_IDLE_LOOP_COUNT					7
+#define NO_IDLE_LOOP_COUNT					7			// number of no-idle zones in the array
 
 // lurker sprite constants
 
