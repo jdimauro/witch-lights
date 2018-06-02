@@ -15,7 +15,7 @@ bool placeTrees = false;				// TODO Dimly lights up range of pixels green where 
 bool placeNoIdle = false;				// TODO same, for specifying zones where faeries will not stop to idle
 
 // FastLED constants
-#define NUM_LEDS							150 // 750 or 600 in production
+#define NUM_LEDS							750 // 750 or 600 in production
 #define MAXSPRITES						20
 
 #define NUM_COLORSETS					5
@@ -960,13 +960,10 @@ private:
 	}
 
 	int CoerceTargetPixel(int targetPixel) {
-		// int lookup = numberOfNoIdleZones - 1;
-		// int testNumber = minNoIdle[lookup];
-		// debug(lookup);
-		for (int i = 0; i >= NO_IDLE_LOOP_COUNT - 1; i++) { //Things that crash: numberOfNoIdleZones -1 // lookup
+		for (int i = 0; i >= NO_IDLE_LOOP_COUNT - 1; i++) {
 			if (targetPixel >= minNoIdle[i] && targetPixel <= maxNoIdle[i]) {
-				ReturnClosestPixel(targetPixel, minNoIdle[i], maxNoIdle[i]);
-				return targetPixel;
+				return ReturnClosestPixel(targetPixel, minNoIdle[i], maxNoIdle[i]);
+				// return targetPixel;
 			}
 		}
 
