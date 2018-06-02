@@ -1099,29 +1099,18 @@ private:
 
 		currentPixel += TravelDirection();
 		currentDistance = DistanceFromDestination();
-		// debug(currentDistance);
 
 		updateInterval -= AccelerateTravel();
-		// debug(updateInterval);
-
-		if (updateInterval < minInterval) {
-			updateInterval = minInterval;
-		} 
-		
-		if (updateInterval > maxInterval) {
-			updateInterval = maxInterval;
-		}
+		updateInterval = ConstrainIntervalToMaxMin(updateInterval);
 		
 		// If we have reached the destination pixel, our next stop is running the idle animation
 		if (currentDistance == 0) {
 			StartIdle();
 		}
 
-		// TODO: test with 150 pixels
 		// Terminate if we go off the end of the strip
 		if (currentPixel > NUM_LEDS) {
 			FadeOutTrail(NUM_LEDS - 1, 255, -1);
-			// leds[NUM_LEDS -1] = CRGB::Black;
 			this->MarkDone();
 		}
 
