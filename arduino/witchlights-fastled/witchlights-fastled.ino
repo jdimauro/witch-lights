@@ -119,9 +119,6 @@ int maxNoIdle[] = {
 };
 */
 
-int minNoIdle[] = { 1, 80, 145, 295, 445, 595, 718 };
-int maxNoIdle[] = { 42, 111, 155, 305, 455, 605, 749 };
-
 #define NO_IDLE_LOOP_COUNT					7			// number of no-idle zones in the array
 
 // lurker sprite constants
@@ -862,6 +859,8 @@ private:
 	int totalTravelDistance;
 	int currentDistance;
 	float brakePercentage;
+	int minNoIdle[7] = { 1, 80, 145, 295, 445, 595, 718 };
+	int maxNoIdle[7] = { 42, 111, 155, 305, 455, 605, 749 };
 
 	CRGB pattern[3];
 	int patternLength = 3;
@@ -950,17 +949,14 @@ private:
 
 	int ReturnClosestPixel(int pixel, int minpix, int maxpix) {
 		int minDistance = abs(pixel - minpix);
-		// debug(minDistance);
 		int maxDistance = abs(pixel - maxpix);
-		// return pixel;
-		return (minDistance - maxDistance < 0) ? -(minDistance + random(3,6)) : (maxDistance + random(3,6));
+		return (minDistance - maxDistance < 0) ? (minpix - random(3,6)) : (maxpix + random(3,6));
 	}
 
 	int CoerceTargetPixel(int targetPixel) {
-		for (int i = 0; i >= NO_IDLE_LOOP_COUNT - 1; i++) {
-			if (targetPixel >= minNoIdle[i] && targetPixel <= maxNoIdle[i]) {
+		for (int i = 0; i <= NO_IDLE_LOOP_COUNT - 1; i++) {
+			if (targetPixel >= this->minNoIdle[i] && targetPixel <= this->maxNoIdle[i]) {
 				return ReturnClosestPixel(targetPixel, minNoIdle[i], maxNoIdle[i]);
-				// return targetPixel;
 			}
 		}
 
@@ -1171,7 +1167,15 @@ private:
 		isIdling = false;
 		currentPixel += 0;
 		isWaiting ? SetNextWaitTravelTarget() : SetNextInflection();
+		// debug(1);
+		// delay(500);
+		// if (nextInflection < 150) debug(nextInflection);
+		// delay(1000);
 		nextInflection = CoerceTargetPixel(nextInflection);
+		// debug(2);
+		// delay(500);
+		// if (nextInflection < 150) debug(nextInflection);
+		// delay(1000);
 		totalTravelDistance = DistanceFromDestination();
 		this->idleCount = 0;
 		this->idleCountTotal = GetNewidleCountTotal(); // set to 1 for fragments
@@ -1321,6 +1325,8 @@ public:
 		this->currentDistance = totalTravelDistance;
 		this->isBraking = false;
 		this->brakeDistance;
+		this->minNoIdle;
+		this->maxNoIdle;
 		
 		//To be set semi-randomly for all sprites, making them move just a bit differently so that they never mirror each other
 		this->brakePercentage = SetBrakePercentage(); // .15 originally
