@@ -6,16 +6,16 @@
 
 // debug or animation modes
 // TODO: set this with a jumper to an input pin
-bool debugMode = true;					// turns on debug() statements
-bool spawnLurkers = true;				// IMPORTANT: set to FALSE for all public video before Firefly 2018!
-bool randomInflection = false;	// Randomly makes faerie sprite dance back and forth, instead of mainly going "forwards". 
+bool debugMode = false;					// turns on debug() statements
+bool spawnLurkers = false;			// IMPORTANT: set to FALSE for all public video before Firefly 2018!
+bool randomInflection = false;		// Randomly makes faerie sprite dance back and forth, instead of mainly going "forwards". 
 bool spawnFaeries = true;				// TODO Spawn a new faerie randomly; helpful to keep a constant background of sprite animation for evaluation
 bool placeLurkers = false;			// TODO Dimly lights up range of pixels where lurkers are "allowed" to spawn, for install time
 bool placeTrees = false;				// TODO Dimly lights up range of pixels green where trees are defined, also for installs
 bool placeNoIdle = false;				// TODO same, for specifying zones where faeries will not stop to idle
 
 // FastLED constants
-#define NUM_LEDS							750 // 750 or 600 in production
+#define NUM_LEDS							750
 #define MAXSPRITES						20
 
 #define NUM_COLORSETS					5
@@ -93,9 +93,8 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define NO_IDLE_MIN_10							-3
 #define NO_IDLE_MAX_10							-4
 
-/*
 // Set starting range of any no_idle zones here
-int minNoIdle[] = { 
+	int minNoIdle[] = { 
 	0, 
 	80,
 	145,
@@ -104,9 +103,7 @@ int minNoIdle[] = {
 	595,
 	718
 };
-*/
 
-/*
 // Set end range of no_idle zones here
 int maxNoIdle[] = { 
 	42, 
@@ -115,11 +112,10 @@ int maxNoIdle[] = {
 	305,
 	455,
 	605,
-	750
+	750 
 };
-*/
 
-#define NO_IDLE_LOOP_COUNT					7			// number of no-idle zones in the array
+int numberOfNoIdleZones = 7;
 
 // lurker sprite constants
 
@@ -837,7 +833,6 @@ private:
 	int waitCount;
 	int waitCountTotal;
 	bool isBraking;
-	int brakeDistance;
 	int brakePixel;
 	int lastInflection;
 	int nextInflection;
@@ -859,8 +854,6 @@ private:
 	int totalTravelDistance;
 	int currentDistance;
 	float brakePercentage;
-	int minNoIdle[7] = { 1, 80, 145, 295, 445, 595, 718 };
-	int maxNoIdle[7] = { 42, 111, 155, 305, 455, 605, 749 };
 
 	CRGB pattern[3];
 	int patternLength = 3;
@@ -898,28 +891,71 @@ private:
 		// TODO when direction (1 or -1) is added as a sprite param on create, use that to make the sprite "advance" in the sprite's general direction(?)
 		if (randomInflection && currentPixel > 60) {
 			nextInflection += travelDistance * TravelDirectionSwitch();
-			return;
 		} else {
 			nextInflection += travelDistance;
 		}
+		
+		/*
+		while (! CheckForNoIdle(nextInflection)) {
+			nextInflection += random(FAERIE_FLIT_MIN_DISTANCE, FAERIE_FLIT_MAX_DISTANCE) + 1;
+			if (CheckForNoIdle(nextInflection)) return;
+		}
+		*/
+		// nextInflection = CoerceTargetPixel(nextInflection);
 	}
+	
+	/*
+	bool CheckForNoIdle(int targetPixel) {
+		bool returnValue = false;
+		// TODO: do this less brute force? Using SpriteVector?
+		returnValue |= (targetPixel >= NO_IDLE_MIN_1 && targetPixel <= NO_IDLE_MAX_1);
+		returnValue |= (targetPixel >= NO_IDLE_MIN_2 && targetPixel <= NO_IDLE_MAX_2);
+		returnValue |= (targetPixel >= NO_IDLE_MIN_3 && targetPixel <= NO_IDLE_MAX_3);
+		returnValue |= (targetPixel >= NO_IDLE_MIN_4 && targetPixel <= NO_IDLE_MAX_4);
+		returnValue |= (targetPixel >= NO_IDLE_MIN_5 && targetPixel <= NO_IDLE_MAX_5);
+		returnValue |= (targetPixel >= NO_IDLE_MIN_6 && targetPixel <= NO_IDLE_MAX_6);
+		returnValue |= (targetPixel >= NO_IDLE_MIN_7 && targetPixel <= NO_IDLE_MAX_7);
+		returnValue |= (targetPixel >= NO_IDLE_MIN_8 && targetPixel <= NO_IDLE_MAX_8);
+		returnValue |= (targetPixel >= NO_IDLE_MIN_9 && targetPixel <= NO_IDLE_MAX_9);
+		returnValue |= (targetPixel >= NO_IDLE_MIN_10 && targetPixel <= NO_IDLE_MAX_10);
+		return !returnValue; // we want to return false if any of the tests returned true
 
-	int ReturnClosestPixel(int pixel, int minpix, int maxpix) {
-		int minDistance = abs(pixel - minpix);
-		int maxDistance = abs(pixel - maxpix);
-		return (minDistance - maxDistance < 0) ? (minpix - random(3,6)) : (maxpix + random(3,6));
+		//TODO: maybe return an int instead of true/false, and have that int be the closest "safe" pixel to move to, so that we don't traverse no_idle zones?
+		// Like, I need a function that compares targetPixel to the constants and determines which is closer, and then returns that constant +- random (1,6) or something
+		//
+		// maybe, if check = true, int comparison = abs(targetPixel - NO_IDLE_MIN_1)? and use min()?
+	}
+	
+	int SetNoIdleTravelTarget(int targetPixel) {
+		(targetPixel >= NO_IDLE_MIN_1 && targetPixel <= NO_IDLE_MAX_1) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_1, NO_IDLE_MAX_1) : 0;
+		(targetPixel >= NO_IDLE_MIN_2 && targetPixel <= NO_IDLE_MAX_2) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_2, NO_IDLE_MAX_2) : 0;
+		(targetPixel >= NO_IDLE_MIN_3 && targetPixel <= NO_IDLE_MAX_3) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_3, NO_IDLE_MAX_3) : 0;
+		(targetPixel >= NO_IDLE_MIN_4 && targetPixel <= NO_IDLE_MAX_4) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_4, NO_IDLE_MAX_4) : 0;
+		(targetPixel >= NO_IDLE_MIN_5 && targetPixel <= NO_IDLE_MAX_5) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_5, NO_IDLE_MAX_5) : 0;
+		(targetPixel >= NO_IDLE_MIN_6 && targetPixel <= NO_IDLE_MAX_6) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_6, NO_IDLE_MAX_6) : 0;
+		(targetPixel >= NO_IDLE_MIN_7 && targetPixel <= NO_IDLE_MAX_7) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_7, NO_IDLE_MAX_7) : 0;
+		(targetPixel >= NO_IDLE_MIN_8 && targetPixel <= NO_IDLE_MAX_8) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_8, NO_IDLE_MAX_8) : 0;
+		(targetPixel >= NO_IDLE_MIN_9 && targetPixel <= NO_IDLE_MAX_9) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_9, NO_IDLE_MAX_9) : 0;
+		(targetPixel >= NO_IDLE_MIN_10 && targetPixel <= NO_IDLE_MAX_10) ? ReturnClosestPixel(targetPixel, NO_IDLE_MIN_10, NO_IDLE_MAX_10) : 0;
+	}
+	*/
+
+	int ReturnClosestPixel(int pixel, int min, int max) {
+		int minDistance = abs(pixel - min);
+		int maxDistance = abs(pixel - max);
+		return (minDistance - maxDistance < 0) ? -(minDistance + random(3,6)) : (maxDistance + random(3,6));
 	}
 
 	int CoerceTargetPixel(int targetPixel) {
-		for (int i = 0; i <= NO_IDLE_LOOP_COUNT - 1; i++) {
-			if (targetPixel >= this->minNoIdle[i] && targetPixel <= this->maxNoIdle[i]) {
+		for (int i = 0; i < numberOfNoIdleZones; i++) {
+			if (targetPixel >= minNoIdle[i] && targetPixel <= maxNoIdle[i]) {
 				return ReturnClosestPixel(targetPixel, minNoIdle[i], maxNoIdle[i]);
 			}
 		}
 
 		return targetPixel;
 	}
-	
+
 	void SetNextWaitTravelTarget() {
 		// TODO use collision detection when setting next inflection, so that faeries are never traveling TO the same target pixel (or within a range of that pixel, like +- 3)
 		
@@ -927,6 +963,14 @@ private:
 		int travelDistance = (random(FAERIE_FLIT_MIN_DISTANCE, FAERIE_FLIT_MAX_DISTANCE) + 1) * TravelDirectionSwitch();
 		nextInflection += travelDistance;
 		
+		/*
+		while (! CheckForNoIdle(nextInflection)) {
+			nextInflection += random(FAERIE_FLIT_MIN_DISTANCE, FAERIE_FLIT_MAX_DISTANCE) + 1;
+			if (CheckForNoIdle(nextInflection)) return;
+		}
+		*/
+
+		// nextInflection = CoerceTargetPixel(nextInflection);
 	}
 
 	int TravelDirectionSwitch() {
@@ -1059,7 +1103,6 @@ private:
 		if (currentDistance < totalTravelDistance * brakePercentage) {
 			if (!isBraking) {
 				isBraking = true;
-				brakeDistance = abs(currentDistance - totalTravelDistance);
 				brakePixel = currentPixel;
 			}
 		} else {
@@ -1080,7 +1123,6 @@ private:
 		}
 	}
 
-	
 	int ConstrainIntervalToMaxMin(int interval) {
 		if (interval < minInterval) {
 			return minInterval;
@@ -1092,7 +1134,6 @@ private:
 
 		return interval;
 	}
-	
 
 	/*	
 	void JitterLocation() {
@@ -1118,15 +1159,7 @@ private:
 		isIdling = false;
 		currentPixel += 0;
 		isWaiting ? SetNextWaitTravelTarget() : SetNextInflection();
-		// debug(1);
-		// delay(500);
-		// if (nextInflection < 150) debug(nextInflection);
-		// delay(1000);
 		nextInflection = CoerceTargetPixel(nextInflection);
-		// debug(2);
-		// delay(500);
-		// if (nextInflection < 150) debug(nextInflection);
-		// delay(1000);
 		totalTravelDistance = DistanceFromDestination();
 		this->idleCount = 0;
 		this->idleCountTotal = GetNewidleCountTotal(); // set to 1 for fragments
@@ -1134,7 +1167,7 @@ private:
 		isWaiting ? this->updateInterval = SetWaitInterval() : this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
 		this->brakePercentage = SetBrakePercentage();
 
-		// debug(updateInterval);
+		debug(updateInterval);
 		// need to set a bool here so that updateTravel() knows to fade the values towards 848?
 		// idleToTravel
 		this->pixelA = 6;
@@ -1152,7 +1185,7 @@ private:
 		
 		// step backwards and fade the trail
 		DimTrail(currentPixel, dimFactor, -1);
-		DimTrail(currentPixel+3, dimFactor, 1);
+		DimTrail(currentPixel + patternLength, dimFactor, 1);
 
 		// Next up, prepare for the next UpdateTravel() by moving currentPixel, and setting the next updateInterval value
 
@@ -1163,6 +1196,10 @@ private:
 		updateInterval -= AccelerateTravel();
 		// debug(updateInterval);
 
+		// Keep updateInterval between maximum and minimum values
+		updateInterval = ConstrainIntervalToMaxMin(updateInterval);
+
+		/*
 		if (updateInterval < minInterval) {
 			updateInterval = minInterval;
 		} 
@@ -1170,18 +1207,16 @@ private:
 		if (updateInterval > maxInterval) {
 			updateInterval = maxInterval;
 		}
+		*/
 		
 		// If we have reached the destination pixel, our next stop is running the idle animation
 		if (currentDistance == 0) {
 			StartIdle();
 		}
 
-		// TODO: test with 150 pixels
 		// Terminate if we go off the end of the strip
 		if (currentPixel > NUM_LEDS) {
-			FadeOutTrail(NUM_LEDS - 1, 255, -1);
-			// leds[NUM_LEDS -1] = CRGB::Black;
-			this->MarkDone();
+			 this->MarkDone();
 		}
 
 		return true;
@@ -1192,16 +1227,17 @@ private:
 		if (isWaiting) {
 			waitCount++;
 		} else {
+			// If we've started Idle() with isWaiting = false, then we've just done a long move, and it's time to start waiting. 
 			isWaiting = true;
 		}
 		
+		// For dimming trail after we stop
 		dimFactor = 128;
 		
 		// Transition from travel mode to loop mode
 		updateInterval = 1;
 		isIdling = true;
 		idlingFrame = 0;
-		
 		currentPixel -= 0; // pretty sure we don't need this unless we're doing char animation
 		
 		fadeSteps = 0;
@@ -1229,7 +1265,7 @@ private:
 		stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
 	
 		FadeOutTrail(currentPixel, dimFactor, -1);
-		FadeOutTrail(currentPixel + 3, dimFactor, 1);
+		FadeOutTrail(currentPixel + patternLength, dimFactor, 1);
 	
 		if (EffectiveFrame(idlingFrame) == 0) {
 			++idleCount;
@@ -1242,10 +1278,6 @@ private:
 		isWaiting = true;
 		waitCount = 0;
 		waitCountTotal = SetWaitCount();
-	}
-	
-	bool UpdateWaiting() {
-		
 	}
 
 public:
@@ -1275,9 +1307,6 @@ public:
 		this->totalTravelDistance = DistanceFromDestination();
 		this->currentDistance = totalTravelDistance;
 		this->isBraking = false;
-		this->brakeDistance;
-		this->minNoIdle;
-		this->maxNoIdle;
 		
 		//To be set semi-randomly for all sprites, making them move just a bit differently so that they never mirror each other
 		this->brakePercentage = SetBrakePercentage(); // .15 originally
