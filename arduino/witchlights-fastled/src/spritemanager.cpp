@@ -1,17 +1,17 @@
 #include "spritemanager.h"
 
 void SpriteManager::Update() {
-    updatedSomething = false;
+  updatedSomething = false;
 
-    for (int i = 0; i < this->SpriteCount(); i++) {
-        updatedSomething |= spriteVector->Get(i)->Update();
-    }
+  for (int i = 0; i < this->SpriteCount(); i++) {
+    updatedSomething |= spriteVector->Get(i)->Update();
+  }
 
-    if (updatedSomething) {
-        FastLED.show();
-    }
+  if (updatedSomething) {
+    FastLED.show();
+  }
 
-    this->Clean();
+  this->Clean();
 }
 
 bool SpriteManager::Add(Sprite *newSprite) {
@@ -20,9 +20,9 @@ bool SpriteManager::Add(Sprite *newSprite) {
 }
 
 void SpriteManager::Clean() {
-    for (int i = this->SpriteCount() - 1; i >= 0; i--) {
-        if (spriteVector->Get(i)->IsDone()) {
-            spriteVector->RemoveAt(i);
-        }
+  for (int i = this->SpriteCount() - 1; i >= 0; i--) {
+    if (spriteVector->Get(i)->IsDone()) {
+      spriteVector->RemoveAt(i);
     }
+  }
 }

@@ -7,9 +7,10 @@ int LurkerSprite::Blink() {
       // check to see if we need to blink
       if (millis() - lastBlinkTime >= blinkFrequency) {
         lastBlinkTime = millis();
-        blinkFrequency = SetBlinkFrequency(); // reset blinkFrequency after every blink?
+        blinkFrequency = SetBlinkFrequency();  // reset blinkFrequency after every blink?
         return -1;
-        // make this a random chance that gets more likely over time, based on blinkFrequency?
+        // make this a random chance that gets more likely over time, based on
+        // blinkFrequency?
       } else {
         return 0;
       }
@@ -43,12 +44,12 @@ int LurkerSprite::Blink() {
       return -1;
     }
   }
-  
+
   if (blinkDirection == 1) {
     if (eyeColor >= eyeMaxColor) {
       // we have just completed a single blink
       // add a blink to our lifetime count
-      blinkCount ++;
+      blinkCount++;
       // and record the time as the end of the last blink
       lastBlinkTime = millis();
       // and stop blinking
@@ -58,17 +59,18 @@ int LurkerSprite::Blink() {
     }
   } else {
     debug(7);
-    return 0; // if blinkDirection's value gets messed up somehow and is not -1, 0, or 1, just set it to 0 for now. 
+    return 0;  // if blinkDirection's value gets messed up somehow and is not -1,
+               // 0, or 1, just set it to 0 for now.
   }
 }
-	
+
 bool LurkerSprite::Update() {
   // debug(eyeColor);
-  if (! this->UpdateNow()) {
-      return false;
+  if (!this->UpdateNow()) {
+    return false;
   }
 
-  if (! this->allowCreation()) {
+  if (!this->allowCreation()) {
     this->MarkDone();
     return false;
   }
@@ -79,74 +81,78 @@ bool LurkerSprite::Update() {
   // close or open the eyes a step by adding blinkDirection to eye color
   eyeColor += blinkDirection;
 
-  this->eyes[0] = colorSets[colorPalette][eyeColor]; // colorSets[2][eyeColor];
-  this->eyes[eyeWidth] = colorSets[colorPalette][eyeColor]; // colorSets[2][eyeColor]; 
+  this->eyes[0] = colorSets[colorPalette][eyeColor];         // colorSets[2][eyeColor];
+  this->eyes[eyeWidth] = colorSets[colorPalette][eyeColor];  // colorSets[2][eyeColor];
 
   stripcpy(leds, eyes, currentPixel, eyeLength, eyeLength);
   return true;
 }
 
-
 bool LoopTestSprite::Update() {
-    if (! this->UpdateNow()) {
-        return false;
-    }
+  if (!this->UpdateNow()) {
+    return false;
+  }
 
-// debug(nextInflection);
-    // Going from scanning to travel mode.
-    if (isScanning && scanCount == scanCountTotal) {
-        isScanning = false;
-        currentPixel += 8;
-        SetNextInflection();
-        this->scanCount = 0;
-        this->scanCountTotal = GetNewScanCountTotal(); // set to 1 for fragments
-        this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
-        leds[currentPixel - 6] = CRGB::Black;
-        leds[currentPixel - 8] = CRGB::Black;
-        leds[currentPixel - 9] = CRGB::Black;	 // I hate this. One-off to get rid of the straggler when coming out of scan mode.
-        leds[currentPixel - 10] = CRGB::Black;
-    }
+  // debug(nextInflection);
+  // Going from scanning to travel mode.
+  if (isScanning && scanCount == scanCountTotal) {
+    isScanning = false;
+    currentPixel += 8;
+    SetNextInflection();
+    this->scanCount = 0;
+    this->scanCountTotal = GetNewScanCountTotal();  // set to 1 for fragments
+    this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
+    leds[currentPixel - 6] = CRGB::Black;
+    leds[currentPixel - 8] = CRGB::Black;
+    leds[currentPixel - 9] = CRGB::Black;  // I hate this. One-off to get rid of
+                                           // the straggler when coming out of
+                                           // scan mode.
+    leds[currentPixel - 10] = CRGB::Black;
+  }
 
-    if (! isScanning) {
-        // Traveling and continuing to travel.
-        stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
-        ++currentPixel;
+  if (!isScanning) {
+    // Traveling and continuing to travel.
+    stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
+    ++currentPixel;
 
-        if (currentPixel >= nextInflection - (SCANNER_DELAY_INTERVAL_IN_MS - 1)) {
-            updateInterval += 1;
-        } else {
-            updateInterval -= 1;
-        }
-
-        if (updateInterval < 1) {
-            updateInterval = 1;
-        } else if (updateInterval > SPRITE_STARTING_DELAY_INTERVAL_IN_MS) {
-            updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
-        }
-
-        // Transition from travel mode to scanning.
-        if (currentPixel >= nextInflection) {
-            // Safety. Since I don't trust my math, once we enter scanning mode, ALWAYS go back to the constant speed for scanning
-            // regardless of what the math said.
-            updateInterval = SCANNER_DELAY_INTERVAL_IN_MS;
-            isScanning = true;
-            scanningFrame = 0;
-            currentPixel -= 8;
-        }
-
-        if (currentPixel > NUM_LEDS) {
-            this->MarkDone();
-        }
+    if (currentPixel >= nextInflection - (SCANNER_DELAY_INTERVAL_IN_MS - 1)) {
+      updateInterval += 1;
     } else {
-        stripcpy(leds, af_l_pulsar_a + afc_l_pulsar_a_ANIMATION_FRAME_WIDTH * scanningFrame, currentPixel, afc_l_pulsar_a_ANIMATION_FRAME_WIDTH, afc_l_pulsar_a_ANIMATION_FRAME_WIDTH);
-        if (++scanningFrame == afc_l_pulsar_a_ANIMATION_FRAMES) {
-            scanningFrame = 0;
-            ++scanCount;
-            // SetNextInflection();
-        }
+      updateInterval -= 1;
     }
 
-    return true;
+    if (updateInterval < 1) {
+      updateInterval = 1;
+    } else if (updateInterval > SPRITE_STARTING_DELAY_INTERVAL_IN_MS) {
+      updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
+    }
+
+    // Transition from travel mode to scanning.
+    if (currentPixel >= nextInflection) {
+      // Safety. Since I don't trust my math, once we enter scanning mode,
+      // ALWAYS go back to the constant speed for scanning
+      // regardless of what the math said.
+      updateInterval = SCANNER_DELAY_INTERVAL_IN_MS;
+      isScanning = true;
+      scanningFrame = 0;
+      currentPixel -= 8;
+    }
+
+    if (currentPixel > NUM_LEDS) {
+      this->MarkDone();
+    }
+  } else {
+    stripcpy(leds, af_l_pulsar_a + afc_l_pulsar_a_ANIMATION_FRAME_WIDTH * scanningFrame,
+             currentPixel, afc_l_pulsar_a_ANIMATION_FRAME_WIDTH,
+             afc_l_pulsar_a_ANIMATION_FRAME_WIDTH);
+    if (++scanningFrame == afc_l_pulsar_a_ANIMATION_FRAMES) {
+      scanningFrame = 0;
+      ++scanCount;
+      // SetNextInflection();
+    }
+  }
+
+  return true;
 }
 
 void FaerieSprite::StartTravel() {
@@ -165,13 +171,15 @@ void FaerieSprite::StartTravel() {
   // delay(1000);
   totalTravelDistance = DistanceFromDestination();
   this->idleCount = 0;
-  this->idleCountTotal = GetNewidleCountTotal(); // set to 1 for fragments
+  this->idleCountTotal = GetNewidleCountTotal();  // set to 1 for fragments
 
-  isWaiting ? this->updateInterval = SetWaitInterval() : this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
+  isWaiting ? this->updateInterval = SetWaitInterval()
+            : this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
   this->brakePercentage = SetBrakePercentage();
 
   // debug(updateInterval);
-  // need to set a bool here so that updateTravel() knows to fade the values towards 848?
+  // need to set a bool here so that updateTravel() knows to fade the values
+  // towards 848?
   // idleToTravel
   this->pixelA = 6;
   this->pixelB = 8;
@@ -182,15 +190,16 @@ void FaerieSprite::StartTravel() {
 bool FaerieSprite::UpdateTravel() {
   // First, write current CRGB pattern to leds
   stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
-  
+
   // set dim factor
   dimFactor = SetDimFactor(updateInterval);
-  
+
   // step backwards and fade the trail
   DimTrail(currentPixel, dimFactor, -1);
-  DimTrail(currentPixel+3, dimFactor, 1);
+  DimTrail(currentPixel + 3, dimFactor, 1);
 
-  // Next up, prepare for the next UpdateTravel() by moving currentPixel, and setting the next updateInterval value
+  // Next up, prepare for the next UpdateTravel() by moving currentPixel, and
+  // setting the next updateInterval value
 
   currentPixel += TravelDirection();
   currentDistance = DistanceFromDestination();
@@ -201,13 +210,14 @@ bool FaerieSprite::UpdateTravel() {
 
   if (updateInterval < minInterval) {
     updateInterval = minInterval;
-  } 
-  
+  }
+
   if (updateInterval > maxInterval) {
     updateInterval = maxInterval;
   }
-  
-  // If we have reached the destination pixel, our next stop is running the idle animation
+
+  // If we have reached the destination pixel, our next stop is running the idle
+  // animation
   if (currentDistance == 0) {
     StartIdle();
   }
@@ -224,24 +234,26 @@ bool FaerieSprite::UpdateTravel() {
 }
 
 bool FaerieSprite::StartIdle() {
-  // If we're in wait mode, we'll count one instance of running an idle animation as one "wait" cycle, which is a series of small moves, in random directions, and idle cycles. 
+  // If we're in wait mode, we'll count one instance of running an idle
+  // animation as one "wait" cycle, which is a series of small moves, in random
+  // directions, and idle cycles.
   if (isWaiting) {
     waitCount++;
   } else {
     isWaiting = true;
   }
-  
+
   dimFactor = 128;
-  
+
   // Transition from travel mode to loop mode
   updateInterval = 1;
   isIdling = true;
   idlingFrame = 0;
-  
-  currentPixel -= 0; // pretty sure we don't need this unless we're doing char animation
-  
+
+  currentPixel -= 0;  // pretty sure we don't need this unless we're doing char animation
+
   fadeSteps = 0;
-  
+
   return true;
 }
 
@@ -250,9 +262,9 @@ bool FaerieSprite::UpdateIdle() {
     pixelA = IdlePixelA(idlingFrame);
     pixelB = IdlePixelB(idlingFrame);
     pixelC = IdlePixelC(idlingFrame);
-  
+
     updateInterval += AccelerateIdle(idlingFrame);
-  
+
     fadeSteps = 0;
     idlingFrame++;
   } else {
@@ -270,136 +282,145 @@ bool FaerieSprite::UpdateIdle() {
   if (EffectiveFrame(idlingFrame) == 0) {
     ++idleCount;
   }
-  
+
   return true;
 }
-	
 
 bool FragmentTestSprite::Update() {
-    if (! this->UpdateNow()) {
-        return false;
-    }
+  if (!this->UpdateNow()) {
+    return false;
+  }
 
-// debug(2);
-    // Going from scanning to travel mode.
-    if (isScanning && scanCount == scanCountTotal) { // >= ?
-        isScanning = false;
-        currentPixel += afc_l_pulsar_a_ANIMATION_FRAME_WIDTH; // 8
-        currentPixel -= 8;
-        SetNextInflection();
-        this->scanCount = 0;
-        this->scanCountTotal = GetNewScanCountTotal();
-        this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
-        leds[currentPixel - 6] = CRGB::Black;
-        leds[currentPixel - 8] = CRGB::Black;
-        leds[currentPixel - 9] = CRGB::Black;	 // I hate this. One-off to get rid of the straggler when coming out of scan mode.
-        leds[currentPixel - 10] = CRGB::Black;
-  // debug(3);
-    }
+  // debug(2);
+  // Going from scanning to travel mode.
+  if (isScanning && scanCount == scanCountTotal) {  // >= ?
+    isScanning = false;
+    currentPixel += afc_l_pulsar_a_ANIMATION_FRAME_WIDTH;  // 8
+    currentPixel -= 8;
+    SetNextInflection();
+    this->scanCount = 0;
+    this->scanCountTotal = GetNewScanCountTotal();
+    this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
+    leds[currentPixel - 6] = CRGB::Black;
+    leds[currentPixel - 8] = CRGB::Black;
+    leds[currentPixel - 9] = CRGB::Black;  // I hate this. One-off to get rid of
+                                           // the straggler when coming out of
+                                           // scan mode.
+    leds[currentPixel - 10] = CRGB::Black;
+    // debug(3);
+  }
 
-    if (! isScanning) {
-        // Traveling and continuing to travel.
-  // debug(4);
-        stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
-        ++currentPixel;
+  if (!isScanning) {
+    // Traveling and continuing to travel.
+    // debug(4);
+    stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
+    ++currentPixel;
 
-        if (currentPixel >= nextInflection - (SCANNER_DELAY_INTERVAL_IN_MS - 1)) {
-            updateInterval += 1;
-        } else {
-            updateInterval -= 1;
-        }
-
-        if (updateInterval < 1) {
-            updateInterval = 1;
-        } else if (updateInterval > SPRITE_STARTING_DELAY_INTERVAL_IN_MS) {
-            updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
-        }
-
-        // Transition from travel mode to scanning.
-        if (currentPixel >= nextInflection) {
-    // debug(5);
-            // Safety. Since I don't trust my math, once we enter scanning mode, ALWAYS go back to the constant speed for scanning
-            // regardless of what the math said.
-            updateInterval = SCANNER_DELAY_INTERVAL_IN_MS;
-            isScanning = true;
-            scanningFrame = 0;
-            currentPixel += 1; // -8 normally
-        }
-
-        if (currentPixel > NUM_LEDS) {
-            this->MarkDone();
-        }
+    if (currentPixel >= nextInflection - (SCANNER_DELAY_INTERVAL_IN_MS - 1)) {
+      updateInterval += 1;
     } else {
-  // debug(6);
-        stripcpy(leds, af_l_pulsar_a + afc_l_pulsar_a_ANIMATION_FRAME_WIDTH * scanningFrame, currentPixel, afc_l_pulsar_a_ANIMATION_FRAME_WIDTH, afc_l_pulsar_a_ANIMATION_FRAME_WIDTH);
-        if (++scanningFrame == afc_l_pulsar_a_ANIMATION_FRAMES) {
-            scanningFrame = 0;
-            ++scanCount;
-            // SetNextInflection();
-        }
+      updateInterval -= 1;
     }
 
-    return true;
+    if (updateInterval < 1) {
+      updateInterval = 1;
+    } else if (updateInterval > SPRITE_STARTING_DELAY_INTERVAL_IN_MS) {
+      updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
+    }
+
+    // Transition from travel mode to scanning.
+    if (currentPixel >= nextInflection) {
+      // debug(5);
+      // Safety. Since I don't trust my math, once we enter scanning mode,
+      // ALWAYS go back to the constant speed for scanning
+      // regardless of what the math said.
+      updateInterval = SCANNER_DELAY_INTERVAL_IN_MS;
+      isScanning = true;
+      scanningFrame = 0;
+      currentPixel += 1;  // -8 normally
+    }
+
+    if (currentPixel > NUM_LEDS) {
+      this->MarkDone();
+    }
+  } else {
+    // debug(6);
+    stripcpy(leds, af_l_pulsar_a + afc_l_pulsar_a_ANIMATION_FRAME_WIDTH * scanningFrame,
+             currentPixel, afc_l_pulsar_a_ANIMATION_FRAME_WIDTH,
+             afc_l_pulsar_a_ANIMATION_FRAME_WIDTH);
+    if (++scanningFrame == afc_l_pulsar_a_ANIMATION_FRAMES) {
+      scanningFrame = 0;
+      ++scanCount;
+      // SetNextInflection();
+    }
+  }
+
+  return true;
 }
-		
+
 bool W8V1ScannerDebrisV1ReverseSprite::Update() {
-    if (! this->UpdateNow()) {
-        return false;
-    }
+  if (!this->UpdateNow()) {
+    return false;
+  }
 
-    // Going from scanning to travel mode.
-    if (isScanning && scanCount == scanCountTotal) {
-        isScanning = false;
-        scanCount = 0;
-        currentPixel += 2;
-        SetNextInflection();
-        this->scanCount = 0;
-        this->scanCountTotal = GetNewScanCountTotal();
-        this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
-        leds[currentPixel + 6] = CRGB::Black;
-        leds[currentPixel + 8] = CRGB::Black;
-        leds[currentPixel + 9] = CRGB::Black;	 // I hate this. One-off to get rid of the straggler when coming out of scan mode.
-        leds[currentPixel + 10] = CRGB::Black;
-    }
+  // Going from scanning to travel mode.
+  if (isScanning && scanCount == scanCountTotal) {
+    isScanning = false;
+    scanCount = 0;
+    currentPixel += 2;
+    SetNextInflection();
+    this->scanCount = 0;
+    this->scanCountTotal = GetNewScanCountTotal();
+    this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
+    leds[currentPixel + 6] = CRGB::Black;
+    leds[currentPixel + 8] = CRGB::Black;
+    leds[currentPixel + 9] = CRGB::Black;  // I hate this. One-off to get rid of
+                                           // the straggler when coming out of
+                                           // scan mode.
+    leds[currentPixel + 10] = CRGB::Black;
+  }
 
-    if (! isScanning) {
-        // Traveling and continuing to travel.
-        stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
-        currentPixel -= velocity;
+  if (!isScanning) {
+    // Traveling and continuing to travel.
+    stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
+    currentPixel -= velocity;
 
-        // Are we nearer the last inflection than the next inflection? If so, speed up. Otherwise, slow down.
-        if (currentPixel <= nextInflection - (SCANNER_DELAY_INTERVAL_IN_MS - 1)) {
-            updateInterval += 1;
-        } else {
-            updateInterval -= 1;
-        }
-
-        if (updateInterval < 1) {
-            updateInterval = 1;
-        } else if (updateInterval > SPRITE_STARTING_DELAY_INTERVAL_IN_MS) {
-            updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
-        }
-
-        if (currentPixel <= nextInflection) {
-            // Safety. Since I don't trust my math, once we enter scanning mode, ALWAYS go back to the constant speed for scanning
-            // regardless of what the math said.
-            updateInterval = SCANNER_DELAY_INTERVAL_IN_MS;
-            isScanning = true;
-            scanningFrame = 0;
-            currentPixel -= 3;
-        }
-
-        if (currentPixel <= -10) {
-            this->MarkDone();
-        }
+    // Are we nearer the last inflection than the next inflection? If so, speed
+    // up. Otherwise, slow down.
+    if (currentPixel <= nextInflection - (SCANNER_DELAY_INTERVAL_IN_MS - 1)) {
+      updateInterval += 1;
     } else {
-        stripcpy(leds, af_w8v1r + ANIMATION_FRAME_WIDTH * scanningFrame, currentPixel, ANIMATION_FRAME_WIDTH, ANIMATION_FRAME_WIDTH);
-        if (++scanningFrame == ANIMATION_FRAMES) {
-            scanningFrame = 0;
-            ++scanCount;
-            // SetNextInflection();
-        }
+      updateInterval -= 1;
     }
 
-    return true;
+    if (updateInterval < 1) {
+      updateInterval = 1;
+    } else if (updateInterval > SPRITE_STARTING_DELAY_INTERVAL_IN_MS) {
+      updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
+    }
+
+    if (currentPixel <= nextInflection) {
+      // Safety. Since I don't trust my math, once we enter scanning mode,
+      // ALWAYS go back to the constant speed for scanning
+      // regardless of what the math said.
+      updateInterval = SCANNER_DELAY_INTERVAL_IN_MS;
+      isScanning = true;
+      scanningFrame = 0;
+      currentPixel -= 3;
+    }
+
+    if (currentPixel <= -10) {
+      this->MarkDone();
+    }
+  } else {
+    stripcpy(leds, af_w8v1r + ANIMATION_FRAME_WIDTH * scanningFrame, currentPixel,
+             ANIMATION_FRAME_WIDTH, ANIMATION_FRAME_WIDTH);
+    if (++scanningFrame == ANIMATION_FRAMES) {
+      scanningFrame = 0;
+      ++scanCount;
+      // SetNextInflection();
+    }
+  }
+
+  return true;
 }
