@@ -1918,6 +1918,8 @@ void setup() {
 		bool placeLurkers = false;			// TODO Dimly lights up range of pixels where lurkers are "allowed" to spawn, for install time
 		bool placeTrees = false;				// TODO Dimly lights up range of pixels green where trees are defined, also for installs
 		bool placeNoIdle;
+		bool tuneInterval;
+		bool burnNight;									// TODO Sprites go from 4 to 25 slowly over the course of the night, and motion sensor timeout is reduced to 1 second. 
 		*/
 
 		isBooted = false;
