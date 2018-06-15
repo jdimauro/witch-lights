@@ -244,7 +244,7 @@ class SpriteVector {
 		Sprite **sprites;
 		int maxCapacity;
 		int count;
-
+		
 	public:
 		SpriteVector(int maxCap) {
 			this->count = 0;
@@ -815,6 +815,7 @@ private:
 		return random(FAERIE_MAX_TRAIL_LENGTH, FAERIE_MIN_TRAIL_LENGTH) + 1;
 	}
 
+	// TODO define global constants for brake and acceleration factor ranges
 	float SetBrakeFactor(bool waiting) {
 		if (!waiting) {
 			return (random(500,900) + 1) / 100;
@@ -848,7 +849,9 @@ private:
 	int ReturnClosestPixel(int pixel, int minpix, int maxpix) {
 		int minDistance = abs(pixel - minpix);
 		int maxDistance = abs(pixel - maxpix);
-		return (minDistance - maxDistance < 0) ? (minpix - random(3,6)) : (maxpix + random(3,6));
+		// return (minDistance - maxDistance < 0) ? (minpix - random(3,6)) : (maxpix + random(3,6));
+		return (minDistance - maxDistance < 0) ? (minpix - minDistance) : (maxpix + maxDistance);
+		
 	}
 
 	int CoerceTargetPixel(int targetPixel) {
