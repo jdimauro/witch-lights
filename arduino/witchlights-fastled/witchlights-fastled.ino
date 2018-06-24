@@ -956,7 +956,7 @@ private:
 	float SetBrakePercentage() {
 		// TODO: map distance of move to brake percentage, brakefactor, accelerationfactor
 		if (!isWaiting) {
-			return .12;
+			return .12;	// TODO - set this with a constant
 		} else {
 			return .45;
 		}
@@ -1111,6 +1111,7 @@ private:
 			StartIdle();
 		}
 
+		// TODO - make this work with whatever pixel is specified as the terminal pixel, with the comparison working with either direction?
 		// Terminate if we go off the end of the strip
 		if (currentPixel > NUM_LEDS) {
 			FadeOutTrail(NUM_LEDS - 1, 255, -1);
@@ -1181,16 +1182,17 @@ private:
 		
 	}
 
+	// TODO set a start pixel and an "end" pixel (for the end condition; either 0 or NUM_LEDS in most cases)
 public:
-	FaerieSprite(int travelDirection) : Sprite() {
+	FaerieSprite(int travelDirection, int startPixel, int terminalPixel) : Sprite() {
 		// Initial state.
-		this->currentPixel = -3; // TODO 
+		this->currentPixel = startPixel; // DONE - set currentPixel as a parameter
 		this->idlingFrame = 0;
 		this->isIdling = false;
 		this->isWaiting = false;
 		this->lastInflection = 0;
 		this->nextInflection = 0;
-		SetNextInflection();
+		SetNextInflection(); // TODO - have this accept travelDirection as a parameter, and use it when setting non-idle next inflection
 		this->idleCount = 0;
 		this->idleCountTotal = GetNewidleCountTotal();
 		this->waitCount = 0;
@@ -1966,7 +1968,7 @@ void loop() {
 		// Spawn lurkers randomly
 		if (random(0,1000) == 0 && spawnLurkers) {
 			// debug(3);
-			int lurkerSpawnPixel = random(40,149);
+			int lurkerSpawnPixel = random(40,149); // TODO - create array of lurker zones to use instead of the constants?
 			Sprite *s1 = new LurkerSprite(lurkerSpawnPixel,1); 
 			// TODO: check to see if another lurker already exists at this pixel, despawn if so
 		
@@ -1978,7 +1980,7 @@ void loop() {
 		}
 		
 		if (random(0,1000) == 0 && spawnFaeries) {
-			Sprite *s1 = new FaerieSprite(1); 
+			Sprite *s1 = new FaerieSprite(1, -3, NUM_LEDS); 
 		
 			if (! spriteManager->Add(s1)) {
 				delete s1;
@@ -1990,7 +1992,7 @@ void loop() {
 
 		if (sensor1->IsActuated()) {
 			debug(1);
-			Sprite *s1 = new FaerieSprite(1);
+			Sprite *s1 = new FaerieSprite(1, -3, NUM_LEDS);
 
 			if (! spriteManager->Add(s1)) {
 					delete s1;
@@ -2004,7 +2006,7 @@ void loop() {
 						delete s2;
 				}
 				*/
-			Sprite *s1 = new FaerieSprite(-1);
+			Sprite *s1 = new FaerieSprite(-1, NUM_LEDS + 3, 0);
 		}
 
 		spriteManager->Update();
