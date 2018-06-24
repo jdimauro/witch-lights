@@ -9,7 +9,7 @@
 bool debugMode = true;					// turns on debug() statements
 bool spawnLurkers = true;			// IMPORTANT: set to FALSE for all public video before Firefly 2018!
 bool randomInflection = false;	// Randomly makes faerie sprite dance back and forth, instead of mainly going "forwards". 
-bool spawnFaeries = true;				// TODO Spawn a new faerie randomly; helpful to keep a constant background of sprite animation for evaluation
+bool spawnFaeries = false;				// TODO Spawn a new faerie randomly; helpful to keep a constant background of sprite animation for evaluation
 bool placeLurkers = false;			// TODO Dimly lights up range of pixels where lurkers are "allowed" to spawn, for install time
 bool placeTrees = false;				// TODO Dimly lights up range of pixels green where trees are defined, also for installs
 bool placeNoIdle = false;				// TODO same, for specifying zones where faeries will not stop to idle
@@ -846,6 +846,8 @@ private:
 			// travelDirection is either 1 or -1
 			nextInflection += travelDistance * travelDirection;
 		}
+		if (nextInflection < 150) debug(nextInflection);
+		delay(1000);
 	}
 
 	int ReturnClosestPixel(int pixel, int minpix, int maxpix) {
@@ -869,7 +871,6 @@ private:
 		lastInflection = nextInflection;
 		int travelDistance = (random(FAERIE_FLIT_MIN_DISTANCE, FAERIE_FLIT_MAX_DISTANCE) + 1) * TravelDirectionSwitch();
 		nextInflection += travelDistance;
-		
 	}
 
 	int TravelDirectionSwitch() {
@@ -1041,6 +1042,7 @@ private:
 		if (direction <= 1) {
 			return this->currentPixel > NUM_LEDS ? true : false;
 		} else if (direction >= -1) {
+			debug(6);
 			return this->currentPixel < 0 ? true : false;
 		} else {
 			// something is very wrong if direction = 0
@@ -1124,9 +1126,9 @@ private:
 		
 		// Terminate if we go off the end of the strip		
 		if (CheckForTermination(travelDirection)) {
-			// debug(8);
+			debug(8);
 			FadeOutTrail(NUM_LEDS - 1, 255, -1);
-			FadeOutTrail(0, 255, 1);
+			FadeOutTrail(1, 255, 1);
 			this->MarkDone();
 		}
 		
@@ -1276,6 +1278,8 @@ public:
 				return false;
 		}
 
+		// if (travelDirection == -1) debug(6); // this test passed 2018-06-24
+
 		// Going from scanning to travel mode.
 		if (isIdling && idleCount == idleCountTotal) {
 		// need to put in a transition animation from idle to travel here?
@@ -1299,10 +1303,8 @@ public:
 		return true;
 	}
 
-	int ReportLocation() {
-		// return location to SpriteManager for collision detection
-		// TODO: if drawDirection = -1, return the pixel that it's being "drawn" on; subtract currentPixel from NUM_LEDS
-		
+	int CurrentPixel() {
+		// return location to SpriteManager for collision detection		
 		return currentPixel;
 	}
 };
@@ -2013,7 +2015,9 @@ void loop() {
 
 		if (sensor1->IsActuated()) {
 			debug(1);
-			Sprite *s1 = new FaerieSprite(1, -3);
+			// Sprite *s1 = new FaerieSprite(1, -3);
+			Sprite *s1 = new FaerieSprite(-1, 153);
+
 
 			if (! spriteManager->Add(s1)) {
 					delete s1;
