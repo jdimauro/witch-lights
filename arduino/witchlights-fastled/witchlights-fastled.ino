@@ -843,16 +843,15 @@ private:
 			nextInflection += travelDistance * TravelDirectionSwitch();
 			return;
 		} else {
-			nextInflection += travelDistance;
+			// travelDirection is either 1 or -1
+			nextInflection += travelDistance * travelDirection;
 		}
 	}
 
 	int ReturnClosestPixel(int pixel, int minpix, int maxpix) {
 		int minDistance = abs(pixel - minpix);
 		int maxDistance = abs(pixel - maxpix);
-		// return (minDistance - maxDistance < 0) ? (minpix - random(3,6)) : (maxpix + random(3,6));
 		return (minDistance - maxDistance < 0) ? (minpix - minDistance) : (maxpix + maxDistance);
-		
 	}
 
 	int CoerceTargetPixel(int targetPixel) {
@@ -861,7 +860,6 @@ private:
 				return ReturnClosestPixel(targetPixel, minNoIdle[i], maxNoIdle[i]);
 			}
 		}
-
 		return targetPixel;
 	}
 	
@@ -1123,20 +1121,18 @@ private:
 		if (currentDistance == 0) {
 			StartIdle();
 		}
-
-		// TODO - make this work with whatever pixel is specified as the terminal pixel, with the comparison working with either direction?
-		// Terminate if we go off the end of the strip
 		
+		// Terminate if we go off the end of the strip		
 		if (CheckForTermination(travelDirection)) {
 			// debug(8);
-			FadeOutTrail(NUM_LEDS - 1, 255, -1); // TODO - make this work on each end of the LED strip
-			// FadeOutTrail(0, 255, 1);
+			FadeOutTrail(NUM_LEDS - 1, 255, -1);
+			FadeOutTrail(0, 255, 1);
 			this->MarkDone();
 		}
 		
 		/*
 		if (currentPixel > NUM_LEDS) {
-			FadeOutTrail(NUM_LEDS - 1, 255, -1); // TODO - make this work on each end of the LED strip
+			FadeOutTrail(NUM_LEDS - 1, 255, -1); 
 			// FadeOutTrail(0, 255, 1);
 			this->MarkDone();
 		}
