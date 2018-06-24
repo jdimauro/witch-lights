@@ -1182,9 +1182,9 @@ private:
 	}
 
 public:
-	FaerieSprite() : Sprite() {
+	FaerieSprite(int travelDirection) : Sprite() {
 		// Initial state.
-		this->currentPixel = -3;
+		this->currentPixel = -3; // TODO 
 		this->idlingFrame = 0;
 		this->isIdling = false;
 		this->isWaiting = false;
@@ -1958,7 +1958,6 @@ void loop() {
 
 				if (spriteManager->SpriteCount() == 0) {
 					isBooted = true;
-					Sprite *s1 = new FaerieSprite();
 				}
 
 				return;
@@ -1979,7 +1978,7 @@ void loop() {
 		}
 		
 		if (random(0,1000) == 0 && spawnFaeries) {
-			Sprite *s1 = new FaerieSprite(); 
+			Sprite *s1 = new FaerieSprite(1); 
 		
 			if (! spriteManager->Add(s1)) {
 				delete s1;
@@ -1991,7 +1990,7 @@ void loop() {
 
 		if (sensor1->IsActuated()) {
 			debug(1);
-			Sprite *s1 = new FaerieSprite();
+			Sprite *s1 = new FaerieSprite(1);
 
 			if (! spriteManager->Add(s1)) {
 					delete s1;
@@ -2005,6 +2004,7 @@ void loop() {
 						delete s2;
 				}
 				*/
+			Sprite *s1 = new FaerieSprite(-1);
 		}
 
 		spriteManager->Update();
