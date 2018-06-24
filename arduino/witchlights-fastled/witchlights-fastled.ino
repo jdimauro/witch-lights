@@ -772,6 +772,7 @@ private:
 	int maxInterval;
 	int currentPixel;
 	int currentLocation;
+	int travelDirection;
 	bool isIdling;
 	int idlingFrame;
 	bool isWaiting;
@@ -1038,6 +1039,18 @@ private:
 	}
 	
 
+	bool CheckForTermination(int direction) {
+		if (direction <= 1) {
+			return this->currentPixel > NUM_LEDS ? true : false;
+		} else if (direction >= -1) {
+			return this->currentPixel < 0 ? true : false;
+		} else {
+			// something is very wrong if direction = 0
+			debug(10);
+			return true;
+		}
+	}
+
 	/*	
 	void JitterLocation() {
 
@@ -1113,10 +1126,21 @@ private:
 
 		// TODO - make this work with whatever pixel is specified as the terminal pixel, with the comparison working with either direction?
 		// Terminate if we go off the end of the strip
-		if (currentPixel > NUM_LEDS) {
-			FadeOutTrail(NUM_LEDS - 1, 255, -1);
+		
+		if (CheckForTermination(travelDirection)) {
+			// debug(8);
+			FadeOutTrail(NUM_LEDS - 1, 255, -1); // TODO - make this work on each end of the LED strip
+			// FadeOutTrail(0, 255, 1);
 			this->MarkDone();
 		}
+		
+		/*
+		if (currentPixel > NUM_LEDS) {
+			FadeOutTrail(NUM_LEDS - 1, 255, -1); // TODO - make this work on each end of the LED strip
+			// FadeOutTrail(0, 255, 1);
+			this->MarkDone();
+		}
+		*/
 
 		return true;
 	}
@@ -1184,9 +1208,10 @@ private:
 
 	// TODO set a start pixel and an "end" pixel (for the end condition; either 0 or NUM_LEDS in most cases)
 public:
-	FaerieSprite(int travelDirection, int startPixel, int terminalPixel) : Sprite() {
+	FaerieSprite(int direction, int start) : Sprite() {
 		// Initial state.
-		this->currentPixel = startPixel; // DONE - set currentPixel as a parameter
+		this->currentPixel = start; // DONE - set currentPixel as a parameter
+		this->travelDirection = direction;
 		this->idlingFrame = 0;
 		this->isIdling = false;
 		this->isWaiting = false;
@@ -1980,7 +2005,7 @@ void loop() {
 		}
 		
 		if (random(0,1000) == 0 && spawnFaeries) {
-			Sprite *s1 = new FaerieSprite(1, -3, NUM_LEDS); 
+			Sprite *s1 = new FaerieSprite(1, -3); 
 		
 			if (! spriteManager->Add(s1)) {
 				delete s1;
@@ -1992,7 +2017,7 @@ void loop() {
 
 		if (sensor1->IsActuated()) {
 			debug(1);
-			Sprite *s1 = new FaerieSprite(1, -3, NUM_LEDS);
+			Sprite *s1 = new FaerieSprite(1, -3);
 
 			if (! spriteManager->Add(s1)) {
 					delete s1;
@@ -2006,7 +2031,7 @@ void loop() {
 						delete s2;
 				}
 				*/
-			Sprite *s1 = new FaerieSprite(-1, NUM_LEDS + 3, 0);
+			Sprite *s1 = new FaerieSprite(-1, NUM_LEDS + 3);
 		}
 
 		spriteManager->Update();
