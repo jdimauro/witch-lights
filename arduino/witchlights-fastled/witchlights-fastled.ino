@@ -1127,7 +1127,7 @@ private:
 		// Terminate if we go off the end of the strip		
 		if (CheckForTermination(travelDirection)) {
 			FadeOutTrail(NUM_LEDS - 1, 255, -1);
-			FadeOutTrail(1, 255, 1);
+			FadeOutTrail(0, 255, 1);
 			// debug(2);
 			this->MarkDone();
 		}
@@ -2014,10 +2014,9 @@ void loop() {
 		}
 
 		if (sensor1->IsActuated()) {
-			debug(1);
-			// Sprite *s1 = new FaerieSprite(1, -3);
-			Sprite *s1 = new FaerieSprite(-1, 153);
-
+			// debug(1);
+			// Sprite *s1 = new FaerieSprite(1, -3); // production
+			Sprite *s1 = new FaerieSprite(-1, 153); // For testing
 
 			if (! spriteManager->Add(s1)) {
 					delete s1;
@@ -2025,13 +2024,11 @@ void loop() {
 		}
 
 		if (sensor2->IsActuated()) {
-				//Sprite *s2 = new W8V1ScannerDebrisV1ReverseSprite();
-				/*
-				if (! spriteManager->Add(s2)) {
-						delete s2;
-				}
-				*/
-			Sprite *s1 = new FaerieSprite(-1, NUM_LEDS + 3);
+			Sprite *s2 = new FaerieSprite(-1, NUM_LEDS + 3);
+			
+			if (! spriteManager->Add(s2)) {
+				delete s2;
+			}
 		}
 
 		spriteManager->Update();
