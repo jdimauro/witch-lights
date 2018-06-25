@@ -846,8 +846,8 @@ private:
 			// travelDirection is either 1 or -1
 			nextInflection += travelDistance * travelDirection;
 		}
-		if (nextInflection < 150) debug(nextInflection);
-		delay(1000);
+		// if (nextInflection < 150) debug(nextInflection);
+		// delay(1000);
 	}
 
 	int ReturnClosestPixel(int pixel, int minpix, int maxpix) {
@@ -1128,7 +1128,7 @@ private:
 		if (CheckForTermination(travelDirection)) {
 			FadeOutTrail(NUM_LEDS - 1, 255, -1);
 			FadeOutTrail(1, 255, 1);
-			debug(2);
+			// debug(2);
 			this->MarkDone();
 		}
 		
