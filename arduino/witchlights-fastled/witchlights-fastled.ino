@@ -1126,9 +1126,9 @@ private:
 		
 		// Terminate if we go off the end of the strip		
 		if (CheckForTermination(travelDirection)) {
-			// debug(8);
 			FadeOutTrail(NUM_LEDS - 1, 255, -1);
 			FadeOutTrail(1, 255, 1);
+			debug(2);
 			this->MarkDone();
 		}
 		
