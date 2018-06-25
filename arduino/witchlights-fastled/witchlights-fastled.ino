@@ -1039,10 +1039,10 @@ private:
 	
 
 	bool CheckForTermination(int direction) {
-		if (direction <= 1) {
+		if (direction >= 1) {
 			return this->currentPixel > NUM_LEDS ? true : false;
-		} else if (direction >= -1) {
-			debug(6);
+		} else if (direction <= -1) {
+			// debug(6);
 			return this->currentPixel < 0 ? true : false;
 		} else {
 			// something is very wrong if direction = 0
@@ -1126,7 +1126,7 @@ private:
 		
 		// Terminate if we go off the end of the strip		
 		if (CheckForTermination(travelDirection)) {
-			debug(8);
+			// debug(8);
 			FadeOutTrail(NUM_LEDS - 1, 255, -1);
 			FadeOutTrail(1, 255, 1);
 			this->MarkDone();
