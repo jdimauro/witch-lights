@@ -1214,7 +1214,7 @@ public:
 		this->isIdling = false;
 		this->isWaiting = false;
 		this->lastInflection = 0;
-		this->nextInflection = 0;
+		this->nextInflection = start;
 		SetNextInflection(); // TODO - have this accept travelDirection as a parameter, and use it when setting non-idle next inflection
 		this->idleCount = 0;
 		this->idleCountTotal = GetNewidleCountTotal();
