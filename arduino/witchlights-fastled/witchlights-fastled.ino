@@ -1975,6 +1975,8 @@ void setup() {
 		pinMode(DEBUG_INTERVAL, INPUT_PULLUP);
 		pinMode(DEBUG_INFLECTION, INPUT_PULLUP);
 		
+		digitalRead(SPAWN_LURKERS_PIN) == LOW ? spawnLurkers = true : spawnLurkers = false;
+		
 		isBooted = false;
 		testSpritesCreated = false;
 
