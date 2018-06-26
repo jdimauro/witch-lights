@@ -15,18 +15,28 @@ bool placeTrees = false;				// TODO Dimly lights up range of pixels green where 
 bool placeNoIdle = false;				// TODO same, for specifying zones where faeries will not stop to idle
 
 // FastLED constants
-#define NUM_LEDS							750 // 750 or 600 in production
-#define MAXSPRITES						20
+#define NUM_LEDS							750 						// 750 or 600 in production
+#define MAXSPRITES						20							// 4 in production
 
 #define NUM_COLORSETS					5
 #define NUM_COLORS_PER_SET		9
 
 // Data pins
-#define PIR_SENSOR_1_PIN		 3
-#define PIR_SENSOR_2_PIN		 4
-#define NEOPIXEL_DATA_PIN		 6								// Pin for neopixels
+#define PIR_SENSOR_1_PIN		 	3
+#define PIR_SENSOR_2_PIN		 	4
+#define NEOPIXEL_DATA_PIN			6								// Pin for neopixels
 
-// Sensor time-out (in production, set tp 10000)
+// Mode pins
+#define SPAWN_LURKERS_PIN			52							// "Inside" pin row
+#define SPAWN_FAERIES_PIN			50
+#define BURN_NIGHT_PIN				48
+#define PLACE_LURKERS_PIN			53							// "Outside" pin row
+#define PLACE_TREES_PIN				51
+#define PLACE_NOIDLE_PIN			49
+#define DEBUG_INTERVAL				47
+#define DEBUG_INFLECTION			45
+
+// Sensor time-out (in production, set to 10000)
 #define INFRARED_SENSOR_TIMEOUT_IN_MS		1000	// in milliseconds
 
 #define SCANNER_SPRITE_FRAME_DELAY_IN_MS			1
