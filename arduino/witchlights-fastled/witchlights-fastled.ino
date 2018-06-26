@@ -16,7 +16,8 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 
 // FastLED constants
 #define NUM_LEDS							750 // 750 or 600 in production
-#define MAXSPRITES						20
+#define MAXSPRITES						20  // All non-lurker sprites
+#define MAXLURKERS						60
 
 #define NUM_COLORSETS					5
 #define NUM_COLORS_PER_SET		9
@@ -64,6 +65,8 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 
 // lurker sprite constants
 
+#define COLLISION_DISTANCE					5
+
 #define BLINK_SPRITE_MIN_LIFETIME		3
 #define BLINK_SPRITE_MAX_LIFETIME		12		// # of blinks before dying
 
@@ -79,8 +82,8 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define LURKER_BLINK_SHUT_MIN_TIMING	50
 #define LURKER_BLINK_SHUT_MAX_TIMING	500
 
-#define LURKER_MIN_PIXEL_1	40
-#define LURKER_MAX_PIXEL_1	75
+#define LURKER_MIN_PIXEL_1	5				// 40
+#define LURKER_MAX_PIXEL_1	749				// 75
 #define LURKER_MIN_PIXEL_2	120
 #define LURKER_MAX_PIXEL_2	148
 #define LURKER_MIN_PIXEL_3	400
@@ -211,6 +214,18 @@ class Sprite {
 		}
 
 		virtual bool Update() = 0;
+		
+		// virtual bool HasCollided(Sprite *otherSprite) = 0;
+		//
+		// virtual bool Collide() = 0;
+
+		bool HasCollided(Sprite *otherSprite) {
+			return false;
+		}
+		
+		bool Collide() {
+			return false;
+		}
 
 		bool allowCreation() {
 				return true;		// Always true, no reason to veto this one.
@@ -232,16 +247,18 @@ class Sprite {
 		bool IsDone() {
 				return this->done;
 		}
-
+		int currentPixel;
+		
 	protected:
 		uint32_t lastUpdateTime;
 		int updateInterval;
 		boolean done;
+
 };
 
 class SpriteVector {
 	private:
-		Sprite **sprites;
+		Sprite **sprites; // pointers and arrays are the same thing in C++; * = pointer to sprite, ** = an array of pointers to sprites
 		int maxCapacity;
 		int count;
 		
@@ -259,20 +276,20 @@ class SpriteVector {
 		~SpriteVector() {
 		}
 
-		Sprite *Get(int i) {
+		Sprite *Get(int i) {						// Get method returns a pointer to a sprite; return type of Sprite *
 			if (i < this->count) {
-				return sprites[i];
+				return sprites[i];					// returns pointer to sprite
 			} else {
 				return NULL;
 			}
 		}
 
-		boolean Add(Sprite *sprite) {
+		boolean Add(Sprite *sprite) {		// the name *sprite in this method call exists only within the method call, and refers to the pointer. 
 			if (count >= this->maxCapacity) {
 				return false;
 			}
 
-			sprites[count] = sprite;
+			sprites[count] = sprite;			// store 
 			++count;
 
 			return true;
@@ -436,7 +453,9 @@ class AnimationTestSprite : public Sprite {
 };
 */
 
-// TODO: State machine blink sprites that spawn in defined areas when TravelSprites pass through them. "Spirits awaken" 
+// Collision
+// 
+// 
 
 // What I'm going for here: I want to put these in shadowed places, where our primate brain will be looking for glowing eyes in the night. I want them to awaken, and blink, and maybe shift a little, and blink. 
 class LurkerSprite : public Sprite {
@@ -454,6 +473,7 @@ private:
 	int blinkTiming;		// how many ms between each blink in a "set"? 
 	unsigned long lastBlinkTime;	// time when we last blinked
 	int colorPalette;
+	bool isBooted;
 
 	// We're defining a set of either 2, 4, or 6 pixels, depending on how far apart you want the eyes to be
 	// ...so, should this be set to eyewidth + 1?
@@ -576,6 +596,7 @@ public:
 		this->blinkMaxCount = SetBlinkMaxCount();
 		this->blinkTiming = SetBlinkTiming();
 		this->lastBlinkTime = millis();
+		this->isBooted = false;
 		
 		// this->colorPalette = random(0, NUM_COLORSETS);
 		this->colorPalette = 2;								// yellow to start
@@ -590,7 +611,24 @@ public:
 		}
 	
 		bool allowCreation() {
-		return (currentPixel >= LURKER_MIN_PIXEL_1 && currentPixel <= LURKER_MAX_PIXEL_1) || (currentPixel >= LURKER_MIN_PIXEL_2 && currentPixel <= LURKER_MAX_PIXEL_2) || (currentPixel >= LURKER_MIN_PIXEL_3 && currentPixel <= LURKER_MAX_PIXEL_3);
+			return (currentPixel >= LURKER_MIN_PIXEL_1 && currentPixel <= LURKER_MAX_PIXEL_1) || (currentPixel >= LURKER_MIN_PIXEL_2 && currentPixel <= LURKER_MAX_PIXEL_2) || (currentPixel >= LURKER_MIN_PIXEL_3 && currentPixel <= LURKER_MAX_PIXEL_3);
+		}
+		
+		bool HasCollided(Sprite *otherSprite) {
+			if (! isBooted ) {
+				if ( abs(otherSprite->currentPixel - this->currentPixel) < COLLISION_DISTANCE || ! allowCreation()) {
+					return Collide();
+				} else {
+					isBooted = true;
+					return false;
+				}
+			}
+			return false;
+		}
+		
+		bool Collide() {
+			this->MarkDone();
+			return true;
 		}
 	
 		boolean UpdateNow() {
@@ -607,12 +645,7 @@ public:
 			if (! this->UpdateNow()) {
 					return false;
 			}
-		
-			if (! this->allowCreation()) {
-				this->MarkDone();
-				return false;
-			}
-		
+			
 			// Decide if we're going to blink, and set the value to do it
 			blinkDirection = Blink();
 		
@@ -1078,7 +1111,7 @@ private:
 		// delay(500);
 		// if (nextInflection < 150) debug(nextInflection);
 		// delay(1000);
-		nextInflection = CoerceTargetPixel(nextInflection);
+		nextInflection = CoerceTargetPixel(nextInflection); // look for reasons this wouldn't work backwards?
 		// debug(2);
 		// delay(500);
 		// if (nextInflection < 150) debug(nextInflection);
@@ -1875,27 +1908,42 @@ class W1V1Sprite : public Sprite {
 class SpriteManager {
 	private:
 		boolean updatedSomething = false;
-		SpriteVector* spriteVector;
+		SpriteVector* faerieVector;
+		SpriteVector* lurkerVector;
 
 	public:
 		SpriteManager() {
-				spriteVector = new SpriteVector(MAXSPRITES);
+				faerieVector = new SpriteVector(MAXSPRITES);
+				lurkerVector = new SpriteVector(MAXLURKERS);
 		}
 
 		~SpriteManager() {
 			 // Don't bother. Should never be called.
 		}
 
-		int SpriteCount() {
-			return spriteVector->Count();
+		int FaerieCount() {
+			return faerieVector->Count();
+		}
+		
+		int LurkerCount() {
+			return lurkerVector->Count();
 		}
 
 		void Update() {
 				updatedSomething = false;
 
-				for (int i = 0; i < this->SpriteCount(); i++) {
-						updatedSomething |= spriteVector->Get(i)->Update();
+				for (int i = 0; i < this->FaerieCount(); i++) {
+						updatedSomething |= faerieVector->Get(i)->Update(); // return *faerieSprite and pass to CheckForCollision()
 				}
+				for (int i = 0; i < this->LurkerCount(); i++) {
+						updatedSomething |= lurkerVector->Get(i)->Update(); //
+						for (int j = 0; j < this->LurkerCount(); j++) {
+							if (i == j) continue;
+							lurkerVector->Get(i)->HasCollided(lurkerVector->Get(j));
+						}
+				}
+
+				
 
 				if (updatedSomething) {
 						FastLED.show();
@@ -1905,16 +1953,27 @@ class SpriteManager {
 		}
 
 		bool Add(Sprite *newSprite) {
-			bool x = spriteVector->Add(newSprite);
+			bool x = faerieVector->Add(newSprite);
 			return x;
 		}
+		
+		bool AddLurker(Sprite *newSprite) {
+			bool x = lurkerVector->Add(newSprite);
+			return x;
+		}
+		
 
 		// Garbage collection. Remove any sprites that have finished their animation
 		// from the SpriteVector, in order to make room for others.
 		void Clean() {
-				for (int i = this->SpriteCount() - 1; i >= 0; i--) {
-						if (spriteVector->Get(i)->IsDone()) {
-								spriteVector->RemoveAt(i);
+				for (int i = this->FaerieCount() - 1; i >= 0; i--) {
+						if (faerieVector->Get(i)->IsDone()) {
+								faerieVector->RemoveAt(i);
+						}
+				}
+				for (int i = this->LurkerCount() - 1; i >= 0; i--) {
+						if (lurkerVector->Get(i)->IsDone()) {
+								lurkerVector->RemoveAt(i);
 						}
 				}
 		}
@@ -1979,7 +2038,7 @@ void loop() {
 
 				spriteManager->Update();
 
-				if (spriteManager->SpriteCount() == 0) {
+				if (spriteManager->FaerieCount() == 0) {
 					isBooted = true;
 				}
 
@@ -1993,7 +2052,7 @@ void loop() {
 			Sprite *s1 = new LurkerSprite(lurkerSpawnPixel,1); 
 			// TODO: check to see if another lurker already exists at this pixel, despawn if so
 		
-			if (! spriteManager->Add(s1)) {
+			if (! spriteManager->AddLurker(s1)) {
 				delete s1;
 			} 
 		} else {
