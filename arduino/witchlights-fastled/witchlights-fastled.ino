@@ -932,8 +932,7 @@ private:
 	void DimTrail(int tailPixel, int dimFactor, int direction) {
 		if (tailPixel < 0) return;
 		if (tailPixel >= NUM_LEDS) return;
-		if (! leds[tailPixel] && ! leds[tailPixel + direction] && ! leds[tailPixel + direction + direction]) return; // maybe more resistant to ghost pixels?
-		
+		if (! leds[tailPixel] && ! leds[tailPixel + direction] && ! leds[tailPixel + direction * 2]) return; //  more resistant to ghost pixels when lurkers blink
 		leds[tailPixel].fadeToBlackBy(dimFactor);
 		tailPixel += direction;
 		DimTrail(tailPixel, dimFactor, direction);
