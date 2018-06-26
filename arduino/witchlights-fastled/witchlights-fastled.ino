@@ -855,6 +855,10 @@ private:
 		return (minDistance - maxDistance < 0) ? (minpix - minDistance) : (maxpix + maxDistance);
 	}
 
+
+	// for (const string &text : texts) {}
+	// for (Sprite *otherSprite : faerieVector)  ???
+
 	int AvoidNoIdle(int targetPixel) {
 		for (int i = 0; i <= NO_IDLE_LOOP_COUNT - 1; i++) {
 			if (targetPixel >= this->minNoIdle[i] && targetPixel <= this->maxNoIdle[i]) {
