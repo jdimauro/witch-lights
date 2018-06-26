@@ -9,7 +9,7 @@
 bool debugMode = true;					// turns on debug() statements
 bool spawnLurkers = true;			// IMPORTANT: set to FALSE for all public video before Firefly 2018!
 bool randomInflection = false;	// Randomly makes faerie sprite dance back and forth, instead of mainly going "forwards". 
-bool spawnFaeries = false;				// TODO Spawn a new faerie randomly; helpful to keep a constant background of sprite animation for evaluation
+bool spawnFaeries = true;				// TODO Spawn a new faerie randomly; helpful to keep a constant background of sprite animation for evaluation
 bool placeLurkers = false;			// TODO Dimly lights up range of pixels where lurkers are "allowed" to spawn, for install time
 bool placeTrees = false;				// TODO Dimly lights up range of pixels green where trees are defined, also for installs
 bool placeNoIdle = false;				// TODO same, for specifying zones where faeries will not stop to idle
@@ -855,7 +855,7 @@ private:
 		return (minDistance - maxDistance < 0) ? (minpix - minDistance) : (maxpix + maxDistance);
 	}
 
-	int CoerceTargetPixel(int targetPixel) {
+	int AvoidNoIdle(int targetPixel) {
 		for (int i = 0; i <= NO_IDLE_LOOP_COUNT - 1; i++) {
 			if (targetPixel >= this->minNoIdle[i] && targetPixel <= this->maxNoIdle[i]) {
 				return ReturnClosestPixel(targetPixel, minNoIdle[i], maxNoIdle[i]);
@@ -1078,7 +1078,7 @@ private:
 		// delay(500);
 		// if (nextInflection < 150) debug(nextInflection);
 		// delay(1000);
-		nextInflection = CoerceTargetPixel(nextInflection);
+		nextInflection = AvoidNoIdle(nextInflection);
 		// debug(2);
 		// delay(500);
 		// if (nextInflection < 150) debug(nextInflection);
@@ -1125,6 +1125,8 @@ private:
 		
 		// Terminate if we go off the end of the strip		
 		if (CheckForTermination(travelDirection)) {
+			// TODO - make the trails fade out after the FaerieSprite goes off-strip (github issue)
+			
 			FadeOutTrail(NUM_LEDS - 1, 255, -1);
 			FadeOutTrail(0, 255, 1);
 			// debug(2);
