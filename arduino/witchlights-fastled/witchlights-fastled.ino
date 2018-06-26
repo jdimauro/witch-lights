@@ -931,8 +931,8 @@ private:
 	// add int direction and make tailpixel += direction, and when direction is "backwards", offset the dimtrail by 3 pixels to prevent dimming the sprite
 	void DimTrail(int tailPixel, int dimFactor, int direction) {
 		if (tailPixel < 0) return;
-		if (tailPixel > NUM_LEDS) return;
-		if (! leds[tailPixel]) return;
+		if (tailPixel >= NUM_LEDS) return;
+		if (! leds[tailPixel] && ! leds[tailPixel + direction] && ! leds[tailPixel + direction + direction]) return; // maybe more resistant to ghost pixels?
 		
 		leds[tailPixel].fadeToBlackBy(dimFactor);
 		tailPixel += direction;
@@ -1111,6 +1111,7 @@ private:
 		isIdling = false;
 		currentPixel += 0;
 		isWaiting ? SetNextWaitTravelTarget() : SetNextInflection();
+		// TODO make debugNextInflection pin mode
 		// debug(1);
 		// delay(500);
 		// if (nextInflection < 150) debug(nextInflection);
@@ -1127,6 +1128,7 @@ private:
 		isWaiting ? this->updateInterval = SetWaitInterval() : this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
 		this->brakePercentage = SetBrakePercentage();
 
+		// TODO make debugUpdateInterval pin mode
 		// debug(updateInterval);
 		// need to set a bool here so that updateTravel() knows to fade the values towards 848?
 		// idleToTravel
@@ -1145,7 +1147,7 @@ private:
 		
 		// step backwards and fade the trail
 		DimTrail(currentPixel, dimFactor, -1);
-		DimTrail(currentPixel+3, dimFactor, 1);
+		DimTrail(currentPixel + patternLength, dimFactor, 1);
 
 		// Next up, prepare for the next UpdateTravel() by moving currentPixel, and setting the next updateInterval value
 
