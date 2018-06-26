@@ -838,7 +838,6 @@ private:
 		
 		int travelDistance = random(FAERIE_MIN_LONG_TRAVEL, FAERIE_MAX_LONG_TRAVEL) + 1;
 		
-		// TODO when direction (1 or -1) is added as a sprite param on create, use that to make the sprite "advance" in the sprite's general direction(?)
 		if (randomInflection && currentPixel > 60) {
 			nextInflection += travelDistance * TravelDirectionSwitch();
 			return;
@@ -1204,7 +1203,6 @@ private:
 		
 	}
 
-	// TODO set a start pixel and an "end" pixel (for the end condition; either 0 or NUM_LEDS in most cases)
 public:
 	FaerieSprite(int direction, int start) : Sprite() {
 		// Initial state.
@@ -1215,7 +1213,7 @@ public:
 		this->isWaiting = false;
 		this->lastInflection = 0;
 		this->nextInflection = start;
-		SetNextInflection(); // TODO - have this accept travelDirection as a parameter, and use it when setting non-idle next inflection
+		SetNextInflection();
 		this->idleCount = 0;
 		this->idleCountTotal = GetNewidleCountTotal();
 		this->waitCount = 0;
