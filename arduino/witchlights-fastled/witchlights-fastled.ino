@@ -1965,6 +1965,16 @@ void setup() {
 		bool burnNight;									// TODO Sprites go from 4 to 25 slowly over the course of the night, and motion sensor timeout is reduced to 1 second. 
 		*/
 
+		pinMode(SPAWN_LURKERS_PIN, INPUT_PULLUP);
+		pinMode(SPAWN_FAERIES_PIN, INPUT_PULLUP);
+		pinMode(BURN_NIGHT_PIN, INPUT_PULLUP);
+		pinMode(VIDEO_PIN, INPUT_PULLUP);
+		pinMode(PLACE_LURKERS_PIN, INPUT_PULLUP);
+		pinMode(PLACE_TREES_PIN, INPUT_PULLUP);
+		pinMode(PLACE_NOIDLE_PIN, INPUT_PULLUP);
+		pinMode(DEBUG_INTERVAL, INPUT_PULLUP);
+		pinMode(DEBUG_INFLECTION, INPUT_PULLUP);
+		
 		isBooted = false;
 		testSpritesCreated = false;
 
