@@ -30,6 +30,7 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define SPAWN_LURKERS_PIN			52							// "Inside" pin row
 #define SPAWN_FAERIES_PIN			50
 #define BURN_NIGHT_PIN				48
+#define VIDEO_PIN							46							// for taking video of the lights
 #define PLACE_LURKERS_PIN			53							// "Outside" pin row
 #define PLACE_TREES_PIN				51
 #define PLACE_NOIDLE_PIN			49
