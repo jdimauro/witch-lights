@@ -9,13 +9,17 @@
 bool debugMode = true;					// turns on debug() statements
 bool spawnLurkers = false;			// IMPORTANT: set to FALSE for all public video before Firefly 2018!
 bool randomInflection = false;	// Randomly makes faerie sprite dance back and forth, instead of mainly going "forwards". 
-bool spawnFaeries = true;				// TODO Spawn a new faerie randomly; helpful to keep a constant background of sprite animation for evaluation
+bool spawnFaeries = false;				// TODO Spawn a new faerie randomly; helpful to keep a constant background of sprite animation for evaluation
 bool placeLurkers = false;			// TODO Dimly lights up range of pixels where lurkers are "allowed" to spawn, for install time
 bool placeTrees = false;				// TODO Dimly lights up range of pixels green where trees are defined, also for installs
 bool placeNoIdle = false;				// TODO same, for specifying zones where faeries will not stop to idle
+bool burnNight = false;
+bool videoMode = false;
+bool debugInterval = false;
+bool debugInflection = false;
 
 // FastLED constants
-#define NUM_LEDS							750 						// 750 or 600 in production
+#define NUM_LEDS							150 						// 750 or 600 in production
 #define MAXSPRITES						20							// 4 in production
 
 #define NUM_COLORSETS					5
@@ -28,9 +32,9 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 
 // Mode pins
 #define SPAWN_LURKERS_PIN			52							// "Inside" pin row
-#define SPAWN_FAERIES_PIN			50
-#define BURN_NIGHT_PIN				48
-#define VIDEO_PIN							46							// for taking video of the lights
+#define SPAWN_FAERIES_PIN			22
+#define BURN_NIGHT_PIN				50
+#define VIDEO_PIN							44							// for taking video of the lights
 #define PLACE_LURKERS_PIN			53							// "Outside" pin row
 #define PLACE_TREES_PIN				51
 #define PLACE_NOIDLE_PIN			49
@@ -1977,13 +1981,15 @@ void setup() {
 		
 		digitalRead(SPAWN_LURKERS_PIN) == LOW ? spawnLurkers = true : spawnLurkers = false;
 		digitalRead(SPAWN_FAERIES_PIN) == LOW ? spawnFaeries = true : spawnFaeries = false;
-		digitalRead(BURN_NIGHT_PIN) == LOW ? burnNight = true : burnNight = false;
+		digitalRead(BURN_NIGHT_PIN) == LOW ? spawnFaeries = true /*burnNight = true*/ : spawnFaeries = false; /*burnNight = false;*/
 		digitalRead(VIDEO_PIN) == LOW ? videoMode = true : videoMode = false;
 		digitalRead(PLACE_LURKERS_PIN) == LOW ? placeLurkers = true : placeLurkers = false;
 		digitalRead(PLACE_TREES_PIN) == LOW ? placeTrees = true : placeTrees = false;
 		digitalRead(PLACE_NOIDLE_PIN) == LOW ? placeNoIdle = true : placeNoIdle = false;
-		digitalRead(DEBUG_INTERVAL) == LOW ? debugInterval = true : debugInterval = false;
-		digitalRead(DEBUG_INFLECTION) == LOW ? debugInflection = true : debugInflection = false;
+		// digitalRead(DEBUG_INTERVAL) == LOW ? debugInterval = true : debugInterval = false;
+		// digitalRead(DEBUG_INFLECTION) == LOW ? debugInflection = true : debugInflection = false;
+		
+		// TODO Find out why burnNight, debugInterval, and debugInflection bools crash???
 		
 		isBooted = false;
 		testSpritesCreated = false;
