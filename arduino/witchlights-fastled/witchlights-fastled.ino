@@ -102,25 +102,25 @@ bool debugInflection = false;
 #define LURKER_MAX_PIXEL_3	450
 
 // TreeSprite locations
-#define TREE_FADE_PIXEL_1 315
-#define TREE_START_1		323
-#define TREE_END_1			334
+#define TREE_FADE_PIXEL_1 	315
+#define TREE_START_1				323
+#define TREE_END_1					334
 
-#define TREE_FADE_PIXEL_2 315
-#define TREE_START_2		323
-#define TREE_END_2			334
+#define TREE_FADE_PIXEL_2 	315
+#define TREE_START_2				323
+#define TREE_END_2					334
 
-#define TREE_FADE_PIXEL_3 315
-#define TREE_START_3		323
-#define TREE_END_3			334
+#define TREE_FADE_PIXEL_3 	315
+#define TREE_START_3				323
+#define TREE_END_3					334
 
-#define TREE_FADE_PIXEL_4 315
-#define TREE_START_4		323
-#define TREE_END_4			334
+#define TREE_FADE_PIXEL_4 	315
+#define TREE_START_4				323
+#define TREE_END_4					334
 
-#define TREE_FADE_PIXEL_5 315
-#define TREE_START_5		323
-#define TREE_END_5			334
+#define TREE_FADE_PIXEL_5 	315
+#define TREE_START_5				323
+#define TREE_END_5					334
 
 // For testing use only. In production, set this equal to 1. Use this to exaggerate the acceleration effects. 10-20 is good for testing.
 #define ACCELERATION_DELAY_OBVIOUSNESS_FACTOR				 1
