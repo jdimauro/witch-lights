@@ -1976,6 +1976,14 @@ void setup() {
 		pinMode(DEBUG_INFLECTION, INPUT_PULLUP);
 		
 		digitalRead(SPAWN_LURKERS_PIN) == LOW ? spawnLurkers = true : spawnLurkers = false;
+		digitalRead(SPAWN_FAERIES_PIN) == LOW ? spawnFaeries = true : spawnFaeries = false;
+		digitalRead(BURN_NIGHT_PIN) == LOW ? burnNight = true : burnNight = false;
+		digitalRead(VIDEO_PIN) == LOW ? videoMode = true : videoMode = false;
+		digitalRead(PLACE_LURKERS_PIN) == LOW ? placeLurkers = true : placeLurkers = false;
+		digitalRead(PLACE_TREES_PIN) == LOW ? placeTrees = true : placeTrees = false;
+		digitalRead(PLACE_NOIDLE_PIN) == LOW ? placeNoIdle = true : placeNoIdle = false;
+		digitalRead(DEBUG_INTERVAL) == LOW ? debugInterval = true : debugInterval = false;
+		digitalRead(DEBUG_INFLECTION) == LOW ? debugInflection = true : debugInflection = false;
 		
 		isBooted = false;
 		testSpritesCreated = false;
