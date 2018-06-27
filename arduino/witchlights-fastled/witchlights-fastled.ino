@@ -13,13 +13,13 @@ bool spawnFaeries = false;				// TODO Spawn a new faerie randomly; helpful to ke
 bool placeLurkers = false;			// TODO Dimly lights up range of pixels where lurkers are "allowed" to spawn, for install time
 bool placeTrees = false;				// TODO Dimly lights up range of pixels green where trees are defined, also for installs
 bool placeNoIdle = false;				// TODO same, for specifying zones where faeries will not stop to idle
-bool partyMode = false;
+bool burnNight = false;
 bool videoMode = false;
 bool debugInterval = false;
 bool debugInflection = false;
 
 // FastLED constants
-#define NUM_LEDS							150 						// 750 or 600 in production
+#define NUM_LEDS							750 						// 750 or 600 in production
 #define MAXSPRITES						20							// 4 in production
 
 #define NUM_COLORSETS					5
@@ -102,9 +102,9 @@ bool debugInflection = false;
 #define LURKER_MAX_PIXEL_3	450
 
 // TreeSprite locations
-#define TREE_FADE_PIXEL_1 315
-#define TREE_START_1		323
-#define TREE_END_1			334
+#define TREE_FADE_PIXEL_1 	315
+#define TREE_START_1				323
+#define TREE_END_1					334
 
 #define TREE_FADE_PIXEL_2 315
 #define TREE_START_2		323
@@ -1953,7 +1953,7 @@ SpriteManager *spriteManager;
 
 bool isBooted;
 bool testSpritesCreated;
-// int partyMode;
+// int burnNight;
 // int debugInterval;
 // int debugInflection;
 
@@ -1978,7 +1978,7 @@ void setup() {
 		
 		digitalRead(SPAWN_LURKERS_PIN) == LOW ? spawnLurkers = true : spawnLurkers = false;
 		digitalRead(SPAWN_FAERIES_PIN) == LOW ? spawnFaeries = true : spawnFaeries = false;
-		digitalRead(BURN_NIGHT_PIN) == LOW ? /*spawnFaeries = true*/ partyMode = true : /*spawnFaeries = false*/ partyMode = false;
+		digitalRead(BURN_NIGHT_PIN) == LOW ? /*spawnFaeries = true*/ burnNight = true : /*spawnFaeries = false*/ burnNight = false;
 		digitalRead(VIDEO_PIN) == LOW ? videoMode = true : videoMode = false;
 		digitalRead(PLACE_LURKERS_PIN) == LOW ? placeLurkers = true : placeLurkers = false;
 		digitalRead(PLACE_TREES_PIN) == LOW ? placeTrees = true : placeTrees = false;
@@ -1986,7 +1986,7 @@ void setup() {
 		digitalRead(DEBUG_INTERVAL) == LOW ? debugInterval = true : debugInterval = false; // crashes
 		digitalRead(DEBUG_INFLECTION) == LOW ? debugInflection = true : debugInflection = false; // crashes
 		
-		// TODO Find out why partyMode, debugInterval, and debugInflection bools crash???
+		// TODO Find out why burnNight, debugInterval, and debugInflection bools crash???
 		
 		isBooted = false;
 		testSpritesCreated = false;
