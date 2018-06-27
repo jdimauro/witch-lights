@@ -5,14 +5,14 @@
 #endif
 
 // debug or animation modes
-// TODO: set this with a jumper to an input pin
+// DONE: set this with a jumper to an input pin
 bool debugMode = true;					// turns on debug() statements
 bool spawnLurkers = false;			// IMPORTANT: set to FALSE for all public video before Firefly 2018!
 bool randomInflection = false;	// Randomly makes faerie sprite dance back and forth, instead of mainly going "forwards". 
-bool spawnFaeries = false;				// TODO Spawn a new faerie randomly; helpful to keep a constant background of sprite animation for evaluation
-bool placeLurkers = false;			// TODO Dimly lights up range of pixels where lurkers are "allowed" to spawn, for install time
-bool placeTrees = false;				// TODO Dimly lights up range of pixels green where trees are defined, also for installs
-bool placeNoIdle = false;				// TODO same, for specifying zones where faeries will not stop to idle
+bool spawnFaeries = false;				// TODO: Spawn a new faerie randomly; helpful to keep a constant background of sprite animation for evaluation
+bool placeLurkers = false;			// TODO: Dimly lights up range of pixels where lurkers are "allowed" to spawn, for install time
+bool placeTrees = false;				// TODO: Dimly lights up range of pixels green where trees are defined, also for installs
+bool placeNoIdle = false;				// TODO: same, for specifying zones where faeries will not stop to idle
 bool burnNight = false;
 bool videoMode = false;
 bool debugInterval = false;
@@ -832,7 +832,7 @@ private:
 		return random(FAERIE_MAX_TRAIL_LENGTH, FAERIE_MIN_TRAIL_LENGTH) + 1;
 	}
 
-	// TODO define global constants for brake and acceleration factor ranges
+	// TODO: define global constants for brake and acceleration factor ranges
 	float SetBrakeFactor(bool waiting) {
 		if (!waiting) {
 			return (random(500,900) + 1) / 100;
@@ -885,7 +885,7 @@ private:
 	}
 	
 	void SetNextWaitTravelTarget() {
-		// TODO use collision detection when setting next inflection, so that faeries are never traveling TO the same target pixel (or within a range of that pixel, like +- 3)
+		// TODO: use collision detection when setting next inflection, so that faeries are never traveling TO the same target pixel (or within a range of that pixel, like +- 3)
 		
 		lastInflection = nextInflection;
 		int travelDistance = (random(FAERIE_FLIT_MIN_DISTANCE, FAERIE_FLIT_MAX_DISTANCE) + 1) * TravelDirectionSwitch();
@@ -975,7 +975,7 @@ private:
 	float SetBrakePercentage() {
 		// TODO: map distance of move to brake percentage, brakefactor, accelerationfactor
 		if (!isWaiting) {
-			return .12;	// TODO - set this with a constant
+			return .12;	// TODO: - set this with a constant
 		} else {
 			return .45;
 		}
@@ -1145,7 +1145,7 @@ private:
 		
 		// Terminate if we go off the end of the strip		
 		if (CheckForTermination(travelDirection)) {
-			// TODO - make the trails fade out after the FaerieSprite goes off-strip (github issue)
+			// TODO: - make the trails fade out after the FaerieSprite goes off-strip (github issue)
 			
 			FadeOutTrail(NUM_LEDS - 1, 255, -1);
 			FadeOutTrail(0, 255, 1);
@@ -1986,7 +1986,7 @@ void setup() {
 		digitalRead(DEBUG_INTERVAL) == LOW ? debugInterval = true : debugInterval = false; // crashes
 		digitalRead(DEBUG_INFLECTION) == LOW ? debugInflection = true : debugInflection = false; // crashes
 		
-		// TODO Find out why burnNight, debugInterval, and debugInflection bools crash???
+		// TODO: Find out why burnNight, debugInterval, and debugInflection bools crash???
 		
 		isBooted = false;
 		testSpritesCreated = false;
@@ -2029,7 +2029,7 @@ void loop() {
 		// Spawn lurkers randomly
 		if (random(0,1000) == 0 && spawnLurkers) {
 			// debug(3);
-			int lurkerSpawnPixel = random(40,149); // TODO - create array of lurker zones to use instead of the constants?
+			int lurkerSpawnPixel = random(40,149); // TODO: - create array of lurker zones to use instead of the constants?
 			Sprite *s1 = new LurkerSprite(lurkerSpawnPixel,1); 
 			// TODO: check to see if another lurker already exists at this pixel, despawn if so
 		
