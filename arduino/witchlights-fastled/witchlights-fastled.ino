@@ -13,7 +13,7 @@ bool spawnFaeries = false;				// TODO Spawn a new faerie randomly; helpful to ke
 bool placeLurkers = false;			// TODO Dimly lights up range of pixels where lurkers are "allowed" to spawn, for install time
 bool placeTrees = false;				// TODO Dimly lights up range of pixels green where trees are defined, also for installs
 bool placeNoIdle = false;				// TODO same, for specifying zones where faeries will not stop to idle
-bool burnNight = false;
+bool partyMode = false;
 bool videoMode = false;
 bool debugInterval = false;
 bool debugInflection = false;
@@ -157,20 +157,20 @@ CRGB leds[NUM_LEDS];
 
 CRGB colorSets[NUM_COLORSETS][NUM_COLORS_PER_SET];
 
-char afc_w8v1r[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
-CRGB af_w8v1r[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
+// char afc_w8v1r[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
+// CRGB af_w8v1r[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
 
 // char afc_2_sparkle_a[SPARKLE_ANIMATION_FRAME_WIDTH * SPARKLE_ANIMATION_FRAMES];
 // CRGB af_2_sparkle_a[SPARKLE_ANIMATION_FRAME_WIDTH * SPARKLE_ANIMATION_FRAMES];
 
-char afc_f_slow_stop[afc_f_slow_stop_ANIMATION_FRAME_WIDTH * afc_f_slow_stop_ANIMATION_FRAMES];
-CRGB af_f_slow_stop[afc_f_slow_stop_ANIMATION_FRAME_WIDTH * afc_f_slow_stop_ANIMATION_FRAMES];
+// char afc_f_slow_stop[afc_f_slow_stop_ANIMATION_FRAME_WIDTH * afc_f_slow_stop_ANIMATION_FRAMES];
+// CRGB af_f_slow_stop[afc_f_slow_stop_ANIMATION_FRAME_WIDTH * afc_f_slow_stop_ANIMATION_FRAMES];
 
-char afc_f_slow_stop_c[afc_f_slow_stop_c_ANIMATION_FRAME_WIDTH * afc_f_slow_stop_c_ANIMATION_FRAMES];
-CRGB af_f_slow_stop_c[afc_f_slow_stop_c_ANIMATION_FRAME_WIDTH * afc_f_slow_stop_c_ANIMATION_FRAMES];
+// char afc_f_slow_stop_c[afc_f_slow_stop_c_ANIMATION_FRAME_WIDTH * afc_f_slow_stop_c_ANIMATION_FRAMES];
+// CRGB af_f_slow_stop_c[afc_f_slow_stop_c_ANIMATION_FRAME_WIDTH * afc_f_slow_stop_c_ANIMATION_FRAMES];
 
-char afc_l_pulsar_a[afc_l_pulsar_a_ANIMATION_FRAME_WIDTH * afc_l_pulsar_a_ANIMATION_FRAMES];
-CRGB af_l_pulsar_a[afc_l_pulsar_a_ANIMATION_FRAME_WIDTH * afc_l_pulsar_a_ANIMATION_FRAMES];
+// char afc_l_pulsar_a[afc_l_pulsar_a_ANIMATION_FRAME_WIDTH * afc_l_pulsar_a_ANIMATION_FRAMES];
+// CRGB af_l_pulsar_a[afc_l_pulsar_a_ANIMATION_FRAME_WIDTH * afc_l_pulsar_a_ANIMATION_FRAMES];
 
 
 // Function prototypes.
@@ -451,7 +451,6 @@ class AnimationTestSprite : public Sprite {
 };
 */
 
-// TODO: State machine blink sprites that spawn in defined areas when TravelSprites pass through them. "Spirits awaken" 
 
 // What I'm going for here: I want to put these in shadowed places, where our primate brain will be looking for glowing eyes in the night. I want them to awaken, and blink, and maybe shift a little, and blink. 
 class LurkerSprite : public Sprite {
@@ -646,6 +645,7 @@ public:
 // Loop test class
 // Travel, pause, play loop 2-5 times, move on
 
+/*
 class LoopTestSprite : public Sprite {
 	private:
 		int updateInterval;
@@ -779,6 +779,7 @@ class LoopTestSprite : public Sprite {
 				return true;
 		}
 };
+*/
 
 class FaerieSprite : public Sprite {
 private:
@@ -1328,7 +1329,8 @@ public:
 	}
 };
 
-// Test intro and outro fragments together until I like them, then split into two halves and adjust code to play one, a loop, and then the other. 
+
+/*
 class FragmentTestSprite : public Sprite {
 	private:
 		int updateInterval;
@@ -1473,6 +1475,7 @@ class FragmentTestSprite : public Sprite {
 				return true;
 		}
 };
+*/
 
 // Animation sprites from last year
 /*
@@ -1610,6 +1613,7 @@ class W8V1ScannerDebrisV1Sprite : public Sprite {
 };
 */
 
+/*
 class W8V1ScannerDebrisV1ReverseSprite : public Sprite {
 	private:
 		int updateInterval;
@@ -1745,6 +1749,7 @@ class W8V1ScannerDebrisV1ReverseSprite : public Sprite {
 				return true;
 		}
 };
+*/
 
 /*
 class ScannerSprite : public Sprite {
@@ -1948,6 +1953,9 @@ SpriteManager *spriteManager;
 
 bool isBooted;
 bool testSpritesCreated;
+// int partyMode;
+// int debugInterval;
+// int debugInflection;
 
 int starttime = millis();
 
@@ -1956,19 +1964,8 @@ void setup() {
 		createColorsets();
 		createAnimationFrames();
 
-		// TODO: define pins for these booleans as pullup input pins, for jumper to ground activation
-		/*
-		debugMode = true;					// turns on debug() statements
-		bool spawnLurkers = true;			// IMPORTANT: set to FALSE for all public video before Firefly 2018!
-		bool randomInflection = false;	// Randomly makes faerie sprite dance back and forth, instead of mainly going "forwards". 
-		bool spawnFaeries = true;				// TODO Spawn a new faerie randomly; helpful to keep a constant background of sprite animation for evaluation
-		bool placeLurkers = false;			// TODO Dimly lights up range of pixels where lurkers are "allowed" to spawn, for install time
-		bool placeTrees = false;				// TODO Dimly lights up range of pixels green where trees are defined, also for installs
-		bool placeNoIdle;
-		bool tuneInterval;
-		bool burnNight;									// TODO Sprites go from 4 to 25 slowly over the course of the night, and motion sensor timeout is reduced to 1 second. 
-		*/
-
+		// Jumper pins for setting modes
+		
 		pinMode(SPAWN_LURKERS_PIN, INPUT_PULLUP);
 		pinMode(SPAWN_FAERIES_PIN, INPUT_PULLUP);
 		pinMode(BURN_NIGHT_PIN, INPUT_PULLUP);
@@ -1981,15 +1978,15 @@ void setup() {
 		
 		digitalRead(SPAWN_LURKERS_PIN) == LOW ? spawnLurkers = true : spawnLurkers = false;
 		digitalRead(SPAWN_FAERIES_PIN) == LOW ? spawnFaeries = true : spawnFaeries = false;
-		digitalRead(BURN_NIGHT_PIN) == LOW ? spawnFaeries = true /*burnNight = true*/ : spawnFaeries = false; /*burnNight = false;*/
+		digitalRead(BURN_NIGHT_PIN) == LOW ? /*spawnFaeries = true*/ partyMode = true : /*spawnFaeries = false*/ partyMode = false;
 		digitalRead(VIDEO_PIN) == LOW ? videoMode = true : videoMode = false;
 		digitalRead(PLACE_LURKERS_PIN) == LOW ? placeLurkers = true : placeLurkers = false;
 		digitalRead(PLACE_TREES_PIN) == LOW ? placeTrees = true : placeTrees = false;
 		digitalRead(PLACE_NOIDLE_PIN) == LOW ? placeNoIdle = true : placeNoIdle = false;
-		// digitalRead(DEBUG_INTERVAL) == LOW ? debugInterval = true : debugInterval = false;
-		// digitalRead(DEBUG_INFLECTION) == LOW ? debugInflection = true : debugInflection = false;
+		digitalRead(DEBUG_INTERVAL) == LOW ? debugInterval = true : debugInterval = false; // crashes
+		digitalRead(DEBUG_INFLECTION) == LOW ? debugInflection = true : debugInflection = false; // crashes
 		
-		// TODO Find out why burnNight, debugInterval, and debugInflection bools crash???
+		// TODO Find out why partyMode, debugInterval, and debugInflection bools crash???
 		
 		isBooted = false;
 		testSpritesCreated = false;
@@ -2327,7 +2324,7 @@ void createAnimationFrames() {
 		strcat(afc_2_sparkle_a, "						215 2 122		");
 		strcat(afc_2_sparkle_a, "						1 7		216		");
 */	
-		
+		/*
 		// The L animations are loops. 
 		//
 		// These always start with pixels 11 and 12 (counting from 0) at 8, and return to the same position. 
@@ -2514,4 +2511,5 @@ void createAnimationFrames() {
 		strcat(afc_f_slow_stop_c, "							12334456788 ");
 		strcat(afc_f_slow_stop_c, "								 123456788");
 		strcat(afc_f_slow_stop_c, "													");
+		*/
 }
