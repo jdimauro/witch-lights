@@ -16,7 +16,7 @@ Here's the memory report during the `setup()` function:
 
 		My guess at free mem: 94492
 		
-		0
+		Loop Count: 0
 		
 		Dynamic ram used: 1380
 		Program static ram used 7404
@@ -24,7 +24,7 @@ Here's the memory report during the `setup()` function:
 
 		My guess at free mem: 94300
 		
-		1
+		Loop Count: 1
 
 During `loop()` running the test pattern, memory usage stays totally static: 
 
@@ -34,7 +34,7 @@ During `loop()` running the test pattern, memory usage stays totally static:
 
 		My guess at free mem: 94300
 		
-		738
+		Loop Count: 738
 		
 		Dynamic ram used: 1380
 		Program static ram used 7404
@@ -42,7 +42,7 @@ During `loop()` running the test pattern, memory usage stays totally static:
 
 		My guess at free mem: 94300
 		
-		739
+		Loop Count: 739
 
 The crash happens on loop cycle 741, each time (I've run several tests):
 
@@ -52,7 +52,7 @@ The crash happens on loop cycle 741, each time (I've run several tests):
 
 		My guess at free mem: 94300
 		
-		740
+		Loop Count: 740
 
 So that's loop number 740. On 741, the contents of memory change:
 		

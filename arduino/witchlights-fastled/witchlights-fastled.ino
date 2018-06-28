@@ -312,14 +312,18 @@ class SpriteVector {
 		}
 
 		boolean RemoveAt(int i) {
+			// debug(i + 1);
+			// delay(2000);
 			Sprite *ptr = sprites[i];
 			sprites[i] = NULL;
 			delete ptr;
+			// debug(1);
 
 			for (int j = i + 1; j < count; j++) {
-					sprites[j - 1] = sprites[j];
+				// debug(j)
+				sprites[j - 1] = sprites[j];
 			}
-			sprites[count - 1] = NULL;
+			// sprites[count - 1] = NULL;
 
 			--this->count;
 
@@ -1932,6 +1936,7 @@ class SpriteManager {
 
 		void Update() {
 				updatedSomething = false;
+				debug(1);
 
 				for (int i = 0; i < this->SpriteCount(); i++) {
 						updatedSomething |= spriteVector->Get(i)->Update();
@@ -2042,8 +2047,8 @@ void loop() {
 		printf("My guess at free mem: %d\n",stack_ptr - heapend + mi.fordblks);
 		printf("\n");
 		printf("Loop Count: ");
-		printf(counter); // TODO: change all the printf to Serial.print, and get serial output debugged
-		printf("\n");
+		Serial.println(counter, DEC); // TODO: change all the printf to Serial.print, and get serial output debugged
+		// printf("\n");
 	}
 	counter++;	
 	
