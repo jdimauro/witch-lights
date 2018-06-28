@@ -33,7 +33,7 @@ bool debugInterval = false;
 bool debugInflection = false;
 
 // FastLED constants
-#define NUM_LEDS							750 						// 750 or 600 in production
+#define NUM_LEDS							150 						// 750 or 600 in production
 #define MAXSPRITES						20							// 4 in production
 
 #define NUM_COLORSETS					5
@@ -2040,8 +2040,10 @@ void loop() {
 		printf("Program static ram used %d\n",&_end - ramstart); 
 		printf("Stack ram used %d\n\n",ramend - stack_ptr); 
 		printf("My guess at free mem: %d\n",stack_ptr - heapend + mi.fordblks);
-		Serial.print(counter, DEC);
-
+		printf("\n");
+		printf("Loop Count: ");
+		printf(counter); // TODO: change all the printf to Serial.print, and get serial output debugged
+		printf("\n");
 	}
 	counter++;	
 	
