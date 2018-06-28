@@ -4,6 +4,20 @@
 #define PSTR // Make Arduino Due happy
 #endif
 
+// From Arduino Forum, code for free memory estimation on Arduino Due
+
+#include <malloc.h> 
+#include <stdlib.h> 
+#include <stdio.h> 
+
+extern char _end; 
+extern "C" char *sbrk(int i); 
+char *ramstart=(char *)0x20070000; 
+char *ramend=(char *)0x20088000; 
+
+// Ends
+
+
 // debug or animation modes
 // TODO: set this with a jumper to an input pin
 bool debugMode = true;					// turns on debug() statements
@@ -1964,6 +1978,19 @@ void setup() {
 		createColorsets();
 		createAnimationFrames();
 
+		// From Arduino Forum, code for making Arduino Due estimate memory usage
+		
+		Serial.begin(9600);
+		char *heapend=sbrk(0); 
+		register char * stack_ptr asm ("sp"); 
+		struct mallinfo mi=mallinfo(); 
+		printf("\nDynamic ram used: %d\n",mi.uordblks); 
+		printf("Program static ram used %d\n",&_end - ramstart); 
+		printf("Stack ram used %d\n\n",ramend - stack_ptr); 
+		printf("My guess at free mem: %d\n",stack_ptr - heapend + mi.fordblks); 
+
+		// Ends
+
 		// Jumper pins for setting modes
 		
 		pinMode(SPAWN_LURKERS_PIN, INPUT_PULLUP);
@@ -2003,8 +2030,21 @@ void setup() {
 
 int counter = 0;
 int sensor1LastPollTime = millis();
+char *heapend=sbrk(0);
 
 void loop() {
+	if (/*counter % 10 == 0*/ true) {
+		register char * stack_ptr asm ("sp");
+		struct mallinfo mi=mallinfo(); 
+		printf("\nDynamic ram used: %d\n",mi.uordblks); 
+		printf("Program static ram used %d\n",&_end - ramstart); 
+		printf("Stack ram used %d\n\n",ramend - stack_ptr); 
+		printf("My guess at free mem: %d\n",stack_ptr - heapend + mi.fordblks);
+		Serial.print(counter, DEC);
+
+	}
+	counter++;	
+	
 		if (! isBooted) {
 				if (! testSpritesCreated) {
 						spriteManager->Add(new W1V1Sprite(10, 0x750787));
