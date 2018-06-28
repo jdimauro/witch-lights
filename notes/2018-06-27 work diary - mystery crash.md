@@ -1,4 +1,6 @@
-# Mystery: noIdle fails when travelDirection = -1
+# Mystery Crash
+
+I've spent several hours in the last couple days trying to debug a weird crash in the Witch Lights when writing to global variables.
 
 Here's the memory report during the `setup()` function:
 
