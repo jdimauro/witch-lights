@@ -32,8 +32,8 @@ bool debugInflection = false;
 
 // Mode pins
 #define SPAWN_LURKERS_PIN			52							// "Inside" pin row
-#define SPAWN_FAERIES_PIN			22
-#define BURN_NIGHT_PIN				50
+#define SPAWN_FAERIES_PIN			50
+#define BURN_NIGHT_PIN				48
 #define VIDEO_PIN							44							// for taking video of the lights
 #define PLACE_LURKERS_PIN			53							// "Outside" pin row
 #define PLACE_TREES_PIN				51
@@ -1107,7 +1107,7 @@ private:
 		this->idleCount = 0;
 		this->idleCountTotal = GetNewidleCountTotal(); // set to 1 for fragments
 
-		isWaiting ? this->updateInterval = SetWaitInterval() : this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
+		isWaiting ? this->updateInterval = SetWaitInterval() : this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS; // TODO SetTravelInterval() 
 		this->brakePercentage = SetBrakePercentage();
 
 		// debug(updateInterval);
@@ -1978,7 +1978,7 @@ void setup() {
 		
 		digitalRead(SPAWN_LURKERS_PIN) == LOW ? spawnLurkers = true : spawnLurkers = false;
 		digitalRead(SPAWN_FAERIES_PIN) == LOW ? spawnFaeries = true : spawnFaeries = false;
-		digitalRead(BURN_NIGHT_PIN) == LOW ? /*spawnFaeries = true*/ burnNight = true : /*spawnFaeries = false*/ burnNight = false;
+		digitalRead(BURN_NIGHT_PIN) == LOW ? burnNight = true : burnNight = false;
 		digitalRead(VIDEO_PIN) == LOW ? videoMode = true : videoMode = false;
 		digitalRead(PLACE_LURKERS_PIN) == LOW ? placeLurkers = true : placeLurkers = false;
 		digitalRead(PLACE_TREES_PIN) == LOW ? placeTrees = true : placeTrees = false;
@@ -2024,6 +2024,10 @@ void loop() {
 				}
 
 				return;
+		}
+
+		if (placeLurkers) {
+			// TODO place lurker mode
 		}
 
 		// Spawn lurkers randomly
