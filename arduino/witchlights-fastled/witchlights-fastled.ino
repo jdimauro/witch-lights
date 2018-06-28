@@ -312,21 +312,33 @@ class SpriteVector {
 		}
 
 		boolean RemoveAt(int i) {
-			// debug(i + 1);
-			// delay(2000);
+			/*
+			debug(i);
+			delay(2000);
+			debug(1);
+			delay(500);
 			Sprite *ptr = sprites[i];
 			sprites[i] = NULL;
 			delete ptr;
-			// debug(1);
+			debug(2);
+			delay(2000);
 
 			for (int j = i + 1; j < count; j++) {
-				// debug(j)
+				debug(j);
+				delay(250);
 				sprites[j - 1] = sprites[j];
 			}
-			// sprites[count - 1] = NULL;
+			debug(1);
+			delay(250);
+			sprites[count - 1] = NULL;
+			debug(2);
+			delay(250);
 
 			--this->count;
+			debug(3);
+			delay(250);
 
+			*/
 			return true;
 		}
 };
@@ -1936,15 +1948,19 @@ class SpriteManager {
 
 		void Update() {
 				updatedSomething = false;
-				debug(1);
+				// debug(1);
 
 				for (int i = 0; i < this->SpriteCount(); i++) {
 						updatedSomething |= spriteVector->Get(i)->Update();
 				}
 
+				// debug(2);
+
 				if (updatedSomething) {
 						FastLED.show();
 				}
+
+				// debug(3);
 
 				this->Clean();
 		}
@@ -1957,11 +1973,16 @@ class SpriteManager {
 		// Garbage collection. Remove any sprites that have finished their animation
 		// from the SpriteVector, in order to make room for others.
 		void Clean() {
+			// debug(4);
+			// delay(400);
 				for (int i = this->SpriteCount() - 1; i >= 0; i--) {
+					// debug(i + 1);
+					// delay(150);
 						if (spriteVector->Get(i)->IsDone()) {
 								spriteVector->RemoveAt(i);
 						}
 				}
+				// debug(7);
 		}
 };
 
@@ -2038,19 +2059,25 @@ int sensor1LastPollTime = millis();
 char *heapend=sbrk(0);
 
 void loop() {
+	debug(1);
 	if (/*counter % 10 == 0*/ true) {
+		// debug(2);
 		register char * stack_ptr asm ("sp");
+		// debug(3);
 		struct mallinfo mi=mallinfo(); 
+		// debug(4);
 		printf("\nDynamic ram used: %d\n",mi.uordblks); 
 		printf("Program static ram used %d\n",&_end - ramstart); 
 		printf("Stack ram used %d\n\n",ramend - stack_ptr); 
 		printf("My guess at free mem: %d\n",stack_ptr - heapend + mi.fordblks);
 		printf("\n");
-		printf("Loop Count: ");
-		Serial.println(counter, DEC); // TODO: change all the printf to Serial.print, and get serial output debugged
+		printf("Loop Count: %d\n",counter);
+		// Serial.println(counter, DEC); // TODO: change all the printf to Serial.print, and get serial output debugged
 		// printf("\n");
 	}
-	counter++;	
+	// debug(5);
+	counter++;
+	// debug(6);
 	
 		if (! isBooted) {
 				if (! testSpritesCreated) {
@@ -2064,7 +2091,9 @@ void loop() {
 						testSpritesCreated = true;
 				}
 
+				debug(6);
 				spriteManager->Update();
+				debug(7);
 
 				if (spriteManager->SpriteCount() == 0) {
 					isBooted = true;
@@ -2085,10 +2114,12 @@ void loop() {
 			// TODO: check to see if another lurker already exists at this pixel, despawn if so
 		
 			if (! spriteManager->Add(s1)) {
+				// debug(8);
 				delete s1;
+				// debug(9);
 			} 
 		} else {
-			// debug(1);
+			// debug(10);
 		}
 		
 		if (random(0,1000) == 0 && spawnFaeries) {
