@@ -2222,21 +2222,81 @@ bool debugMode() {
 }// = true;
 
 
-bool spawnLurkers(); // read pin		
+bool spawnLurkers() {
+	if (digitalRead(SPAWN_LURKERS_PIN) == LOW) {
+		return true;
+	} else {
+		return false;
+	}
+} // read pin
 
 
 bool randomInflection() {
 	return false;
 } // = false;
 
-bool spawnFaeries(); // read pin
-bool placeLurkers(); // read pin		
-bool placeTrees(); // read pin		
-bool placeNoIdle(); // read pin			
-bool burnNight(); // read pin
-bool videoMode(); // 
-bool debugInterval(); // read pin
-bool debugInflection(); // read pin
+bool spawnFaeries() {
+	if (digitalRead(SPAWN_LURKERS_PIN) == LOW) {
+		return true;
+	} else {
+		return false;
+	}
+} // read pin
+
+bool placeLurkers() {
+	if (digitalRead(SPAWN_LURKERS_PIN) == LOW) {
+		return true;
+	} else {
+		return false;
+	}
+} // read pin
+
+bool placeTrees() {
+	if (digitalRead(SPAWN_LURKERS_PIN) == LOW) {
+		return true;
+	} else {
+		return false;
+	}
+} // read pin
+
+bool placeNoIdle() {
+	if (digitalRead(SPAWN_LURKERS_PIN) == LOW) {
+		return true;
+	} else {
+		return false;
+	}
+} // read pin			
+
+bool burnNight() {
+	if (digitalRead(SPAWN_LURKERS_PIN) == LOW) {
+		return true;
+	} else {
+		return false;
+	}
+} // read pin
+bool videoMode() {
+	if (digitalRead(SPAWN_LURKERS_PIN) == LOW) {
+		return true;
+	} else {
+		return false;
+	}
+} // 
+
+bool debugInterval() {
+	if (digitalRead(SPAWN_LURKERS_PIN) == LOW) {
+		return true;
+	} else {
+		return false;
+	}
+} // read pin
+
+bool debugInflection() {
+	if (digitalRead(SPAWN_LURKERS_PIN) == LOW) {
+		return true;
+	} else {
+		return false;
+	}
+} // read pin
 
 void createColorsets() {
 // Blue.
