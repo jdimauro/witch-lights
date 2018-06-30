@@ -7,6 +7,8 @@
 // debug or animation modes
 // DONE: set this with a jumper to an input pin
 // FIXME: Put these bools into functions that read digital pins when we need to know the mode; eg bool PlaceLurkers() returns true when it reads digital pin
+
+/*
 bool debugMode = true;					// turns on debug() statements
 bool spawnLurkers = false;			// IMPORTANT: set to FALSE for all public video before Firefly 2018!
 bool randomInflection = false;	// Randomly makes faerie sprite dance back and forth, instead of mainly going "forwards". 
@@ -18,6 +20,7 @@ bool burnNight = false;
 bool videoMode = false;
 bool debugInterval = false;
 bool debugInflection = false;
+*/
 
 
 // FastLED constants
@@ -183,6 +186,17 @@ void debugN(int, int);
 void stripcpy(CRGB *, CRGB *, int, int, int);
 void createColorsets(void);
 void createAnimationFrames(void);
+bool debugMode(); // = true;				
+bool spawnLurkers(); // = false;		
+bool randomInflection(); // = false;
+bool spawnFaeries(); // = false;		
+bool placeLurkers(); // = false;		
+bool placeTrees(); // = false;			
+bool placeNoIdle(); // = false;			
+bool burnNight(); // = false;
+bool videoMode(); // = false;
+bool debugInterval(); // = false;
+bool debugInflection(); // = false;
 
 class InfraredSensor {
 private:
@@ -1977,18 +1991,7 @@ void setup() {
 		pinMode(PLACE_NOIDLE_PIN, INPUT_PULLUP);
 		pinMode(DEBUG_INTERVAL, INPUT_PULLUP);
 		pinMode(DEBUG_INFLECTION, INPUT_PULLUP);
-		
-		digitalRead(SPAWN_LURKERS_PIN) == LOW ? spawnLurkers = true : spawnLurkers = false;
-		digitalRead(SPAWN_FAERIES_PIN) == LOW ? spawnFaeries = true : spawnFaeries = false;
-		digitalRead(BURN_NIGHT_PIN) == LOW ? /*spawnFaeries = true*/ burnNight = true : /*spawnFaeries = false*/ burnNight = false;
-		digitalRead(VIDEO_PIN) == LOW ? videoMode = true : videoMode = false;
-		digitalRead(PLACE_LURKERS_PIN) == LOW ? placeLurkers = true : placeLurkers = false;
-		digitalRead(PLACE_TREES_PIN) == LOW ? placeTrees = true : placeTrees = false;
-		digitalRead(PLACE_NOIDLE_PIN) == LOW ? placeNoIdle = true : placeNoIdle = false;
-		digitalRead(DEBUG_INTERVAL) == LOW ? debugInterval = true : debugInterval = false; // crashes
-		digitalRead(DEBUG_INFLECTION) == LOW ? debugInflection = true : debugInflection = false; // crashes
-		
-		// TODO: Find out why burnNight, debugInterval, and debugInflection bools crash???
+		// FIXME: Find out why burnNight, debugInterval, and debugInflection bools crash???
 		
 		isBooted = false;
 		testSpritesCreated = false;
@@ -2130,6 +2133,27 @@ void stripcpy(CRGB *leds, CRGB *source, int start, int width, int patternSize) {
 				memcpy(leds + actualStartPosition, (patternStart <= patternSize) ? source + patternStart : source, actualBytes * sizeof(CRGB));
 		}
 }
+
+bool debugMode() {
+	return true;
+}// = true;
+
+
+bool spawnLurkers(); // read pin		
+
+
+bool randomInflection() {
+	return false;
+} // = false;
+
+bool spawnFaeries(); // read pin
+bool placeLurkers(); // read pin		
+bool placeTrees(); // read pin		
+bool placeNoIdle(); // read pin			
+bool burnNight(); // read pin
+bool videoMode(); // 
+bool debugInterval(); // read pin
+bool debugInflection(); // read pin
 
 void createColorsets() {
 // Blue.
