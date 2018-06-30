@@ -1,6 +1,5 @@
 # Mystery Crash
 
-<<<<<<< HEAD
 I've spent several hours in the last couple days trying to debug a weird crash in the Witch Lights when writing to global variables. 
 
 The TL;DR of it is, depending on various factors, sometimes when I try to read global `bool` mode values and modify them in SRAM, the Arduino Due stops responding shortly after its first sprite reaches pixel `NUM_LEDS`, i.e. has gone off the end of the strip. The following is a log of Arduino Memory Kremlinology, where I attempt to interpret the behavior of RAM on an Arduino Due by checking who stands next to Stalin in the May Day Parade. 
@@ -36,7 +35,6 @@ The code calculates 4 things:
 The "free mem" calculation is `stack_ptr - heapend + mi.fordblks`
 
 Which, in theory, is subtracting the totaly amount of unallocated memory blocks in the range below the stack? I think? I'm not sure. I'm reading the internet and interpreting.
->>>>>>> 44ebe930876ebfa5c467be0a22490717e821a65a
 
 Here's the memory report during the `setup()` function:
 
@@ -46,12 +44,7 @@ Here's the memory report during the `setup()` function:
 
 		My guess at free mem: 90820
 
-<<<<<<< HEAD
 OK, so total free RAM is reporting at roughly 88K out of 96K, not bad. 
-=======
-And then here's the first memory report during the main `loop()` function:
-
->>>>>>> 44ebe930876ebfa5c467be0a22490717e821a65a
 
 		Dynamic ram used: 1188
 		Program static ram used 7404
@@ -60,17 +53,11 @@ And then here's the first memory report during the main `loop()` function:
 		My guess at free mem: 94492
 		
 		Loop Count: 0
-<<<<<<< HEAD
 		
 Now, at this point we're executing the main `loop()` function for the first time, and here we see something interesting. The total amount of RAM used and the guess at free RAM no longer add up. What gives? 
 
-Well, what happens here is that memory in the *heap*, the 
+Well, what happens here is that memory in the *heap*, the dynamic RAM reported up top, has been freed up, but because more stuff is sitting on "top" of it in memory address space, the memory isn't really actually free to be used. The 
 		
-=======
-
-So this is the first time running through the loop, *before* the test sprites have been created. 
-
->>>>>>> 44ebe930876ebfa5c467be0a22490717e821a65a
 		Dynamic ram used: 1380
 		Program static ram used 7404
 		Stack ram used 104
@@ -127,6 +114,12 @@ While I was trying to debug noIdle, I used the `debug(n)` function to light up L
 
 Which seems to have happened, given the 32 bytes freed up from the heap. All righty, then. 
 
-So, `SpriteManager` deletes a sprite, and then the exact *moment* we next try to access the `counter` global int, boom. We crash.
+So, here's a hypothesis: `SpriteManager` deletes a sprite, and then the exact *moment* we next try to access the `counter` global int, boom. We crash.
 
-Or not. 
+The problem is, if so, finding the root cause of this is hard. 
+
+So I'm not going to. 
+
+Instead, I'm going to take the booleans *out* of globals entirely, and change them into functions, which will query the mode pin when they are called. Memory used by functions is stored in the stack, completely on the other side of the memory address space from where we're allocating and deleting sprites from memory. 
+
+That's the plan, anyway. I'll report back when I run the first experiments. 
