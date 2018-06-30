@@ -2,11 +2,13 @@
 
 I've spent several hours in the last couple days trying to debug a weird crash in the Witch Lights when writing to global variables. 
 
-The TL;DR of it is, depending on various factors, sometimes when I try to read global `bool` mode values and modify them in SRAM, the Arduino Due stops responding shortly after its first sprite reaches pixel `NUM_LEDS`, i.e. has gone off the end of the strip. The following is a log of Arduino Memory Kremlinology, where I attempt to interpret the behavior of RAM on an Arduino Due by checking who stands next to Stalin in the May Day Parade. 
-=======
-I've spent several hours in the last couple days trying to debug a weird crash in the Witch Lights when writing to global variables. The short version is, when I define *some*, but not *all* global variables, and then try to read or write to those globals, the Arduino freezes up after the test pattern reaches the end of the LED strip. 
+The TL;DR of it is, depending on various factors, swhen I define *some*, but not *all* global variables, and then try to read or write to those globals, the Arduino freezes up after the test pattern reaches the end of the LED strip. 
+
+If you're interested in the summary of what I'm doing next to try and fix it, scroll to the bottom. 
 
 I can work around the issue by either commenting out the specific globals in question (and any code that references them), or by commenting out other globals that get loaded into RAM, such as pre-rendered raster animations. Which, the first thing I thought--in fact, the first thing anyone who I talk to about this thinks--is that I've run out of memory somehow. This kind of thing is exactly what happens when you're up at the limit of your available SRAM. That is where I began looking. 
+
+The following is a log of Arduino Memory Kremlinology, where I attempt to interpret the behavior of RAM on an Arduino Due by checking who stands next to Stalin in the May Day Parade. 
 
 Here is a memory map of the Arduino Due:
 
@@ -18,7 +20,7 @@ Here is a memory map of the Arduino Due:
 		0x2008 0000 - 0x2008 7FFF   32 KiB SRAM1
 		0x2010 0000 - 0x2010 107F   4224 bytes of NAND flash controller buffer
 
-One key takeaway is that the Due has a contiguous address space, despite having separate 64K and 32K banks. That address space ranges from `0x2007 0000` to `0x2008 7FFF`. 
+One key takeaway is that the Due has a contiguous address space, despite having separate 64K and 32K banks. That address space ranges from `0x2007 0000` to `0x2008 7FFF`. I was under the impression that this was not the case, so that's good to know. 
 
 Because the Due is basically a weird experiment that escaped into the wild, the usual Arduino instructions for viewing available RAM don't work. [Fortunately, I found instructions here](https://forum.arduino.cc/index.php?topic=182759.0). The memory report code is looking at the contiguous RAM address space I just mentioned, like so:
 
@@ -56,7 +58,9 @@ OK, so total free RAM is reporting at roughly 88K out of 96K, not bad.
 		
 Now, at this point we're executing the main `loop()` function for the first time, and here we see something interesting. The total amount of RAM used and the guess at free RAM no longer add up. What gives? 
 
-Well, what happens here is that memory in the *heap*, the dynamic RAM reported up top, has been freed up, but because more stuff is sitting on "top" of it in memory address space, the memory isn't really actually free to be used. The 
+Well, what happens here is that memory in the *heap*, the dynamic RAM reported up top, has been freed up, but because more stuff is sitting on "top" of it in memory address space, the memory isn't really actually free to be used. The C function that reads a memory space and reports back on free blocks doesn't know that, however. So that's why we can't really rely that much on the "free mem" guess. 
+
+The numbers to watch are Dynamic RAM (the "heap") and the Stack, which are memory addresses on opposite sides of the big contiguous memory space. Generally, when you run into a memory issue on an Arduino, it's because you've been writing new stuff onto the end of the heap, and it collides with the stack. That's not happening here. 
 		
 		Dynamic ram used: 1380
 		Program static ram used 7404
@@ -84,7 +88,7 @@ During `loop()` running the test pattern, memory usage stays totally static:
 		
 		Loop Count: 739
 
-The crash happens on loop cycle 741, each time (I've run several tests):
+Serial stops responding on loop cycle 741, each time (I've run several tests):
 
 		Dynamic ram used: 1380
 		Program static ram used 7404
@@ -106,7 +110,7 @@ Three things jump out at me.
 
 * Dynamic RAM (the "heap") dropped from 1380 to 1348, a difference of 32 bytes
 * The free memory estimate has changed from 94300 to 94332, which basically mirrors the change in the heap
-* It crashes when it tries to access `counter`, which is a global int
+* It might be crashing when it tries to access `counter`, which is a global int?
 
 I have previously had a crash just like this, when I was trying to access a global int array for the `noIdle` feature. I found that moving the value I was trying to access into the FaerieSprite class definition fixed the crash, and wrote it off as a scope issue to be debugged later. But what if this was the cause instead?
 
