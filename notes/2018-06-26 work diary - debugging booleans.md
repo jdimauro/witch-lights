@@ -44,7 +44,7 @@ All the global bools are declared at the very top of the program.
 
 Some, like `debugMode`, `spawnLurkers`, and `spawnFaeries`, trigger behavior when true or false. Others are there to be used once I've implemented the mode pins. 
 
-And there's no real rhyme or reason as to which crash. The crashers are `partyMode`, `debugInterval`, and `debugInflection`. They're near the end of the list, but `videoMode` doesn't crash, and it's like in the middle of the set of bools there. ¯\_(ツ)_/¯
+And there's no real rhyme or reason as to which crash. The crashers are `partyMode`, `debugInterval`, and `debugInflection`. They're near the end of the list, but `videoMode` doesn't crash, and it's like in the middle of the set of bools there. ¯/\\_(ツ)_/¯
 
 ---
   
@@ -54,4 +54,4 @@ I got it to work, by commenting out all the `CRGB` and `char` globals and all th
 
 For some reason, reducing the size of the static storage for globals fixes the problem?
 
-¯\_(ツ)_/¯
+¯\\_(ツ)_/¯

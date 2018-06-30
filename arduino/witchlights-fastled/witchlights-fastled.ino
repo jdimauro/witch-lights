@@ -19,18 +19,23 @@ char *ramend=(char *)0x20088000;
 
 
 // debug or animation modes
-// TODO: set this with a jumper to an input pin
+// DONE: set this with a jumper to an input pin
+// FIXME: Put these bools into functions that read digital pins when we need to know the mode; eg bool PlaceLurkers() returns true when it reads digital pin
+
+/*
 bool debugMode = true;					// turns on debug() statements
 bool spawnLurkers = false;			// IMPORTANT: set to FALSE for all public video before Firefly 2018!
 bool randomInflection = false;	// Randomly makes faerie sprite dance back and forth, instead of mainly going "forwards". 
-bool spawnFaeries = false;				// TODO Spawn a new faerie randomly; helpful to keep a constant background of sprite animation for evaluation
-bool placeLurkers = false;			// TODO Dimly lights up range of pixels where lurkers are "allowed" to spawn, for install time
-bool placeTrees = false;				// TODO Dimly lights up range of pixels green where trees are defined, also for installs
-bool placeNoIdle = false;				// TODO same, for specifying zones where faeries will not stop to idle
+bool spawnFaeries = false;			// TODO: Spawn a new faerie randomly; helpful to keep a constant background of sprite animation for evaluation
+bool placeLurkers = false;			// TODO: Dimly lights up range of pixels where lurkers are "allowed" to spawn, for install time
+bool placeTrees = false;				// TODO: Dimly lights up range of pixels green where trees are defined, also for installs
+bool placeNoIdle = false;				// TODO: same, for specifying zones where faeries will not stop to idle
 bool burnNight = false;
 bool videoMode = false;
 bool debugInterval = false;
 bool debugInflection = false;
+*/
+
 
 // FastLED constants
 #define NUM_LEDS							150 						// 750 or 600 in production
@@ -120,21 +125,21 @@ bool debugInflection = false;
 #define TREE_START_1				323
 #define TREE_END_1					334
 
-#define TREE_FADE_PIXEL_2 315
-#define TREE_START_2		323
-#define TREE_END_2			334
+#define TREE_FADE_PIXEL_2 	315
+#define TREE_START_2				323
+#define TREE_END_2					334
 
-#define TREE_FADE_PIXEL_3 315
-#define TREE_START_3		323
-#define TREE_END_3			334
+#define TREE_FADE_PIXEL_3 	315
+#define TREE_START_3				323
+#define TREE_END_3					334
 
-#define TREE_FADE_PIXEL_4 315
-#define TREE_START_4		323
-#define TREE_END_4			334
+#define TREE_FADE_PIXEL_4 	315
+#define TREE_START_4				323
+#define TREE_END_4					334
 
-#define TREE_FADE_PIXEL_5 315
-#define TREE_START_5		323
-#define TREE_END_5			334
+#define TREE_FADE_PIXEL_5 	315
+#define TREE_START_5				323
+#define TREE_END_5					334
 
 // For testing use only. In production, set this equal to 1. Use this to exaggerate the acceleration effects. 10-20 is good for testing.
 #define ACCELERATION_DELAY_OBVIOUSNESS_FACTOR				 1
@@ -195,6 +200,17 @@ void debugN(int, int);
 void stripcpy(CRGB *, CRGB *, int, int, int);
 void createColorsets(void);
 void createAnimationFrames(void);
+bool debugMode(); // = true;				
+bool spawnLurkers(); // = false;		
+bool randomInflection(); // = false;
+bool spawnFaeries(); // = false;		
+bool placeLurkers(); // = false;		
+bool placeTrees(); // = false;			
+bool placeNoIdle(); // = false;			
+bool burnNight(); // = false;
+bool videoMode(); // = false;
+bool debugInterval(); // = false;
+bool debugInflection(); // = false;
 
 class InfraredSensor {
 private:
@@ -862,7 +878,7 @@ private:
 		return random(FAERIE_MAX_TRAIL_LENGTH, FAERIE_MIN_TRAIL_LENGTH) + 1;
 	}
 
-	// TODO define global constants for brake and acceleration factor ranges
+	// TODO: define global constants for brake and acceleration factor ranges
 	float SetBrakeFactor(bool waiting) {
 		if (!waiting) {
 			return (random(500,900) + 1) / 100;
@@ -915,7 +931,7 @@ private:
 	}
 	
 	void SetNextWaitTravelTarget() {
-		// TODO use collision detection when setting next inflection, so that faeries are never traveling TO the same target pixel (or within a range of that pixel, like +- 3)
+		// TODO: use collision detection when setting next inflection, so that faeries are never traveling TO the same target pixel (or within a range of that pixel, like +- 3)
 		
 		lastInflection = nextInflection;
 		int travelDistance = (random(FAERIE_FLIT_MIN_DISTANCE, FAERIE_FLIT_MAX_DISTANCE) + 1) * TravelDirectionSwitch();
@@ -1005,7 +1021,7 @@ private:
 	float SetBrakePercentage() {
 		// TODO: map distance of move to brake percentage, brakefactor, accelerationfactor
 		if (!isWaiting) {
-			return .12;	// TODO - set this with a constant
+			return .12;	// TODO: - set this with a constant
 		} else {
 			return .45;
 		}
@@ -1175,7 +1191,7 @@ private:
 		
 		// Terminate if we go off the end of the strip		
 		if (CheckForTermination(travelDirection)) {
-			// TODO - make the trails fade out after the FaerieSprite goes off-strip (github issue)
+			// TODO: - make the trails fade out after the FaerieSprite goes off-strip (github issue)
 			
 			FadeOutTrail(NUM_LEDS - 1, 255, -1);
 			FadeOutTrail(0, 255, 1);
@@ -2028,18 +2044,8 @@ void setup() {
 		pinMode(PLACE_NOIDLE_PIN, INPUT_PULLUP);
 		pinMode(DEBUG_INTERVAL, INPUT_PULLUP);
 		pinMode(DEBUG_INFLECTION, INPUT_PULLUP);
-		
-		digitalRead(SPAWN_LURKERS_PIN) == LOW ? spawnLurkers = true : spawnLurkers = false;
-		digitalRead(SPAWN_FAERIES_PIN) == LOW ? spawnFaeries = true : spawnFaeries = false;
-		digitalRead(BURN_NIGHT_PIN) == LOW ? burnNight = true : burnNight = false;
-		digitalRead(VIDEO_PIN) == LOW ? videoMode = true : videoMode = false;
-		digitalRead(PLACE_LURKERS_PIN) == LOW ? placeLurkers = true : placeLurkers = false;
-		digitalRead(PLACE_TREES_PIN) == LOW ? placeTrees = true : placeTrees = false;
-		digitalRead(PLACE_NOIDLE_PIN) == LOW ? placeNoIdle = true : placeNoIdle = false;
-		digitalRead(DEBUG_INTERVAL) == LOW ? debugInterval = true : debugInterval = false; // crashes
-		digitalRead(DEBUG_INFLECTION) == LOW ? debugInflection = true : debugInflection = false; // crashes
-		
-		// TODO Find out why burnNight, debugInterval, and debugInflection bools crash???
+
+		// FIXME: Find out why burnNight, debugInterval, and debugInflection bools crash???
 		
 		isBooted = false;
 		testSpritesCreated = false;
@@ -2109,7 +2115,7 @@ void loop() {
 		// Spawn lurkers randomly
 		if (random(0,1000) == 0 && spawnLurkers) {
 			// debug(3);
-			int lurkerSpawnPixel = random(40,149); // TODO - create array of lurker zones to use instead of the constants?
+			int lurkerSpawnPixel = random(40,149); // TODO: - create array of lurker zones to use instead of the constants?
 			Sprite *s1 = new LurkerSprite(lurkerSpawnPixel,1); 
 			// TODO: check to see if another lurker already exists at this pixel, despawn if so
 		
@@ -2210,6 +2216,27 @@ void stripcpy(CRGB *leds, CRGB *source, int start, int width, int patternSize) {
 				memcpy(leds + actualStartPosition, (patternStart <= patternSize) ? source + patternStart : source, actualBytes * sizeof(CRGB));
 		}
 }
+
+bool debugMode() {
+	return true;
+}// = true;
+
+
+bool spawnLurkers(); // read pin		
+
+
+bool randomInflection() {
+	return false;
+} // = false;
+
+bool spawnFaeries(); // read pin
+bool placeLurkers(); // read pin		
+bool placeTrees(); // read pin		
+bool placeNoIdle(); // read pin			
+bool burnNight(); // read pin
+bool videoMode(); // 
+bool debugInterval(); // read pin
+bool debugInflection(); // read pin
 
 void createColorsets() {
 // Blue.
