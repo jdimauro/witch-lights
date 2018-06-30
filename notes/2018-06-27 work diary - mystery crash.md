@@ -1,6 +1,36 @@
 # Mystery Crash
 
-I've spent several hours in the last couple days trying to debug a weird crash in the Witch Lights when writing to global variables.
+I've spent several hours in the last couple days trying to debug a weird crash in the Witch Lights when writing to global variables. The short version is, when I define *some*, but not *all* global variables, and then try to read or write to those globals, the Arduino freezes up after the test pattern reaches the end of the LED strip. 
+
+I can work around the issue by either commenting out the specific globals in question (and any code that references them), or by commenting out other globals that get loaded into RAM, such as pre-rendered raster animations. Which, the first thing I thought--in fact, the first thing anyone who I talk to about this thinks--is that I've run out of memory somehow. This kind of thing is exactly what happens when you're up at the limit of your available SRAM. That is where I began looking. 
+
+Here is a memory map of the Arduino Due:
+
+		0x0008 0000 - 0x000B FFFF   256 KiB flash bank 0
+		0x000C 0000 - 0x000F FFFF   256 KiB flash bank 1
+		                            Both banks above provide 512 KiB of contiguous flash memory
+		0x2000 0000 - 0x2000 FFFF   64 KiB SRAM0
+		0x2007 0000 - 0x2007 FFFF   64 KiB mirrored SRAM0, so that it's consecutive with SRAM1
+		0x2008 0000 - 0x2008 7FFF   32 KiB SRAM1
+		0x2010 0000 - 0x2010 107F   4224 bytes of NAND flash controller buffer
+
+One key takeaway is that the Due has a contiguous address space, despite having separate 64K and 32K banks. That address space ranges from `0x2007 0000` to `0x2008 7FFF`. 
+
+Because the Due is basically a weird experiment that escaped into the wild, the usual Arduino instructions for viewing available RAM don't work. [Fortunately, I found instructions here](https://forum.arduino.cc/index.php?topic=182759.0). The memory report code is looking at the contiguous RAM address space I just mentioned, like so:
+
+		char *ramstart=(char *)0x20070000;
+		char *ramend=(char *)0x20088000;
+
+The code calculates 4 things:
+
+* Dynamic RAM used (the "heap", which grows from the "top" of the static area, "up")
+* Static RAM used (globals and static variables, in a reserved space "under" the heap)
+* Stack RAM used (local variables, interrupts, function calls are stored here, starting at the "top" of the SRAM address space and growing "down" towards the heap; when functions complete, their local variables and pointers are cleaned up, and the stack shrinks)
+* "Guess at free mem" (which is complicated)
+
+The "free mem" calculation is `stack_ptr - heapend + mi.fordblks`
+
+Which, in theory, is subtracting the totaly amount of unallocated memory blocks in the range below the stack? I think? I'm not sure. I'm reading the internet and interpreting.
 
 Here's the memory report during the `setup()` function:
 
@@ -10,6 +40,7 @@ Here's the memory report during the `setup()` function:
 
 		My guess at free mem: 90820
 
+And then here's the first memory report during the main `loop()` function:
 
 
 		Dynamic ram used: 1188
@@ -19,7 +50,9 @@ Here's the memory report during the `setup()` function:
 		My guess at free mem: 94492
 		
 		Loop Count: 0
-		
+
+So this is the first time running through the loop, *before* the test sprites have been created. 
+
 		Dynamic ram used: 1380
 		Program static ram used 7404
 		Stack ram used 104
