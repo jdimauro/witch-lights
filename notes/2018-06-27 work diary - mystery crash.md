@@ -1,6 +1,8 @@
 # Mystery Crash
 
-I've spent several hours in the last couple days trying to debug a weird crash in the Witch Lights when writing to global variables.
+I've spent several hours in the last couple days trying to debug a weird crash in the Witch Lights when writing to global variables. 
+
+The TL;DR of it is, depending on various factors, sometimes when I try to read global `bool` mode values and modify them in SRAM, the Arduino Due stops responding shortly after its first sprite reaches pixel `NUM_LEDS`, i.e. has gone off the end of the strip. The following is a log of Arduino Memory Kremlinology, where I attempt to interpret the behavior of RAM on an Arduino Due by checking who stands next to Stalin in the May Day Parade. 
 
 Here's the memory report during the `setup()` function:
 
@@ -10,7 +12,7 @@ Here's the memory report during the `setup()` function:
 
 		My guess at free mem: 90820
 
-
+OK, so total free RAM is reporting at roughly 88K out of 96K, not bad. 
 
 		Dynamic ram used: 1188
 		Program static ram used 7404
@@ -19,6 +21,10 @@ Here's the memory report during the `setup()` function:
 		My guess at free mem: 94492
 		
 		Loop Count: 0
+		
+Now, at this point we're executing the main `loop()` function for the first time, and here we see something interesting. The total amount of RAM used and the guess at free RAM no longer add up. What gives? 
+
+Well, what happens here is that memory in the *heap*, the 
 		
 		Dynamic ram used: 1380
 		Program static ram used 7404
