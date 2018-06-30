@@ -6,6 +6,7 @@
 
 // debug or animation modes
 // DONE: set this with a jumper to an input pin
+// FIXME: Put these bools into functions that read digital pins when we need to know the mode; eg bool PlaceLurkers() returns true when it reads digital pin
 bool debugMode = true;					// turns on debug() statements
 bool spawnLurkers = false;			// IMPORTANT: set to FALSE for all public video before Firefly 2018!
 bool randomInflection = false;	// Randomly makes faerie sprite dance back and forth, instead of mainly going "forwards". 
@@ -17,6 +18,7 @@ bool burnNight = false;
 bool videoMode = false;
 bool debugInterval = false;
 bool debugInflection = false;
+
 
 // FastLED constants
 #define NUM_LEDS							750 						// 750 or 600 in production
