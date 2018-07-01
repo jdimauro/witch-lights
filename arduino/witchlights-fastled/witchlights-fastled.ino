@@ -211,6 +211,8 @@ bool burnNight(); // = false;
 bool videoMode(); // = false;
 bool debugInterval(); // = false;
 bool debugInflection(); // = false;
+void spawnRandomLurkers();
+void spawnRandomFaeries();
 
 class InfraredSensor {
 private:
@@ -328,33 +330,32 @@ class SpriteVector {
 		}
 
 		boolean RemoveAt(int i) {
-			/*
-			debug(i);
-			delay(2000);
-			debug(1);
-			delay(500);
+
+			// debug(i);
+			// delay(2000);
+			// debug(1);
+			// delay(500);
 			Sprite *ptr = sprites[i];
 			sprites[i] = NULL;
 			delete ptr;
-			debug(2);
-			delay(2000);
+			// debug(2);
+			// delay(2000);
 
 			for (int j = i + 1; j < count; j++) {
-				debug(j);
-				delay(250);
+				// debug(j);
+				// delay(250);
 				sprites[j - 1] = sprites[j];
 			}
-			debug(1);
-			delay(250);
+			// debug(1);
+			// delay(250);
 			sprites[count - 1] = NULL;
-			debug(2);
-			delay(250);
+			// debug(2);
+			// delay(250);
 
 			--this->count;
-			debug(3);
-			delay(250);
+			// debug(3);
+			// delay(250);
 
-			*/
 			return true;
 		}
 };
@@ -1967,16 +1968,12 @@ class SpriteManager {
 				// debug(1);
 
 				for (int i = 0; i < this->SpriteCount(); i++) {
-						updatedSomething |= spriteVector->Get(i)->Update();
+					updatedSomething |= spriteVector->Get(i)->Update();
 				}
-
-				// debug(2);
-
+				
 				if (updatedSomething) {
 						FastLED.show();
 				}
-
-				// debug(3);
 
 				this->Clean();
 		}
@@ -2065,7 +2062,7 @@ int sensor1LastPollTime = millis();
 char *heapend=sbrk(0);
 
 void loop() {
-	debug(1);
+	// debug(1);
 	if (/*counter % 10 == 0*/ true) {
 		// debug(2);
 		register char * stack_ptr asm ("sp");
@@ -2097,9 +2094,9 @@ void loop() {
 						testSpritesCreated = true;
 				}
 
-				debug(6);
+				// debug(6);
 				spriteManager->Update();
-				debug(7);
+				// debug(7);
 
 				if (spriteManager->SpriteCount() == 0) {
 					isBooted = true;
@@ -2108,12 +2105,12 @@ void loop() {
 				return;
 		}
 
-		if (placeLurkers) {
+		if (placeLurkers()) {
 			// TODO place lurker mode
 		}
 
 		// Spawn lurkers randomly
-		if (random(0,1000) == 0 && spawnLurkers) {
+		if (random(0,1000) == 0 && spawnLurkers()) {
 			// debug(3);
 			int lurkerSpawnPixel = random(40,149); // TODO: - create array of lurker zones to use instead of the constants?
 			Sprite *s1 = new LurkerSprite(lurkerSpawnPixel,1); 
@@ -2128,7 +2125,7 @@ void loop() {
 			// debug(10);
 		}
 		
-		if (random(0,1000) == 0 && spawnFaeries) {
+		if (random(0,1000) == 0 && spawnFaeries()) {
 			Sprite *s1 = new FaerieSprite(1, -3); 
 		
 			if (! spriteManager->Add(s1)) {
@@ -2236,7 +2233,7 @@ bool randomInflection() {
 } // = false;
 
 bool spawnFaeries() {
-	if (digitalRead(SPAWN_LURKERS_PIN) == LOW) {
+	if (digitalRead(SPAWN_FAERIES_PIN) == LOW) {
 		return true;
 	} else {
 		return false;
@@ -2244,7 +2241,7 @@ bool spawnFaeries() {
 } // read pin
 
 bool placeLurkers() {
-	if (digitalRead(SPAWN_LURKERS_PIN) == LOW) {
+	if (digitalRead(PLACE_LURKERS_PIN) == LOW) {
 		return true;
 	} else {
 		return false;
@@ -2252,7 +2249,7 @@ bool placeLurkers() {
 } // read pin
 
 bool placeTrees() {
-	if (digitalRead(SPAWN_LURKERS_PIN) == LOW) {
+	if (digitalRead(PLACE_TREES_PIN) == LOW) {
 		return true;
 	} else {
 		return false;
@@ -2260,7 +2257,7 @@ bool placeTrees() {
 } // read pin
 
 bool placeNoIdle() {
-	if (digitalRead(SPAWN_LURKERS_PIN) == LOW) {
+	if (digitalRead(PLACE_NOIDLE_PIN) == LOW) {
 		return true;
 	} else {
 		return false;
@@ -2268,14 +2265,14 @@ bool placeNoIdle() {
 } // read pin			
 
 bool burnNight() {
-	if (digitalRead(SPAWN_LURKERS_PIN) == LOW) {
+	if (digitalRead(BURN_NIGHT_PIN) == LOW) {
 		return true;
 	} else {
 		return false;
 	}
 } // read pin
 bool videoMode() {
-	if (digitalRead(SPAWN_LURKERS_PIN) == LOW) {
+	if (digitalRead(VIDEO_PIN) == LOW) {
 		return true;
 	} else {
 		return false;
@@ -2298,6 +2295,37 @@ bool debugInflection() {
 	}
 } // read pin
 
+void spawnRandomLurkers() {
+	if (random(0,1000) == 0 && spawnLurkers()) {
+		// debug(3);
+		int lurkerSpawnPixel = random(40,149); // TODO: - create array of lurker zones to use instead of the constants?
+		Sprite *s1 = new LurkerSprite(lurkerSpawnPixel,1); 
+		// TODO: check to see if another lurker already exists at this pixel, despawn if so
+	
+		if (! spriteManager->Add(s1)) {
+			delete s1;
+		} 
+	}
+}
+
+void spawnRandomFaeries() {
+	if (random(0,1000) == 0 && spawnFaeries()) {
+		Sprite *s1 = new FaerieSprite(1, -3);
+	
+		if (! spriteManager->Add(s1)) {
+			delete s1;
+		}
+		
+	} else if (random(0,1000) == 1 && spawnFaeries()) {
+		Sprite *s2 = new FaerieSprite(-1,153);
+		
+		if (! spriteManager->Add(s2)) {
+			delete s2;
+		}
+	}
+		// if videoMode... how do we want to spawn? Once every 5 seconds?
+}
+	
 void createColorsets() {
 // Blue.
 		colorSets[0][0] = CRGB::Black;
@@ -2362,7 +2390,6 @@ void createColorsets() {
 		colorSets[4][8] = 0x633051;
 #endif
 }
-
 
 void createAnimationFrames() {
 	
