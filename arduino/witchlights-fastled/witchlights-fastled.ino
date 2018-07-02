@@ -7,9 +7,9 @@
 // debug or animation modes
 // TODO: set this with a jumper to an input pin
 bool debugMode = true;					// turns on debug() statements
-bool spawnLurkers = true;			// IMPORTANT: set to FALSE for all public video before Firefly 2018!
+bool spawnLurkers = false;			// Not ready for Firefly 2018
 bool randomInflection = false;	// Randomly makes faerie sprite dance back and forth, instead of mainly going "forwards". 
-bool spawnFaeries = true;				// TODO Spawn a new faerie randomly; helpful to keep a constant background of sprite animation for evaluation
+bool spawnFaeries = false;			// TODO Spawn a new faerie randomly; helpful to keep a constant background of sprite animation for evaluation
 bool placeLurkers = false;			// TODO Dimly lights up range of pixels where lurkers are "allowed" to spawn, for install time
 bool placeTrees = false;				// TODO Dimly lights up range of pixels green where trees are defined, also for installs
 bool placeNoIdle = false;				// TODO same, for specifying zones where faeries will not stop to idle
@@ -26,8 +26,8 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define PIR_SENSOR_2_PIN		 4
 #define NEOPIXEL_DATA_PIN		 6								// Pin for neopixels
 
-// Sensor time-out (in production, set tp 10000)
-#define INFRARED_SENSOR_TIMEOUT_IN_MS		1000	// in milliseconds
+// Sensor time-out (in production, set to 10000)
+#define INFRARED_SENSOR_TIMEOUT_IN_MS		5000	// in milliseconds
 
 #define SCANNER_SPRITE_FRAME_DELAY_IN_MS			1
 #define TEST_PATTERN_FRAME_DELAY_IN_MS				1
@@ -36,7 +36,7 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define FAERIE_MAX_IDLE							4
 
 #define FAERIE_FLIT_MIN_DISTANCE		5
-#define FAERIE_FLIT_MAX_DISTANCE		15
+#define FAERIE_FLIT_MAX_DISTANCE		25
 
 #define FAERIE_FLIT_MIN_START_INTERVAL	25
 #define FAERIE_FLIT_MAX_START_INTERVAL	35
@@ -47,15 +47,15 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define FAERIE_MIN_BRAKE						96
 #define FAERIE_MAX_BRAKE						112
 
-#define FAERIE_MIN_WAIT							3
-#define FAERIE_MAX_WAIT							9
+#define FAERIE_MIN_WAIT							2
+#define FAERIE_MAX_WAIT							5
 
 #define FAERIE_MIN_TRAIL_LENGTH			80	// The lower the value, the longer the trail generated, but also the more FastLED functions get called per update per sprite. 
 #define FAERIE_MAX_TRAIL_LENGTH			33
 
 // currently set this to be consistent for animation design
-#define FAERIE_MIN_LONG_TRAVEL			50	// This range is dead center in my first "no idle" zone, so any problems with the no-idle functions will show up quickly
-#define FAERIE_MAX_LONG_TRAVEL			75	// 
+#define FAERIE_MIN_LONG_TRAVEL			120	// This range is dead center in my first "no idle" zone, so any problems with the no-idle functions will show up quickly
+#define FAERIE_MAX_LONG_TRAVEL			225	// 
 
 #define SPRITE_STARTING_DELAY_INTERVAL_IN_MS	 50 // 40
 #define SCANNER_DELAY_INTERVAL_IN_MS					 20
@@ -959,7 +959,7 @@ private:
 	float SetBrakePercentage() {
 		// TODO: map distance of move to brake percentage, brakefactor, accelerationfactor
 		if (!isWaiting) {
-			return .12;	// TODO - set this with a constant
+			return .06;	//  TODO - set this with a constant // .12 worked for 50-75 pixel moves, too big for 160 pixel moves
 		} else {
 			return .45;
 		}
@@ -2019,8 +2019,8 @@ void loop() {
 
 		if (sensor1->IsActuated()) {
 			// debug(1);
-			// Sprite *s1 = new FaerieSprite(1, -3); // production
-			Sprite *s1 = new FaerieSprite(-1, 153); // For testing
+			Sprite *s1 = new FaerieSprite(1, -3); // production
+			// Sprite *s1 = new FaerieSprite(-1, 153); // For testing
 
 			if (! spriteManager->Add(s1)) {
 					delete s1;
