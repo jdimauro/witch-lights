@@ -15,7 +15,7 @@ bool placeTrees = false;				// TODO Dimly lights up range of pixels green where 
 bool placeNoIdle = false;				// TODO same, for specifying zones where faeries will not stop to idle
 
 // FastLED constants
-#define NUM_LEDS							750 // 750 or 600 in production
+#define NUM_LEDS							600 // 750 or 600 in production
 #define MAXSPRITES						20
 
 #define NUM_COLORSETS					5
@@ -44,18 +44,18 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define FAERIE_MIN_SPEED						1
 #define FAERIE_MAX_SPEED 						10
 
-#define FAERIE_MIN_BRAKE						96
-#define FAERIE_MAX_BRAKE						112
+#define FAERIE_MIN_BRAKE						32		// 96 for 50-60 px
+#define FAERIE_MAX_BRAKE						64		// 112
 
-#define FAERIE_MIN_WAIT							2
+#define FAERIE_MIN_WAIT							1
 #define FAERIE_MAX_WAIT							5
 
 #define FAERIE_MIN_TRAIL_LENGTH			80	// The lower the value, the longer the trail generated, but also the more FastLED functions get called per update per sprite. 
 #define FAERIE_MAX_TRAIL_LENGTH			33
 
 // currently set this to be consistent for animation design
-#define FAERIE_MIN_LONG_TRAVEL			120	// This range is dead center in my first "no idle" zone, so any problems with the no-idle functions will show up quickly
-#define FAERIE_MAX_LONG_TRAVEL			225	// 
+#define FAERIE_MIN_LONG_TRAVEL			180	// This range is dead center in my first "no idle" zone, so any problems with the no-idle functions will show up quickly
+#define FAERIE_MAX_LONG_TRAVEL			300	// 
 
 #define SPRITE_STARTING_DELAY_INTERVAL_IN_MS	 50 // 40
 #define SCANNER_DELAY_INTERVAL_IN_MS					 20
