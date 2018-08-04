@@ -1,5 +1,7 @@
 # Plan For Which Team
 
+![Sometimes I rant to friends in text messages](https://raw.githubusercontent.com/jdimauro/witch-lights/master/notes/2018-08-03 - Which Team manufacture messages.png)
+
 * Documentation
 	* Wiki
 		* Making Witch Lights
@@ -19,6 +21,9 @@
 					* need EAGLE experience - Steve Pomeroy?
 			* Pick a queue and make some components as needed for each set in production
 			* order components just-in time
+				* at a makerspace, material enough to make one of each component, with instructions on chromebook
+				* once you complete the job, you sign off on it, and it generates a shipping label, etc
+				* also, a single set of components is drop-shipped to that makerspace
 			* generate purchase orders
 			* generate shipping labels and packing slips
 			* work with makerspaces around the world
