@@ -16,7 +16,7 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 
 // FastLED constants
 #define NUM_LEDS							600 // 750 or 600 in production
-#define MAXSPRITES						20
+#define MAXSPRITES						4
 
 #define NUM_COLORSETS					5
 #define NUM_COLORS_PER_SET		9
@@ -27,7 +27,7 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define NEOPIXEL_DATA_PIN		 6								// Pin for neopixels
 
 // Sensor time-out (in production, set to 10000)
-#define INFRARED_SENSOR_TIMEOUT_IN_MS		5000	// in milliseconds
+#define INFRARED_SENSOR_TIMEOUT_IN_MS		10000	// in milliseconds
 
 #define SCANNER_SPRITE_FRAME_DELAY_IN_MS			1
 #define TEST_PATTERN_FRAME_DELAY_IN_MS				1
@@ -2028,11 +2028,11 @@ void loop() {
 		}
 
 		if (sensor2->IsActuated()) {
-			Sprite *s2 = new FaerieSprite(-1, NUM_LEDS + 3);
+			// Sprite *s2 = new FaerieSprite(-1, NUM_LEDS + 3);
 			
-			if (! spriteManager->Add(s2)) {
-				delete s2;
-			}
+			// if (! spriteManager->Add(s2)) {
+				// delete s2;
+			// }
 		}
 
 		spriteManager->Update();
