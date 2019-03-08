@@ -2028,11 +2028,11 @@ void loop() {
 		}
 
 		if (sensor2->IsActuated()) {
-			// Sprite *s2 = new FaerieSprite(-1, NUM_LEDS + 3);
+			Sprite *s2 = new FaerieSprite(-1, NUM_LEDS + 3);
 			
-			// if (! spriteManager->Add(s2)) {
-				// delete s2;
-			// }
+			if (! spriteManager->Add(s2)) {
+				delete s2;
+			}
 		}
 
 		spriteManager->Update();
