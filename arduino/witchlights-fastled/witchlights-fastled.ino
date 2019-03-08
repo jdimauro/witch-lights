@@ -2019,19 +2019,15 @@ void loop() {
 
 		if (sensor1->IsActuated()) {
 			// debug(1);
-			// Sprite *s1 = new FaerieSprite(1, -3); // production
+			Sprite *s1 = new FaerieSprite(1, -3); // production
 
-			// if (! spriteManager->Add(s1)) {
-			// 		delete s1;
-			// }
+			if (! spriteManager->Add(s1)) {
+					delete s1;
+			}
 		}
 
 		if (sensor2->IsActuated()) {
-			// Sprite *s2 = new FaerieSprite(-1, NUM_LEDS + 3);
-
-			// want to see the sprite get created near where my laptop is
-			Sprite *s2 = new FaerieSprite(-1, -3);
-			
+			Sprite *s2 = new FaerieSprite(-1, NUM_LEDS + 3);
 			
 			if (! spriteManager->Add(s2)) {
 				delete s2;
