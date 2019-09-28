@@ -1,0 +1,73 @@
+Basically a plug-together pixel and power harness made up of AdaFruit Feather LoRa boards, each controlling a single pixel strip, and sharing a power rail, and wireless motion sensors with LoRa and WiFi chips in them; last night I sketched a solution for how you would interact with and control it with a phone, without it being a "poke at a screen for 30 minutes" deal
+
+This type of physical, embodied interaction is what I was playing with in 2006, when I decided I needed to get real jobs and figure out how to build this stuff as it started to come out and become accessible
+
+So, like:
+
+You'd turn on the motion sensor on the tree at the start of the path. You've linked 3 Witch Lights segments together, and there's a motion sensor at each end.
+
+And the Witch Lights are on, but they wake up in "program me" mode the first time
+
+You'd scan the QRCode at the base of the sensor, which opens a very simple web app, hosted on the Pi Zero inside the sensor
+
+There'd only be a couple of big, phone-sized buttons/controls, and one would be "Link to Witch Lights" or some such. User testing required for all of this btw
+
+When you hit that button, the NeoPixel on the sensor pulses to indicate pairing mode. Your screen tells you to open the camera app on your phone, and to scan the QRCode of the starting point of the Witch Lights
+
+You scan the small QR printed just next to the start of the pixel strip you want, and a Witch Lights TravelSprite (just the trail, with no pauses or direction changes) goes from that end to the other end of the strip, vanishing into the globe-shaped hub linking the strips together
+
+What happens behind the scenes is:
+
+you scan the QRCode, which opens a URL, which saves the (unique, random hash) LoRa ID of the node you scanned to the program running the sensor (which is a Raspberry Pi Zero, so it can do stuff more like this than the CircuitPython Feather M0 boards can)...
+
+The sensor then sends an instruction in a very simple command langage, basically like, node#9639,t,-3,1 for node id, type of sprite (traveler), starting location (-3 places it "offscreen") and direction (1 for positive, -1 for negative) over LoRa, and the Witch Lights node you scanned responds by sending the travel sprite off down the line
+
+This way, you're seeing and testing exactly the behavior you plan to see (minus the amusing animation code)
+
+Then you scan the next Witch Lights node (Nest? Need a name for the globes, they're glass or carved wood or somesuch with UV LEDs in them that flicker in a firefly animation style when a Witch Lights sprite passes "through" them, but they're actually two halves, which link together with another set of nodes or with a battery at each end
+
+So you scanned the first one and the Witch Lights animated towards the second and vanished. You scan the second, and a TravelSprite goes from the start again and then passes through the second, and continues on and vanishes at the third
+
+Scan the third, and now the TravelSprite goes down all the way and ends.
+
+To end it, you scan the QRCode on the terminal motion sensor, which is much simpler and is more like the Witch Lights node LoRa processors.
+
+Doing so ends the "Pair sensors to Witch Lights" process/mode on the sensor, and also registers the terminal sensor as what it is
+
+And then you see confirmation because the TravelSprite starts at the "end" and goes backwards all the way to the first sprite
+
+And then the Witch Lights are working.
+
+So the UX for you is:
+
+Scan sensor to join its wifi, scan it to open the control panel...
+
+hit "pair with Witch Lights"
+
+scan the three Witch Lights globes in order going "away" from the sensor
+
+and the animation shows you what will happen when the sensor is triggered each time
+
+Then scan the terminal sensor
+
+and the animation goes back the other way, again to show what will happen when that sensor is triggered
+
+And then the Witch Lights go live, and motion at either sensor will cause the Witch Lights to animate
+
+But this time instead of one processor creating and directing an entire chain
+
+The sensor's Pi brain acts as a fae conductor, sending and receiving control messages across a stateless packet radio mesh network
+
+Which, by the way, has a range of up to 1.5km (except very not that in the woods)
+
+But like, this allows arbitrarily long chains
+
+And anyone can build their own segment and bring it
+
+and then we can assemble them together by clicking them together (and screwing the waterproof nut connecting the electricals tight)
+
+And then with a phone you can link 4, 6, 7, 8 together. And they can even be on either side of the path!
+
+Like, I could make a Kickstarter to make tons of these kits, and people could buy them, and follow my user-tested instructions in both text, image, and video forms
+
+And then come together to build huge Witch Lights installs

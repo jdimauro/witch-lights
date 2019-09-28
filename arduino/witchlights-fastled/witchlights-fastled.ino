@@ -15,7 +15,7 @@ bool placeTrees = false;				// TODO Dimly lights up range of pixels green where 
 bool placeNoIdle = false;				// TODO same, for specifying zones where faeries will not stop to idle
 
 // FastLED constants
-#define NUM_LEDS							600 // 750 or 600 in production
+#define NUM_LEDS							600 // 600 in production
 #define MAXSPRITES						4
 
 #define NUM_COLORSETS					5
