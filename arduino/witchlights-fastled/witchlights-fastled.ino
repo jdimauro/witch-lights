@@ -9,14 +9,14 @@
 bool debugMode = true;					// turns on debug() statements
 bool spawnLurkers = false;			// Not ready for Firefly 2018
 bool randomInflection = false;	// Randomly makes faerie sprite dance back and forth, instead of mainly going "forwards". 
-bool spawnFaeries = false;			// TODO Spawn a new faerie randomly; helpful to keep a constant background of sprite animation for evaluation
+bool spawnFaeries = true;			// TODO Spawn a new faerie randomly; helpful to keep a constant background of sprite animation for evaluation
 bool placeLurkers = false;			// TODO Dimly lights up range of pixels where lurkers are "allowed" to spawn, for install time
 bool placeTrees = false;				// TODO Dimly lights up range of pixels green where trees are defined, also for installs
 bool placeNoIdle = false;				// TODO same, for specifying zones where faeries will not stop to idle
 
 // FastLED constants
-#define NUM_LEDS							600 // 600 in production
-#define MAXSPRITES						4
+#define NUM_LEDS							600 // 150 per 5-meter strip
+#define MAXSPRITES						5
 
 #define NUM_COLORSETS					5
 #define NUM_COLORS_PER_SET		9
@@ -27,13 +27,13 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define NEOPIXEL_DATA_PIN		 6								// Pin for neopixels
 
 // Sensor time-out (in production, set to 10000)
-#define INFRARED_SENSOR_TIMEOUT_IN_MS		10000	// in milliseconds
+#define INFRARED_SENSOR_TIMEOUT_IN_MS		8000	// in milliseconds
 
 #define SCANNER_SPRITE_FRAME_DELAY_IN_MS			1
 #define TEST_PATTERN_FRAME_DELAY_IN_MS				1
 
 #define FAERIE_MIN_IDLE							1
-#define FAERIE_MAX_IDLE							4
+#define FAERIE_MAX_IDLE							3
 
 #define FAERIE_FLIT_MIN_DISTANCE		5
 #define FAERIE_FLIT_MAX_DISTANCE		25
@@ -48,14 +48,14 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define FAERIE_MAX_BRAKE						64		// 112
 
 #define FAERIE_MIN_WAIT							1
-#define FAERIE_MAX_WAIT							5
+#define FAERIE_MAX_WAIT							3
 
 #define FAERIE_MIN_TRAIL_LENGTH			80	// The lower the value, the longer the trail generated, but also the more FastLED functions get called per update per sprite. 
 #define FAERIE_MAX_TRAIL_LENGTH			33
 
 // currently set this to be consistent for animation design
-#define FAERIE_MIN_LONG_TRAVEL			180	// This range is dead center in my first "no idle" zone, so any problems with the no-idle functions will show up quickly
-#define FAERIE_MAX_LONG_TRAVEL			300	// 
+#define FAERIE_MIN_LONG_TRAVEL			170	// This range is dead center in my first "no idle" zone, so any problems with the no-idle functions will show up quickly
+#define FAERIE_MAX_LONG_TRAVEL			360	// 
 
 #define SPRITE_STARTING_DELAY_INTERVAL_IN_MS	 50 // 40
 #define SCANNER_DELAY_INTERVAL_IN_MS					 20
@@ -297,144 +297,6 @@ class SpriteVector {
 			return true;
 		}
 };
-
-// Animation experiment classes start here.
-
-// First working animation test class. 
-/*
-class AnimationTestSprite : public Sprite {
-	private:
-		int updateInterval;
-		int currentPixel;
-		bool isScanning;
-		int scanningFrame;
-		int lastInflection;
-		int nextInflection;
-		int scanCount;
-		int scanCountTotal;
-
-		// pattern is one black pixel plus remaining pixels in order of increasing brightness with brightest pixel doubled.
-		CRGB pattern[NUM_COLORS_PER_SET + 1];
-		int patternLength = NUM_COLORS_PER_SET + 1;
-
-		void SetNextInflection() {
-				lastInflection = nextInflection;
-				nextInflection += random(FAERIE_MIN_LONG_TRAVEL, FAERIE_MAX_LONG_TRAVEL + 1);
-		}
-
-		int GetNewScanCountTotal() {
-				return random(FAERIE_MIN_IDLE, FAERIE_MAX_IDLE + 1);
-		}
-
-	public:
-		AnimationTestSprite() : Sprite() {
-				// Initial state.
-				this->currentPixel = -8;	// The first pixel of the pattern is black.
-				this->scanningFrame = 0;
-				this->isScanning = false;
-				this->lastInflection = 0;
-				this->nextInflection = 0;
-				SetNextInflection();
-				this->scanCount = 0;
-				this->scanCountTotal = 1;
-				this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
-
-				// Choose a random color palette from the palettes available.
-				int colorPalette = random(0, NUM_COLORSETS);
-
-				// Set the colors in the pattern.
-				this->pattern[0] = colorSets[colorPalette][0];
-				this->pattern[1] = colorSets[colorPalette][1];
-				this->pattern[2] = colorSets[colorPalette][2];
-				this->pattern[3] = colorSets[colorPalette][3];
-				this->pattern[4] = colorSets[colorPalette][4];
-				this->pattern[5] = colorSets[colorPalette][5];
-				this->pattern[6] = colorSets[colorPalette][6];
-				this->pattern[7] = colorSets[colorPalette][7];
-				this->pattern[8] = colorSets[colorPalette][8];
-				this->pattern[9] = colorSets[colorPalette][8];
-
-				this->patternLength = 10;
-
-				for (int i = 0; i < TIMINGTEST_ANIMATION_FRAME_WIDTH * TIMINGTEST_ANIMATION_FRAMES; i++) {
-						af_timing_test[i] = afc_timing_test[i] > ' ' ? colorSets[colorPalette][afc_timing_test[i] - '0'] : CRGB::Black;
-				}
-		}
-
-		~AnimationTestSprite() {
-		}
-
-		boolean UpdateNow() {
-			if (millis() - lastUpdateTime >= ACCELERATION_DELAY_OBVIOUSNESS_FACTOR * updateInterval) {
-				lastUpdateTime = millis();
-				return true;
-			} else {
-				return false;
-			}
-		}
-
-		bool Update() {
-				if (! this->UpdateNow()) {
-						return false;
-				}
-
-				// Going from scanning to travel mode.
-				if (isScanning && scanCount == scanCountTotal) {
-						isScanning = false;
-						currentPixel += TIMINGTEST_ANIMATION_FRAME_WIDTH; // 8
-						SetNextInflection();
-						this->scanCount = 0;
-						this->scanCountTotal = 1;
-						this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
-						leds[currentPixel - 6] = CRGB::Black;
-						leds[currentPixel - 8] = CRGB::Black;
-						leds[currentPixel - 9] = CRGB::Black;	 // I hate this. One-off to get rid of the straggler when coming out of scan mode.
-						leds[currentPixel - 10] = CRGB::Black;
-				}
-
-				if (! isScanning) {
-						// Traveling and continuing to travel.
-						stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
-						++currentPixel;
-
-						if (currentPixel >= nextInflection - (SCANNER_DELAY_INTERVAL_IN_MS - 1)) {
-								updateInterval += 1;
-						} else {
-								updateInterval -= 1;
-						}
-
-						if (updateInterval < 1) {
-								updateInterval = 1;
-						} else if (updateInterval > SPRITE_STARTING_DELAY_INTERVAL_IN_MS) {
-								updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
-						}
-
-						// Transition from travel mode to scanning.
-						if (currentPixel >= nextInflection) {
-								// Safety. Since I don't trust my math, once we enter scanning mode, ALWAYS go back to the constant speed for scanning
-								// regardless of what the math said.
-								updateInterval = SCANNER_DELAY_INTERVAL_IN_MS;
-								isScanning = true;
-								scanningFrame = 0;
-								currentPixel -= 0; // -8 normally
-						}
-
-						if (currentPixel > NUM_LEDS) {
-							 this->MarkDone();
-						}
-				} else {
-						stripcpy(leds, af_timing_test + TIMINGTEST_ANIMATION_FRAME_WIDTH * scanningFrame, currentPixel, TIMINGTEST_ANIMATION_FRAME_WIDTH, TIMINGTEST_ANIMATION_FRAME_WIDTH);
-						if (++scanningFrame == TIMINGTEST_ANIMATION_FRAMES) {
-								scanningFrame = 0;
-								++scanCount;
-								// SetNextInflection();
-						}
-				}
-
-				return true;
-		}
-};
-*/
 
 // TODO: State machine blink sprites that spawn in defined areas when TravelSprites pass through them. "Spirits awaken" 
 
@@ -2006,14 +1868,19 @@ void loop() {
 			// debug(1);
 		}
 		
-		if (random(0,1000) == 0 && spawnFaeries) {
+		if (random(0,2200) == 0 && spawnFaeries) {
 			Sprite *s1 = new FaerieSprite(1, -3); 
 		
 			if (! spriteManager->Add(s1)) {
 				delete s1;
 			}
 			
-		} else {
+		} else if (random(0,2200) == 0 && spawnFaeries) {
+			Sprite *s2 = new FaerieSprite(-1, NUM_LEDS + 3); 
+		
+			if (! spriteManager->Add(s2)) {
+				delete s2;
+			}
 			// debug(1);
 		}
 
