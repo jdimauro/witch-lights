@@ -1,0 +1,6 @@
+{
+  "cpu": {
+    "fqbn": "Heltec-esp32:esp32:wireless_stick",
+    "port": ""
+  }
+}

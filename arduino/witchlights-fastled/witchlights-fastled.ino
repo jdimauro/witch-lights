@@ -24,7 +24,7 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 // Data pins
 #define PIR_SENSOR_1_PIN		 3
 #define PIR_SENSOR_2_PIN		 4
-#define NEOPIXEL_DATA_PIN		 6								// Pin for neopixels
+#define NEOPIXEL_DATA_PIN		 23								// Pin for neopixels
 
 // Sensor time-out (in production, set to 10000)
 #define INFRARED_SENSOR_TIMEOUT_IN_MS		8000	// in milliseconds
