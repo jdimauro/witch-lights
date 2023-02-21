@@ -15,7 +15,7 @@ bool placeTrees = false;				// TODO Dimly lights up range of pixels green where 
 bool placeNoIdle = false;				// TODO same, for specifying zones where faeries will not stop to idle
 
 // FastLED constants
-#define NUM_LEDS							600 // 150 per 5-meter strip
+#define NUM_LEDS							300 // 150 per 5-meter strip
 #define MAXSPRITES						5
 
 #define NUM_COLORSETS					5
@@ -24,7 +24,7 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 // Data pins
 #define PIR_SENSOR_1_PIN		 3
 #define PIR_SENSOR_2_PIN		 4
-#define NEOPIXEL_DATA_PIN		 23								// Pin for neopixels
+#define NEOPIXEL_DATA_PIN		 6								// Pin for neopixels (6 on Due, 23 on wireless stick)
 
 // Sensor time-out (in production, set to 10000)
 #define INFRARED_SENSOR_TIMEOUT_IN_MS		8000	// in milliseconds
@@ -424,76 +424,76 @@ private:
 	}
 	
 public:
-		LurkerSprite(int spawnPixel, int eyew) : Sprite() {
-		// Initial state.
-		this->currentPixel = spawnPixel;
-		this->updateInterval = SetInitialBlinkSpeed();
-		this->lifetimeBlinks = SetLifeSpan(); 
-		this->blinkCount = -1;							// When first opening the eyes, it "counts" as a blink, and setting to -1 means we don't count it against lifespan
-		this->blinkFrequency = SetBlinkFrequency();		// decent test with 4000 ms, trying a random set
-		this->eyeWidth = eyew;							// can we set this on spawn? Make it semi-random within params? 
-		this->blinkDirection = 1;						// want to start with eyes closed and open them
-		this->eyeColor = 0;								// eyes closed = 0
-		this->eyeMaxColor = SetMaxEyeColor();			// up to 5 in the color set
-		this->blinkMaxCount = SetBlinkMaxCount();
-		this->blinkTiming = SetBlinkTiming();
-		this->lastBlinkTime = millis();
-		
-		// this->colorPalette = random(0, NUM_COLORSETS);
-		this->colorPalette = 2;								// yellow to start
-
-
-		this->eyes[0] = colorSets[colorPalette][eyeColor];
-		this->eyes[eyeWidth] = colorSets[colorPalette][eyeColor];
-		this->eyeLength = 2;
-		}
-
-		~LurkerSprite() {
-		}
+	LurkerSprite(int spawnPixel, int eyew) : Sprite() {
+	// Initial state.
+	this->currentPixel = spawnPixel;
+	this->updateInterval = SetInitialBlinkSpeed();
+	this->lifetimeBlinks = SetLifeSpan(); 
+	this->blinkCount = -1;							// When first opening the eyes, it "counts" as a blink, and setting to -1 means we don't count it against lifespan
+	this->blinkFrequency = SetBlinkFrequency();		// decent test with 4000 ms, trying a random set
+	this->eyeWidth = eyew;							// can we set this on spawn? Make it semi-random within params? 
+	this->blinkDirection = 1;						// want to start with eyes closed and open them
+	this->eyeColor = 0;								// eyes closed = 0
+	this->eyeMaxColor = SetMaxEyeColor();			// up to 5 in the color set
+	this->blinkMaxCount = SetBlinkMaxCount();
+	this->blinkTiming = SetBlinkTiming();
+	this->lastBlinkTime = millis();
 	
-		bool allowCreation() {
-		return (currentPixel >= LURKER_MIN_PIXEL_1 && currentPixel <= LURKER_MAX_PIXEL_1) || (currentPixel >= LURKER_MIN_PIXEL_2 && currentPixel <= LURKER_MAX_PIXEL_2) || (currentPixel >= LURKER_MIN_PIXEL_3 && currentPixel <= LURKER_MAX_PIXEL_3);
-		}
-	
-		boolean UpdateNow() {
-			if (millis() - lastUpdateTime >= ACCELERATION_DELAY_OBVIOUSNESS_FACTOR * updateInterval) {
-				lastUpdateTime = millis();
-				return true;
-			} else {
-				return false;
-			}
-		}
+	// this->colorPalette = random(0, NUM_COLORSETS);
+	this->colorPalette = 2;								// yellow to start
 
-		bool Update() {
-			// debug(eyeColor);
-			if (! this->UpdateNow()) {
-					return false;
-			}
-		
-			if (! this->allowCreation()) {
-				this->MarkDone();
-				return false;
-			}
-		
-			// Decide if we're going to blink, and set the value to do it
-			blinkDirection = Blink();
-		
-			// close or open the eyes a step by adding blinkDirection to eye color
-			eyeColor += blinkDirection;
-		
-			this->eyes[0] = colorSets[colorPalette][eyeColor]; // colorSets[2][eyeColor];
-			this->eyes[eyeWidth] = colorSets[colorPalette][eyeColor]; // colorSets[2][eyeColor]; 
-		
-			stripcpy(leds, eyes, currentPixel, eyeLength, eyeLength);
+
+	this->eyes[0] = colorSets[colorPalette][eyeColor];
+	this->eyes[eyeWidth] = colorSets[colorPalette][eyeColor];
+	this->eyeLength = 2;
+	}
+
+	~LurkerSprite() {
+	}
+
+	bool allowCreation() {
+	return (currentPixel >= LURKER_MIN_PIXEL_1 && currentPixel <= LURKER_MAX_PIXEL_1) || (currentPixel >= LURKER_MIN_PIXEL_2 && currentPixel <= LURKER_MAX_PIXEL_2) || (currentPixel >= LURKER_MIN_PIXEL_3 && currentPixel <= LURKER_MAX_PIXEL_3);
+	}
+
+	boolean UpdateNow() {
+		if (millis() - lastUpdateTime >= ACCELERATION_DELAY_OBVIOUSNESS_FACTOR * updateInterval) {
+			lastUpdateTime = millis();
 			return true;
+		} else {
+			return false;
 		}
+	}
+
+	bool Update() {
+		// debug(eyeColor);
+		if (! this->UpdateNow()) {
+				return false;
+		}
+	
+		if (! this->allowCreation()) {
+			this->MarkDone();
+			return false;
+		}
+	
+		// Decide if we're going to blink, and set the value to do it
+		blinkDirection = Blink();
+	
+		// close or open the eyes a step by adding blinkDirection to eye color
+		eyeColor += blinkDirection;
+	
+		this->eyes[0] = colorSets[colorPalette][eyeColor]; // colorSets[2][eyeColor];
+		this->eyes[eyeWidth] = colorSets[colorPalette][eyeColor]; // colorSets[2][eyeColor]; 
+	
+		stripcpy(leds, eyes, currentPixel, eyeLength, eyeLength);
+		return true;
+	}
 };
 
 
 // Loop test class
 // Travel, pause, play loop 2-5 times, move on
 
-class LoopTestSprite : public Sprite {
+/*class LoopTestSprite : public Sprite {
 	private:
 		int updateInterval;
 		int currentPixel;
@@ -625,7 +625,7 @@ class LoopTestSprite : public Sprite {
 
 				return true;
 		}
-};
+};*/
 
 class FaerieSprite : public Sprite {
 private:
@@ -1176,7 +1176,7 @@ public:
 };
 
 // Test intro and outro fragments together until I like them, then split into two halves and adjust code to play one, a loop, and then the other. 
-class FragmentTestSprite : public Sprite {
+/*class FragmentTestSprite : public Sprite {
 	private:
 		int updateInterval;
 		int currentPixel;
@@ -1319,7 +1319,7 @@ class FragmentTestSprite : public Sprite {
 
 				return true;
 		}
-};
+};*/
 
 // Animation sprites from last year
 /*
@@ -1457,7 +1457,7 @@ class W8V1ScannerDebrisV1Sprite : public Sprite {
 };
 */
 
-class W8V1ScannerDebrisV1ReverseSprite : public Sprite {
+/*class W8V1ScannerDebrisV1ReverseSprite : public Sprite {
 	private:
 		int updateInterval;
 		int currentPixel;
@@ -1591,7 +1591,7 @@ class W8V1ScannerDebrisV1ReverseSprite : public Sprite {
 
 				return true;
 		}
-};
+};*/
 
 /*
 class ScannerSprite : public Sprite {
@@ -1741,51 +1741,51 @@ class W1V1Sprite : public Sprite {
 };
 
 class SpriteManager {
-	private:
-		boolean updatedSomething = false;
-		SpriteVector* spriteVector;
+private:
+	boolean updatedSomething = false;
+	SpriteVector* spriteVector;
 
-	public:
-		SpriteManager() {
-				spriteVector = new SpriteVector(MAXSPRITES);
-		}
+public:
+	SpriteManager() {
+		spriteVector = new SpriteVector(MAXSPRITES);
+	}
 
-		~SpriteManager() {
+	~SpriteManager() {
 			 // Don't bother. Should never be called.
+	}
+
+	int SpriteCount() {
+		return spriteVector->Count();
+	}
+
+	void Update() {
+		updatedSomething = false;
+
+		for (int i = 0; i < this->SpriteCount(); i++) {
+			updatedSomething |= spriteVector->Get(i)->Update();
 		}
 
-		int SpriteCount() {
-			return spriteVector->Count();
+		if (updatedSomething) {
+			FastLED.show();
 		}
 
-		void Update() {
-				updatedSomething = false;
+		this->Clean();
+	}
 
-				for (int i = 0; i < this->SpriteCount(); i++) {
-						updatedSomething |= spriteVector->Get(i)->Update();
-				}
-
-				if (updatedSomething) {
-						FastLED.show();
-				}
-
-				this->Clean();
-		}
-
-		bool Add(Sprite *newSprite) {
-			bool x = spriteVector->Add(newSprite);
-			return x;
-		}
+	bool Add(Sprite *newSprite) {
+		bool x = spriteVector->Add(newSprite);
+		return x;
+	}
 
 		// Garbage collection. Remove any sprites that have finished their animation
 		// from the SpriteVector, in order to make room for others.
-		void Clean() {
-				for (int i = this->SpriteCount() - 1; i >= 0; i--) {
-						if (spriteVector->Get(i)->IsDone()) {
-								spriteVector->RemoveAt(i);
-						}
-				}
+	void Clean() {
+		for (int i = this->SpriteCount() - 1; i >= 0; i--) {
+			if (spriteVector->Get(i)->IsDone()) {
+				spriteVector->RemoveAt(i);
+			}
 		}
+	}
 };
 
 InfraredSensor *sensor1;

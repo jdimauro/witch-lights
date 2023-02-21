@@ -1,0 +1,12 @@
+{
+	"folders":
+	[
+		{
+			"path": "C:\\Users\\jazz\\Documents\\GitHub\\witch-lights"
+		}
+	],
+	"settings":
+	{
+		"board":	"arduino:sam:arduino_due_x_dbg" // Board for the legacy Witch Lights
+	}
+}
