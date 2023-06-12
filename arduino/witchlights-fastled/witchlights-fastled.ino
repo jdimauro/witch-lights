@@ -8,7 +8,7 @@
 
 // debug or animation modes
 // TODO: set this with a jumper to an input pin
-bool debugMode = true;					// turns on debug() statements
+bool debugMode = false;					// turns on debug() statements
 bool spawnLurkers = false;			// Not ready for Firefly 2018
 bool randomInflection = false;	// Randomly makes faerie sprite dance back and forth, instead of mainly going "forwards". 
 bool spawnFaeries = true;			// TODO Spawn a new faerie randomly; helpful to keep a constant background of sprite animation for evaluation
