@@ -7,6 +7,8 @@
 	],
 	"settings":
 	{
-		"board":	"arduino:sam:arduino_due_x_dbg" // Board for the legacy Witch Lights
+		//"board":	"arduino:sam:arduino_due_x_dbg" // Board for the legacy Witch Light
+		"board":	"Heltec-esp32:esp32:wireless_stick_lite",
+		"port":		"COM4"
 	}
 }
