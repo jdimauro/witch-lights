@@ -1181,14 +1181,16 @@ void loop() {
 			// debug(1);
 		} */
 		
-		if (random(0,32000000) == 0 && spawnFaeries) {
+		// 3200000 = perfect for esp32 in production
+		// 1960000 = almost twice as frequent for animation analysis?
+		if (random(0,2960000) == 0 && spawnFaeries) {
 			Sprite *s1 = new FaerieSprite(1, -3); 
 		
 			if (! spriteManager->Add(s1)) {
 				delete s1;
 			}
 			
-		} else if (random(0,32000000) == 0 && spawnFaeries) {
+		} else if (random(0,2960000) == 0 && spawnFaeries) {
 			Sprite *s2 = new FaerieSprite(-1, NUM_LEDS + 3); 
 		
 			if (! spriteManager->Add(s2)) {
