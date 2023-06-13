@@ -314,7 +314,7 @@ private:
 	// TODO: make eye dimness slightly variable on spawn
 	int SetMaxEyeColor() {
 		// random 3-5
-		return random(3,5 +1);
+		return random(4,5 +1);
 	}
 	
 	int SetBlinkMaxCount() {
