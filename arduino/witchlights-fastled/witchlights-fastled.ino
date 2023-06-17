@@ -1218,6 +1218,8 @@ void setup() {
 		sensor2 = new InfraredSensor(PIR_SENSOR_2_PIN);
 
 		resetStrip();
+
+		Serial.println("setup complete");
 }
 
 int counter = 0;
