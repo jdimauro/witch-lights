@@ -48,7 +48,7 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define INFRARED_SENSOR_TIMEOUT_IN_MS		8000	// in milliseconds
 
 #define SCANNER_SPRITE_FRAME_DELAY_IN_MS			1
-#define TEST_PATTERN_FRAME_DELAY_IN_MS				4
+#define TEST_PATTERN_FRAME_DELAY_IN_MS				20
 
 #define FAERIE_MIN_IDLE							1
 #define FAERIE_MAX_IDLE							6
@@ -1218,8 +1218,6 @@ void setup() {
 		sensor2 = new InfraredSensor(PIR_SENSOR_2_PIN);
 
 		resetStrip();
-
-		Serial.println("setup complete");
 }
 
 int counter = 0;
