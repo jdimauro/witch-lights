@@ -3,19 +3,14 @@
 #ifndef PSTR
 #define PSTR // Make Arduino Due happy
 #endif
-
  
 // BEGIN BASIC OTA INCLUDES AND CONFIG
-
 
 #include <WiFi.h>
 #include <ESPmDNS.h>
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
 #include "wifiauth.h"
-
-
-
  
 // END BASIC OTA INCLUDES AND CONFIG
 
@@ -1268,7 +1263,7 @@ void loop() {
 		
 		// 3200000 = perfect for esp32 in production
 		// 1960000 = almost twice as frequent for animation analysis?
-		if (random(0,2960000) == 0 && spawnFaeries) {
+		if (random(0,3160000) == 0 && spawnFaeries) {
 			Sprite *s1 = new FaerieSprite(1, -3); 
 		
 			if (! spriteManager->Add(s1)) {
