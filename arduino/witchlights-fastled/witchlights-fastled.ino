@@ -505,8 +505,8 @@ private:
 	int totalTravelDistance;
 	int currentDistance;
 	float brakePercentage;
-	int minNoIdle[7] = { 1, 80, 145, 295, 445, 595, 718 };
-	int maxNoIdle[7] = { 42, 111, 155, 305, 455, 605, 749 };
+	int minNoIdle[3] = { 1, 145, 295};
+	int maxNoIdle[3] = { 42, 155, 305};
 
 	CRGB pattern[3];
 	int patternLength = 3;
