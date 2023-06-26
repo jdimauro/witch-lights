@@ -524,7 +524,7 @@ private:
 
 	// use updateInterval and map() to make tails longer when going faster (reduce the fade factor) and shorter when going slower (increase fade factor)
 	int SetDimFactor(int interval) {
-		return map(interval, 0, SPRITE_STARTING_DELAY_INTERVAL_IN_MS, trailLength, 192);
+		return map(interval, 0, SPRITE_STARTING_DELAY_INTERVAL_IN_MS, trailLength, 192); // 192 is a max dimfactor?
 	}
 
 	int SetTrailLength() {
@@ -593,7 +593,7 @@ private:
 
 	int TravelDirectionSwitch() {
 		// returns -1 or 1 randomly
-		if (random(0,2) == 0) {
+		if (random(0,1) == 0) {
 			return -1;
 		} else {
 			return 1;
@@ -1270,7 +1270,7 @@ void loop() {
 				delete s1;
 			}
 			
-		} else if (random(0,2960000) == 0 && spawnFaeries) {
+		} else if (random(0,2160000) == 0 && spawnFaeries) {
 			Sprite *s2 = new FaerieSprite(-1, NUM_LEDS + 3); 
 		
 			if (! spriteManager->Add(s2)) {
