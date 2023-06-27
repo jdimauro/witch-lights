@@ -70,7 +70,7 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define FAERIE_MIN_LONG_TRAVEL			 44	//
 #define FAERIE_MAX_LONG_TRAVEL			180	// 
 
-#define SPRITE_STARTING_DELAY_INTERVAL_IN_MS	 50 // 40
+#define SPRITE_STARTING_DELAY_INTERVAL_IN_MS	 65 // 40
 #define SCANNER_DELAY_INTERVAL_IN_MS					 20
 
 #define NO_IDLE_LOOP_COUNT					7			// number of no-idle zones in the array
