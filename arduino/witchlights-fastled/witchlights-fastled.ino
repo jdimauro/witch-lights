@@ -54,11 +54,11 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define FAERIE_FLIT_MIN_START_INTERVAL	20
 #define FAERIE_FLIT_MAX_START_INTERVAL	45
 
-#define FAERIE_MIN_SPEED						4
-#define FAERIE_MAX_SPEED 						15
+#define FAERIE_MIN_SPEED						4 		// sets minInterval range
+#define FAERIE_MAX_SPEED 						15    // the larger this is the slower the maximum speed can be
 
-#define FAERIE_MIN_BRAKE						60		// 96 for 50-60 px
-#define FAERIE_MAX_BRAKE						86		// 112
+#define FAERIE_MIN_BRAKE						60		// 96 for 50-60 px sets maxInterval
+#define FAERIE_MAX_BRAKE						200		// orig 112 or 86
 
 #define FAERIE_MIN_WAIT							2
 #define FAERIE_MAX_WAIT							7
@@ -797,7 +797,7 @@ private:
 		// delay(500);
 		// if (nextInflection < 150) debug(nextInflection);
 		// delay(1000);
-		nextInflection = AvoidNoIdle(nextInflection);
+		// nextInflection = AvoidNoIdle(nextInflection);
 		// debug(2);
 		// delay(500);
 		// if (nextInflection < 150) debug(nextInflection);
