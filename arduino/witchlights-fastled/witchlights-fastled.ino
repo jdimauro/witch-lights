@@ -734,10 +734,10 @@ private:
 		
 		// Accelerate or brake by returning positive or negative values to subtract from updateInterval
 		if (! isBraking) {
-		int x = abs(currentDistance - totalTravelDistance);
+			int x = abs(currentDistance - totalTravelDistance);
 			return round(sqrt(x) * accelerationFactor);
 		} else if (isBraking) {
-		int x = abs(currentPixel - brakePixel);
+			int x = abs(currentPixel - brakePixel);
 			return -1 * round(sqrt(x) * brakeFactor); 
 		}
 	}
