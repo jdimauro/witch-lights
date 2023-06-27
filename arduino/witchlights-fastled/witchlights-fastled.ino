@@ -43,7 +43,7 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define INFRARED_SENSOR_TIMEOUT_IN_MS		8000	// in milliseconds
 
 #define SCANNER_SPRITE_FRAME_DELAY_IN_MS			1
-#define TEST_PATTERN_FRAME_DELAY_IN_MS				20
+#define TEST_PATTERN_FRAME_DELAY_IN_MS				60
 
 #define FAERIE_MIN_IDLE							1
 #define FAERIE_MAX_IDLE							6
@@ -60,15 +60,15 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define FAERIE_MIN_BRAKE						60		// 96 for 50-60 px
 #define FAERIE_MAX_BRAKE						86		// 112
 
-#define FAERIE_MIN_WAIT							1
-#define FAERIE_MAX_WAIT							3
+#define FAERIE_MIN_WAIT							2
+#define FAERIE_MAX_WAIT							7
 
-#define FAERIE_MIN_TRAIL_LENGTH			110	// The lower the value, the longer the trail generated, but also the more FastLED functions get called per update per sprite. 
-#define FAERIE_MAX_TRAIL_LENGTH			66
+#define FAERIE_MIN_TRAIL_LENGTH			120	// The lower the value, the longer the trail generated, but also the more FastLED functions get called per update per sprite. 
+#define FAERIE_MAX_TRAIL_LENGTH			 55
 
 // currently set this to be consistent for animation design
-#define FAERIE_MIN_LONG_TRAVEL			129	//
-#define FAERIE_MAX_LONG_TRAVEL			280	// 
+#define FAERIE_MIN_LONG_TRAVEL			 44	//
+#define FAERIE_MAX_LONG_TRAVEL			180	// 
 
 #define SPRITE_STARTING_DELAY_INTERVAL_IN_MS	 50 // 40
 #define SCANNER_DELAY_INTERVAL_IN_MS					 20
@@ -534,7 +534,7 @@ private:
 	// TODO define global constants for brake and acceleration factor ranges
 	float SetBrakeFactor(bool waiting) {
 		if (!waiting) {
-			return (random(500,900) + 1) / 100;
+			return (random(500,900) + 4000) / 100; // originally 500, 900, +1
 		} else {
 			return (random(9000,19000) + 1) / 100;
 		}
@@ -542,9 +542,9 @@ private:
 	
 	float SetAccelerationFactor(bool waiting) {
 		if (!waiting) {
-			return (random(100,350) + 1) / 100;
+			return (random(100,350) + 500) / 100; // to slow acceleration, increase this a little? orig 100,350 +1
 		} else {
-			return (random(400,1000) + 1) / 100;
+			return (random(400,1000) + 1) / 100; // orig 400,1000
 		}
 	}
 
@@ -1263,14 +1263,14 @@ void loop() {
 		
 		// 3200000 = perfect for esp32 in production
 		// 1960000 = almost twice as frequent for animation analysis?
-		if (random(0,3160000) == 0 && spawnFaeries) {
+		if (random(0,196000) == 0 && spawnFaeries) {
 			Sprite *s1 = new FaerieSprite(1, -3); 
 		
 			if (! spriteManager->Add(s1)) {
 				delete s1;
 			}
 			
-		} else if (random(0,2160000) == 0 && spawnFaeries) {
+		} else if (random(0,116000) == 0 && spawnFaeries) {
 			Sprite *s2 = new FaerieSprite(-1, NUM_LEDS + 3); 
 		
 			if (! spriteManager->Add(s2)) {
