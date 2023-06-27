@@ -11,7 +11,7 @@
 		"board":	"Heltec-esp32:esp32:wireless_stick_lite",
 		//"port":		"COM4"
 		// "port":	"192.168.50.25" // "esp32-d8a01d5249e4"
-		// "port": "192.168.50.165" // PHASE-ONE		
-		"port": "192.168.50.199" // PHASE-TWO
+		"port": "192.168.50.165" // PHASE-ONE		
+		// "port": "192.168.50.199" // PHASE-TWO
 	}
 }
