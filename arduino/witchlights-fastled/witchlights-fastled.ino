@@ -29,7 +29,7 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 
 // FastLED constants
 #define NUM_LEDS							300 // 150 per 5-meter strip
-#define MAXSPRITES						3
+#define MAXSPRITES						6
 
 #define NUM_COLORSETS					5
 #define NUM_COLORS_PER_SET		9
@@ -43,7 +43,7 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define INFRARED_SENSOR_TIMEOUT_IN_MS		8000	// in milliseconds
 
 #define SCANNER_SPRITE_FRAME_DELAY_IN_MS			1
-#define TEST_PATTERN_FRAME_DELAY_IN_MS				60
+#define TEST_PATTERN_FRAME_DELAY_IN_MS				40
 
 #define FAERIE_MIN_IDLE							1
 #define FAERIE_MAX_IDLE							6
@@ -54,23 +54,23 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define FAERIE_FLIT_MIN_START_INTERVAL	20
 #define FAERIE_FLIT_MAX_START_INTERVAL	45
 
-#define FAERIE_MIN_SPEED						4 		// sets minInterval range
-#define FAERIE_MAX_SPEED 						15    // the larger this is the slower the maximum speed can be
+#define FAERIE_MIN_SPEED						 3		// sets minInterval range
+#define FAERIE_MAX_SPEED 						18    // the larger this is the slower the maximum speed can be
 
-#define FAERIE_MIN_BRAKE						60		// 96 for 50-60 px sets maxInterval
-#define FAERIE_MAX_BRAKE						200		// orig 112 or 86
+#define FAERIE_MIN_BRAKE						70		// 96 for 50-60 px // sets maxInterval
+#define FAERIE_MAX_BRAKE						145		// orig 112 or 86
 
 #define FAERIE_MIN_WAIT							2
-#define FAERIE_MAX_WAIT							7
+#define FAERIE_MAX_WAIT							6
 
-#define FAERIE_MIN_TRAIL_LENGTH			120	// The lower the value, the longer the trail generated, but also the more FastLED functions get called per update per sprite. 
-#define FAERIE_MAX_TRAIL_LENGTH			 55
+#define FAERIE_MIN_TRAIL_LENGTH			 60	// The lower the value, the longer the trail generated, but also the more FastLED functions get called per update per sprite. 
+#define FAERIE_MAX_TRAIL_LENGTH			 26
 
 // currently set this to be consistent for animation design
-#define FAERIE_MIN_LONG_TRAVEL			 44	//
+#define FAERIE_MIN_LONG_TRAVEL			 60	//
 #define FAERIE_MAX_LONG_TRAVEL			180	// 
 
-#define SPRITE_STARTING_DELAY_INTERVAL_IN_MS	 65 // 40
+#define SPRITE_STARTING_DELAY_INTERVAL_IN_MS	 45 // 40
 #define SCANNER_DELAY_INTERVAL_IN_MS					 20
 
 #define NO_IDLE_LOOP_COUNT					7			// number of no-idle zones in the array
@@ -126,8 +126,8 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define ACCELERATION_DELAY_OBVIOUSNESS_FACTOR				 1
 
 
-#define ANIMATION_FRAME_WIDTH			23
-#define ANIMATION_FRAMES					28
+#define ANIMATION_FRAME_WIDTH			1 //23
+#define ANIMATION_FRAMES					1 //28
 
 
 
@@ -534,17 +534,17 @@ private:
 	// TODO define global constants for brake and acceleration factor ranges
 	float SetBrakeFactor(bool waiting) {
 		if (!waiting) {
-			return (random(500,900) + 4000) / 100; // originally 500, 900, +1
+			return (random(500,2000) + 1) / 100; // originally 500, 900, +1
 		} else {
-			return (random(9000,19000) + 1) / 100;
+			return (random(9000,19000) + 1) / 100; // 9000, 19000
 		}
 	}
 	
 	float SetAccelerationFactor(bool waiting) {
 		if (!waiting) {
-			return (random(100,350) + 500) / 100; // to slow acceleration, increase this a little? orig 100,350 +1
+			return (random(40,400) + 1) / 100; // to slow acceleration, decrease this a little? orig 100,350 +1
 		} else {
-			return (random(400,1000) + 1) / 100; // orig 400,1000
+			return (random(400,1100) + 1) / 100; // orig 400,1000
 		}
 	}
 
@@ -593,7 +593,7 @@ private:
 
 	int TravelDirectionSwitch() {
 		// returns -1 or 1 randomly
-		if (random(0,1) == 0) {
+		if (random(10) +1 < 6) {
 			return -1;
 		} else {
 			return 1;
@@ -909,6 +909,11 @@ private:
 	
 		if (EffectiveFrame(idlingFrame) == 0) {
 			++idleCount;
+			/*  // a chance to change colors?
+			if (random(5) == 0) {
+				// random color palette
+				this->colorPalette = random(0, NUM_COLORSETS);
+			} */
 		}
 		
 		return true;
