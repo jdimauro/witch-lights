@@ -29,7 +29,7 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 
 // FastLED constants
 #define NUM_LEDS							300 // 150 per 5-meter strip
-#define MAXSPRITES						3
+#define MAXSPRITES						4
 
 #define NUM_COLORSETS					6  // 6
 #define NUM_COLORS_PER_SET		9
@@ -49,7 +49,7 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define FAERIE_MAX_IDLE							6
 
 #define FAERIE_FLIT_MIN_DISTANCE		5
-#define FAERIE_FLIT_MAX_DISTANCE		25
+#define FAERIE_FLIT_MAX_DISTANCE		17
 
 #define FAERIE_FLIT_MIN_START_INTERVAL	20
 #define FAERIE_FLIT_MAX_START_INTERVAL	45
@@ -70,9 +70,9 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define FAERIE_MIN_LONG_TRAVEL			110	//
 #define FAERIE_MAX_LONG_TRAVEL			180	// 
 
-#define SPRITE_STARTING_DELAY_INTERVAL_IN_MS	 40 // 40
+#define SPRITE_STARTING_DELAY_INTERVAL_IN_MS	 36 // 40
 
-#define SPRITE_AUTOSPAWN_RANDOMNESS_FACTOR	596000
+const int SPRITE_AUTOSPAWN_RANDOMNESS_FACTOR = 1290000;
 
 
 #define NO_IDLE_LOOP_COUNT					7			// number of no-idle zones in the array
@@ -101,32 +101,8 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define LURKER_MIN_PIXEL_3	400
 #define LURKER_MAX_PIXEL_3	450
 
-/*
-// TreeSprite locations
-#define TREE_FADE_PIXEL_1 315
-#define TREE_START_1		323
-#define TREE_END_1			334
-
-#define TREE_FADE_PIXEL_2 315
-#define TREE_START_2		323
-#define TREE_END_2			334
-
-#define TREE_FADE_PIXEL_3 315
-#define TREE_START_3		323
-#define TREE_END_3			334
-
-#define TREE_FADE_PIXEL_4 315
-#define TREE_START_4		323
-#define TREE_END_4			334
-
-#define TREE_FADE_PIXEL_5 315
-#define TREE_START_5		323
-#define TREE_END_5			334
-*/
-
 // For testing use only. In production, set this equal to 1. Use this to exaggerate the acceleration effects. 10-20 is good for testing.
 #define ACCELERATION_DELAY_OBVIOUSNESS_FACTOR				 1
-
 
 #define ANIMATION_FRAME_WIDTH			1 //23
 #define ANIMATION_FRAMES					1 //28
