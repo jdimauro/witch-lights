@@ -72,6 +72,9 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 
 #define SPRITE_STARTING_DELAY_INTERVAL_IN_MS	 40 // 40
 
+#define SPRITE_AUTOSPAWN_RANDOMNESS_FACTOR	596000
+
+
 #define NO_IDLE_LOOP_COUNT					7			// number of no-idle zones in the array
 
 // lurker sprite constants
@@ -1269,7 +1272,8 @@ void loop() {
 		
 		// 3200000 = perfect for esp32 in production
 		// 1960000 = almost twice as frequent for animation analysis?
-		if (random(0,696000) == 0 && spawnFaeries) {
+		// SPRITE_AUTOSPAWN_RANDOMNESS_FACTOR
+		if (random(0,SPRITE_AUTOSPAWN_RANDOMNESS_FACTOR) == 0 && spawnFaeries) {
 
 			for (int i = 0; i <= random(MAXSPRITES) + 1; i++) {
 				Sprite *s1 = new FaerieSprite(1, -3); 
@@ -1279,7 +1283,7 @@ void loop() {
 				}
 			}
 			
-		} else if (random(0,696000) == 0 && spawnFaeries) {
+		} else if (random(0,SPRITE_AUTOSPAWN_RANDOMNESS_FACTOR) == 0 && spawnFaeries) {
 			for (int i = 0; i <= random(MAXSPRITES) + 1; i++) {
 				Sprite *s2 = new FaerieSprite(-1, NUM_LEDS + 3); 
 			
