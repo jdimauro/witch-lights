@@ -29,7 +29,7 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 
 // FastLED constants
 #define NUM_LEDS							300 // 150 per 5-meter strip
-#define MAXSPRITES						6
+#define MAXSPRITES						3
 
 #define NUM_COLORSETS					5
 #define NUM_COLORS_PER_SET		9
@@ -55,10 +55,10 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define FAERIE_FLIT_MAX_START_INTERVAL	45
 
 #define FAERIE_MIN_SPEED						 3		// sets minInterval range
-#define FAERIE_MAX_SPEED 						18    // the larger this is the slower the maximum speed can be
+#define FAERIE_MAX_SPEED 						13    // the larger this is the slower the maximum speed can be
 
-#define FAERIE_MIN_BRAKE						70		// 96 for 50-60 px // sets maxInterval
-#define FAERIE_MAX_BRAKE						145		// orig 112 or 86
+#define FAERIE_MIN_BRAKE						60		// 96 for 50-60 px // sets maxInterval
+#define FAERIE_MAX_BRAKE						200		// orig 112 or 86
 
 #define FAERIE_MIN_WAIT							2
 #define FAERIE_MAX_WAIT							6
@@ -67,11 +67,10 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define FAERIE_MAX_TRAIL_LENGTH			 26
 
 // currently set this to be consistent for animation design
-#define FAERIE_MIN_LONG_TRAVEL			 60	//
+#define FAERIE_MIN_LONG_TRAVEL			 90	//
 #define FAERIE_MAX_LONG_TRAVEL			180	// 
 
-#define SPRITE_STARTING_DELAY_INTERVAL_IN_MS	 45 // 40
-#define SCANNER_DELAY_INTERVAL_IN_MS					 20
+#define SPRITE_STARTING_DELAY_INTERVAL_IN_MS	 40 // 40
 
 #define NO_IDLE_LOOP_COUNT					7			// number of no-idle zones in the array
 
@@ -532,19 +531,21 @@ private:
 	}
 
 	// TODO define global constants for brake and acceleration factor ranges
+	// higher numbers = sharper braking
 	float SetBrakeFactor(bool waiting) {
 		if (!waiting) {
-			return (random(500,2000) + 1) / 100; // originally 500, 900, +1
+			return (random(500,1200) + 1) / 100; // originally 500, 900, +1
 		} else {
-			return (random(9000,19000) + 1) / 100; // 9000, 19000
+			return (random(9000,17000) + 1) / 100; // 9000, 19000
 		}
 	}
 	
+	// higher numbers = steeper acceleration curve
 	float SetAccelerationFactor(bool waiting) {
 		if (!waiting) {
-			return (random(40,400) + 1) / 100; // to slow acceleration, decrease this a little? orig 100,350 +1
+			return (random(40,290) + 1) / 100; // to slow acceleration, decrease this a little? orig 100,350 +1
 		} else {
-			return (random(400,1100) + 1) / 100; // orig 400,1000
+			return (random(400,960) + 1) / 100; // orig 400,1000
 		}
 	}
 
@@ -674,7 +675,7 @@ private:
 	float SetBrakePercentage() {
 		// TODO: map distance of move to brake percentage, brakefactor, accelerationfactor
 		if (!isWaiting) {
-			return .06;	//  TODO - set this with a constant // .12 worked for 50-75 pixel moves, too big for 160 pixel moves
+			return .07;	// .12 worked for 50-75 pixel moves, too big for 160 pixel moves; .06 from Witch Lights
 		} else {
 			return .45;
 		}
@@ -1268,14 +1269,14 @@ void loop() {
 		
 		// 3200000 = perfect for esp32 in production
 		// 1960000 = almost twice as frequent for animation analysis?
-		if (random(0,196000) == 0 && spawnFaeries) {
+		if (random(0,1960000) == 0 && spawnFaeries) {
 			Sprite *s1 = new FaerieSprite(1, -3); 
 		
 			if (! spriteManager->Add(s1)) {
 				delete s1;
 			}
 			
-		} else if (random(0,116000) == 0 && spawnFaeries) {
+		} else if (random(0,1960000) == 0 && spawnFaeries) {
 			Sprite *s2 = new FaerieSprite(-1, NUM_LEDS + 3); 
 		
 			if (! spriteManager->Add(s2)) {
@@ -1283,6 +1284,10 @@ void loop() {
 			}
 			// debug(1);
 		}
+
+
+		/*
+		PHASE Lights aren't running sensors for FF2023
 
 		if (sensor1->IsActuated()) {
 			Sprite *s1 = new FaerieSprite(1, -3); // production
@@ -1299,6 +1304,7 @@ void loop() {
 				delete s2;
 			}
 		}
+		*/
 
 		spriteManager->Update();
 		
