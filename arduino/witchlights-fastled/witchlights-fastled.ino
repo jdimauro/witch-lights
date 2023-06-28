@@ -58,7 +58,7 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define FAERIE_MAX_SPEED 						 20    // the larger this is the slower the maximum speed can be
 
 #define FAERIE_MIN_BRAKE						60		// 96 for 50-60 px // sets maxInterval
-#define FAERIE_MAX_BRAKE						116		// orig 112 or 86
+#define FAERIE_MAX_BRAKE						96		// orig 112 or 86
 
 #define FAERIE_MIN_WAIT							2
 #define FAERIE_MAX_WAIT							6
