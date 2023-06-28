@@ -43,7 +43,7 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define INFRARED_SENSOR_TIMEOUT_IN_MS		8000	// in milliseconds
 
 #define SCANNER_SPRITE_FRAME_DELAY_IN_MS			1
-#define TEST_PATTERN_FRAME_DELAY_IN_MS				40
+#define TEST_PATTERN_FRAME_DELAY_IN_MS				6
 
 #define FAERIE_MIN_IDLE							1
 #define FAERIE_MAX_IDLE							6
@@ -54,11 +54,11 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define FAERIE_FLIT_MIN_START_INTERVAL	20
 #define FAERIE_FLIT_MAX_START_INTERVAL	45
 
-#define FAERIE_MIN_SPEED						 3		// sets minInterval range
-#define FAERIE_MAX_SPEED 						13    // the larger this is the slower the maximum speed can be
+#define FAERIE_MIN_SPEED						 2		// sets minInterval range
+#define FAERIE_MAX_SPEED 						 12    // the larger this is the slower the maximum speed can be
 
 #define FAERIE_MIN_BRAKE						60		// 96 for 50-60 px // sets maxInterval
-#define FAERIE_MAX_BRAKE						200		// orig 112 or 86
+#define FAERIE_MAX_BRAKE						116		// orig 112 or 86
 
 #define FAERIE_MIN_WAIT							2
 #define FAERIE_MAX_WAIT							6
@@ -543,9 +543,9 @@ private:
 	// higher numbers = steeper acceleration curve
 	float SetAccelerationFactor(bool waiting) {
 		if (!waiting) {
-			return (random(40,290) + 1) / 100; // to slow acceleration, decrease this a little? orig 100,350 +1
+			return (random(120,290) + 1) / 100; // to slow acceleration, decrease this a little? orig 100,350 +1
 		} else {
-			return (random(400,960) + 1) / 100; // orig 400,1000
+			return (random(400,1100) + 1) / 100; // orig 400,1000
 		}
 	}
 
@@ -1269,14 +1269,14 @@ void loop() {
 		
 		// 3200000 = perfect for esp32 in production
 		// 1960000 = almost twice as frequent for animation analysis?
-		if (random(0,1960000) == 0 && spawnFaeries) {
+		if (random(0,196000) == 0 && spawnFaeries) {
 			Sprite *s1 = new FaerieSprite(1, -3); 
 		
 			if (! spriteManager->Add(s1)) {
 				delete s1;
 			}
 			
-		} else if (random(0,1960000) == 0 && spawnFaeries) {
+		} else if (random(0,196000) == 0 && spawnFaeries) {
 			Sprite *s2 = new FaerieSprite(-1, NUM_LEDS + 3); 
 		
 			if (! spriteManager->Add(s2)) {
