@@ -31,7 +31,7 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define NUM_LEDS							300 // 150 per 5-meter strip
 #define MAXSPRITES						3
 
-#define NUM_COLORSETS					5
+#define NUM_COLORSETS					6  // 6
 #define NUM_COLORS_PER_SET		9
 
 // Data pins
@@ -1372,65 +1372,79 @@ void stripcpy(CRGB *leds, CRGB *source, int start, int width, int patternSize) {
 
 void createColorsets() {
 // Blue 2.0
-		colorSets[0][0] = 0x000A25;
-		colorSets[0][1] = 0x00144A;
-		colorSets[0][2] = 0x002894;
-		colorSets[0][3] = 0x005129;
-		colorSets[0][4] = 0x00A253;
-		colorSets[0][5] = 0x0144A6;
-		colorSets[0][6] = 0x02894C;
-		colorSets[0][7] = 0x051299;
-		colorSets[0][8] = 0x0A2533;
+		colorSets[0][0] = 0x000000;
+		colorSets[0][1] = 0x000000;
+		colorSets[0][2] = 0x000000;
+		colorSets[0][3] = 0x000101;
+		colorSets[0][4] = 0x000203;
+		colorSets[0][5] = 0x010507; // 02070A
+		colorSets[0][6] = 0x030A0F;
+		colorSets[0][7] = 0x06151E;
+		colorSets[0][8] = 0x0C2A3C;
 
-// Yellow-green.
+// Blue 2.5
 #if NUM_COLORSETS > 1
 		colorSets[1][0] = 0x000000;
 		colorSets[1][1] = 0x000000;
-		colorSets[1][2] = 0x000100;
-		colorSets[1][3] = 0x010200;
-		colorSets[1][4] = 0x030500;
-		colorSets[1][5] = 0x060A01;
-		colorSets[1][6] = 0x0D1503;
-		colorSets[1][7] = 0x1B2A06;
-		colorSets[1][8] = 0x36540C;
+		colorSets[1][2] = 0x000000;
+		colorSets[1][3] = 0x000001;
+		colorSets[1][4] = 0x000003;
+		colorSets[1][5] = 0x010106; // 02070A
+		colorSets[1][6] = 0x02020C;
+		colorSets[1][7] = 0x050519;
+		colorSets[1][8] = 0x0A0A33;
+
 #endif
 
+// Yellow-green.
 #if NUM_COLORSETS > 2
-// Amber.
 		colorSets[2][0] = 0x000000;
 		colorSets[2][1] = 0x000000;
-		colorSets[2][2] = 0x000000;
-		colorSets[2][3] = 0x010100;
-		colorSets[2][4] = 0x030300;
-		colorSets[2][5] = 0x060601;
-		colorSets[2][6] = 0x0C0C02;
-		colorSets[2][7] = 0x191905;
-		colorSets[2][8] = 0x33330A;
+		colorSets[2][2] = 0x000100;
+		colorSets[2][3] = 0x010200;
+		colorSets[2][4] = 0x030500;
+		colorSets[2][5] = 0x060A01;
+		colorSets[2][6] = 0x0D1503;
+		colorSets[2][7] = 0x1B2A06;
+		colorSets[2][8] = 0x36540C;
 #endif
 
 #if NUM_COLORSETS > 3
-// Reddish-purple.
+// Amber.
 		colorSets[3][0] = 0x000000;
 		colorSets[3][1] = 0x000000;
-		colorSets[3][2] = 0x010001;
-		colorSets[3][3] = 0x030102;
-		colorSets[3][4] = 0x060204;
-		colorSets[3][5] = 0x0C0508;
-		colorSets[3][6] = 0x180A11;
-		colorSets[3][7] = 0x311523;
-		colorSets[3][8] = 0x632A47;
+		colorSets[3][2] = 0x000000;
+		colorSets[3][3] = 0x010100;
+		colorSets[3][4] = 0x030300;
+		colorSets[3][5] = 0x060601;
+		colorSets[3][6] = 0x0C0C02;
+		colorSets[3][7] = 0x191905;
+		colorSets[3][8] = 0x33330A;
 #endif
 
 #if NUM_COLORSETS > 4
-// Original purple.
+// Reddish-purple.
 		colorSets[4][0] = 0x000000;
 		colorSets[4][1] = 0x000000;
 		colorSets[4][2] = 0x010001;
 		colorSets[4][3] = 0x030102;
-		colorSets[4][4] = 0x060305;
-		colorSets[4][5] = 0x0C060A;
-		colorSets[4][6] = 0x180C14;
-		colorSets[4][7] = 0x311828;
-		colorSets[4][8] = 0x633051;
+		colorSets[4][4] = 0x060204;
+		colorSets[4][5] = 0x0C0508;
+		colorSets[4][6] = 0x180A11;
+		colorSets[4][7] = 0x311523;
+		colorSets[4][8] = 0x632A47;
+#endif
+
+#if NUM_COLORSETS > 5
+// Original purple.
+		colorSets[5][0] = 0x000000;
+		colorSets[5][1] = 0x000000;
+		colorSets[5][2] = 0x010001;
+		colorSets[5][3] = 0x030102;
+		colorSets[5][4] = 0x060305;
+		colorSets[5][5] = 0x0C060A;
+		colorSets[5][6] = 0x180C14;
+		colorSets[5][7] = 0x311828;
+		colorSets[5][8] = 0x633051;
 #endif
 }
