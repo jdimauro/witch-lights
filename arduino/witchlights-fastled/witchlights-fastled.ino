@@ -1367,16 +1367,16 @@ void stripcpy(CRGB *leds, CRGB *source, int start, int width, int patternSize) {
 }
 
 void createColorsets() {
-// Blue.
-		colorSets[0][0] = CRGB::Black;
-		colorSets[0][1] = 0x000000;
-		colorSets[0][2] = 0x000000;
-		colorSets[0][3] = 0x000001;
-		colorSets[0][4] = 0x000003;
-		colorSets[0][5] = 0x010106;
-		colorSets[0][6] = 0x02020C;
-		colorSets[0][7] = 0x050519;
-		colorSets[0][8] = 0x0A0A33;
+// Blue 2.0
+		colorSets[0][0] = 0x000A25;
+		colorSets[0][1] = 0x00144A;
+		colorSets[0][2] = 0x002894;
+		colorSets[0][3] = 0x005129;
+		colorSets[0][4] = 0x00A253;
+		colorSets[0][5] = 0x0144A6;
+		colorSets[0][6] = 0x02894C;
+		colorSets[0][7] = 0x051299;
+		colorSets[0][8] = 0x0A2533;
 
 // Yellow-green.
 #if NUM_COLORSETS > 1
