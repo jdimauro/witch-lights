@@ -43,7 +43,7 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define INFRARED_SENSOR_TIMEOUT_IN_MS		8000	// in milliseconds
 
 #define SCANNER_SPRITE_FRAME_DELAY_IN_MS			1
-#define TEST_PATTERN_FRAME_DELAY_IN_MS				18
+#define TEST_PATTERN_FRAME_DELAY_IN_MS				24
 
 #define FAERIE_MIN_IDLE							1
 #define FAERIE_MAX_IDLE							6
@@ -54,8 +54,8 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define FAERIE_FLIT_MIN_START_INTERVAL	20
 #define FAERIE_FLIT_MAX_START_INTERVAL	45
 
-#define FAERIE_MIN_SPEED						 5		// sets minInterval range
-#define FAERIE_MAX_SPEED 						 18    // the larger this is the slower the maximum speed can be
+#define FAERIE_MIN_SPEED						 8		// sets minInterval range
+#define FAERIE_MAX_SPEED 						 20    // the larger this is the slower the maximum speed can be
 
 #define FAERIE_MIN_BRAKE						60		// 96 for 50-60 px // sets maxInterval
 #define FAERIE_MAX_BRAKE						116		// orig 112 or 86
