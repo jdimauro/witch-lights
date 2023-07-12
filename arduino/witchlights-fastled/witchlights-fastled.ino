@@ -1275,7 +1275,7 @@ void loop() {
 				}
 			}
 			
-		} else if (random(0,SPRITE_AUTOSPAWN_RANDOMNESS_FACTOR) == 0 && spawnFaeries) {
+		} else if (random(0,SPRITE_AUTOSPAWN_RANDOMNESS_FACTOR) == 0UL && spawnFaeries) {
 			for (int i = 0; i <= random(MAXSPRITES) + 1; i++) {
 				Sprite *s2 = new FaerieSprite(-1, NUM_LEDS + 3); 
 			
@@ -1308,6 +1308,14 @@ void loop() {
 
 		spriteManager->Update();
 		
+
+		// Try to reconnect once every 5 seconds
+
+	if(WiFi.status()  != WL_CONNECTED && millis() - reconnectTime > 5000) {
+	   reconnectTime = millis();
+
+	   WiFi.begin(ssid, password);
+	}
 }
 
 
