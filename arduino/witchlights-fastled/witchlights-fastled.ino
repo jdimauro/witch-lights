@@ -1131,11 +1131,25 @@ void setup() {
   Serial.println("Booting");
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
+  /* Original code: reboots if no wifi
   while (WiFi.waitForConnectResult() != WL_CONNECTED) {
     Serial.println("Connection Failed! Rebooting...");
     delay(5000);
     ESP.restart();
+  } */
+
+  Serial.println("Trying to connect to WiFi");
+	unsigned long timeout = millis();
+	while (WiFi.status()  != WL_CONNECTED) {
+    Serial.print(".");
+    delay(500);
+    if(millis() - timeout > 5000UL)  {
+      Serial.println("\nNo connection to WiFi network");
+      break;
+    }
   }
+
+
 
   // Port defaults to 3232
   // ArduinoOTA.setPort(3232);
@@ -1203,6 +1217,8 @@ void setup() {
 int counter = 0;
 int sensor1LastPollTime = millis();
 
+static unsigned long reconnectTime;
+
 void loop() {
 
 	// BEGIN OTA LOOP
@@ -1249,7 +1265,7 @@ void loop() {
 		// 3200000 = perfect for esp32 in production
 		// 1960000 = almost twice as frequent for animation analysis?
 		// SPRITE_AUTOSPAWN_RANDOMNESS_FACTOR
-		if (random(0,SPRITE_AUTOSPAWN_RANDOMNESS_FACTOR) == 0 && spawnFaeries) {
+		if (random(0,SPRITE_AUTOSPAWN_RANDOMNESS_FACTOR) == 0UL && spawnFaeries) {
 
 			for (int i = 0; i <= random(MAXSPRITES) + 1; i++) {
 				Sprite *s1 = new FaerieSprite(1, -3); 
