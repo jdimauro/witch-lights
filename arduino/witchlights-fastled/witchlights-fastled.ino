@@ -72,7 +72,7 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 
 #define SPRITE_STARTING_DELAY_INTERVAL_IN_MS	 36 // 40
 
-const int SPRITE_AUTOSPAWN_RANDOMNESS_FACTOR = 999999; // 1290000 = lots of downtime
+const unsigned long SPRITE_AUTOSPAWN_RANDOMNESS_FACTOR = 836999; // 1290000 = lots of downtime
 
 
 #define NO_IDLE_LOOP_COUNT					7			// number of no-idle zones in the array
