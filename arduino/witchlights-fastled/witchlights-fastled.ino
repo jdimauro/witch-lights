@@ -3,10 +3,23 @@
 #ifndef PSTR
 #define PSTR // Make Arduino Due happy
 #endif
+ 
+// BEGIN BASIC OTA INCLUDES AND CONFIG
+
+#include <WiFi.h>
+#include <ESPmDNS.h>
+#include <WiFiUdp.h>
+#include <ArduinoOTA.h>
+#include "wifiauth.h"
+ 
+// END BASIC OTA INCLUDES AND CONFIG
+
+
+// TODO: fix the stupid random interval, that worked on an 8-bit arduino, this is an esp32.
 
 // debug or animation modes
 // TODO: set this with a jumper to an input pin
-bool debugMode = true;					// turns on debug() statements
+bool debugMode = false;					// turns on debug() statements
 bool spawnLurkers = false;			// Not ready for Firefly 2018
 bool randomInflection = false;	// Randomly makes faerie sprite dance back and forth, instead of mainly going "forwards". 
 bool spawnFaeries = true;			// TODO Spawn a new faerie randomly; helpful to keep a constant background of sprite animation for evaluation
@@ -15,50 +28,52 @@ bool placeTrees = false;				// TODO Dimly lights up range of pixels green where 
 bool placeNoIdle = false;				// TODO same, for specifying zones where faeries will not stop to idle
 
 // FastLED constants
-#define NUM_LEDS							600 // 150 per 5-meter strip
-#define MAXSPRITES						5
+#define NUM_LEDS							300 // 150 per 5-meter strip
+#define MAXSPRITES						4
 
-#define NUM_COLORSETS					5
+#define NUM_COLORSETS					6  // 6
 #define NUM_COLORS_PER_SET		9
 
 // Data pins
-#define PIR_SENSOR_1_PIN		 3
-#define PIR_SENSOR_2_PIN		 4
-#define NEOPIXEL_DATA_PIN		 6								// Pin for neopixels
+#define PIR_SENSOR_1_PIN		 10
+#define PIR_SENSOR_2_PIN		 9
+#define NEOPIXEL_DATA_PIN		 23								// Pin for neopixels (6 on Due, 23 on wireless stick)
 
 // Sensor time-out (in production, set to 10000)
 #define INFRARED_SENSOR_TIMEOUT_IN_MS		8000	// in milliseconds
 
 #define SCANNER_SPRITE_FRAME_DELAY_IN_MS			1
-#define TEST_PATTERN_FRAME_DELAY_IN_MS				1
+#define TEST_PATTERN_FRAME_DELAY_IN_MS				20
 
 #define FAERIE_MIN_IDLE							1
-#define FAERIE_MAX_IDLE							3
+#define FAERIE_MAX_IDLE							6
 
 #define FAERIE_FLIT_MIN_DISTANCE		5
-#define FAERIE_FLIT_MAX_DISTANCE		25
+#define FAERIE_FLIT_MAX_DISTANCE		17
 
-#define FAERIE_FLIT_MIN_START_INTERVAL	25
-#define FAERIE_FLIT_MAX_START_INTERVAL	35
+#define FAERIE_FLIT_MIN_START_INTERVAL	20
+#define FAERIE_FLIT_MAX_START_INTERVAL	45
 
-#define FAERIE_MIN_SPEED						1
-#define FAERIE_MAX_SPEED 						10
+#define FAERIE_MIN_SPEED						 8		// sets minInterval range
+#define FAERIE_MAX_SPEED 						 20    // the larger this is the slower the maximum speed can be
 
-#define FAERIE_MIN_BRAKE						32		// 96 for 50-60 px
-#define FAERIE_MAX_BRAKE						64		// 112
+#define FAERIE_MIN_BRAKE						60		// 96 for 50-60 px // sets maxInterval
+#define FAERIE_MAX_BRAKE						96		// orig 112 or 86
 
-#define FAERIE_MIN_WAIT							1
-#define FAERIE_MAX_WAIT							3
+#define FAERIE_MIN_WAIT							2
+#define FAERIE_MAX_WAIT							6
 
-#define FAERIE_MIN_TRAIL_LENGTH			80	// The lower the value, the longer the trail generated, but also the more FastLED functions get called per update per sprite. 
-#define FAERIE_MAX_TRAIL_LENGTH			33
+#define FAERIE_MIN_TRAIL_LENGTH			 60	// The lower the value, the longer the trail generated, but also the more FastLED functions get called per update per sprite. 
+#define FAERIE_MAX_TRAIL_LENGTH			 26
 
 // currently set this to be consistent for animation design
-#define FAERIE_MIN_LONG_TRAVEL			170	// This range is dead center in my first "no idle" zone, so any problems with the no-idle functions will show up quickly
-#define FAERIE_MAX_LONG_TRAVEL			360	// 
+#define FAERIE_MIN_LONG_TRAVEL			110	//
+#define FAERIE_MAX_LONG_TRAVEL			180	// 
 
-#define SPRITE_STARTING_DELAY_INTERVAL_IN_MS	 50 // 40
-#define SCANNER_DELAY_INTERVAL_IN_MS					 20
+#define SPRITE_STARTING_DELAY_INTERVAL_IN_MS	 36 // 40
+
+const unsigned long SPRITE_AUTOSPAWN_RANDOMNESS_FACTOR = 836999; // 1290000 = lots of downtime
+
 
 #define NO_IDLE_LOOP_COUNT					7			// number of no-idle zones in the array
 
@@ -80,53 +95,19 @@ bool placeNoIdle = false;				// TODO same, for specifying zones where faeries wi
 #define LURKER_BLINK_SHUT_MAX_TIMING	500
 
 #define LURKER_MIN_PIXEL_1	40
-#define LURKER_MAX_PIXEL_1	75
-#define LURKER_MIN_PIXEL_2	120
-#define LURKER_MAX_PIXEL_2	148
+#define LURKER_MAX_PIXEL_1	149
+#define LURKER_MIN_PIXEL_2	151
+#define LURKER_MAX_PIXEL_2	280
 #define LURKER_MIN_PIXEL_3	400
 #define LURKER_MAX_PIXEL_3	450
-
-// TreeSprite locations
-#define TREE_FADE_PIXEL_1 315
-#define TREE_START_1		323
-#define TREE_END_1			334
-
-#define TREE_FADE_PIXEL_2 315
-#define TREE_START_2		323
-#define TREE_END_2			334
-
-#define TREE_FADE_PIXEL_3 315
-#define TREE_START_3		323
-#define TREE_END_3			334
-
-#define TREE_FADE_PIXEL_4 315
-#define TREE_START_4		323
-#define TREE_END_4			334
-
-#define TREE_FADE_PIXEL_5 315
-#define TREE_START_5		323
-#define TREE_END_5			334
 
 // For testing use only. In production, set this equal to 1. Use this to exaggerate the acceleration effects. 10-20 is good for testing.
 #define ACCELERATION_DELAY_OBVIOUSNESS_FACTOR				 1
 
+#define ANIMATION_FRAME_WIDTH			1 //23
+#define ANIMATION_FRAMES					1 //28
 
-#define ANIMATION_FRAME_WIDTH			23
-#define ANIMATION_FRAMES					28
 
-// animation frame counts
-
-#define SPARKLE_ANIMATION_FRAME_WIDTH 23
-#define SPARKLE_ANIMATION_FRAMES			46
-
-#define afc_f_slow_stop_ANIMATION_FRAME_WIDTH		17
-#define afc_f_slow_stop_ANIMATION_FRAMES				65
-
-#define afc_f_slow_stop_c_ANIMATION_FRAME_WIDTH 25
-#define afc_f_slow_stop_c_ANIMATION_FRAMES			82
-
-#define afc_l_pulsar_a_ANIMATION_FRAME_WIDTH		24
-#define afc_l_pulsar_a_ANIMATION_FRAMES					22
 
 
 // ...TO HERE.
@@ -145,18 +126,6 @@ CRGB colorSets[NUM_COLORSETS][NUM_COLORS_PER_SET];
 char afc_w8v1r[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
 CRGB af_w8v1r[ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES];
 
-// char afc_2_sparkle_a[SPARKLE_ANIMATION_FRAME_WIDTH * SPARKLE_ANIMATION_FRAMES];
-// CRGB af_2_sparkle_a[SPARKLE_ANIMATION_FRAME_WIDTH * SPARKLE_ANIMATION_FRAMES];
-
-char afc_f_slow_stop[afc_f_slow_stop_ANIMATION_FRAME_WIDTH * afc_f_slow_stop_ANIMATION_FRAMES];
-CRGB af_f_slow_stop[afc_f_slow_stop_ANIMATION_FRAME_WIDTH * afc_f_slow_stop_ANIMATION_FRAMES];
-
-char afc_f_slow_stop_c[afc_f_slow_stop_c_ANIMATION_FRAME_WIDTH * afc_f_slow_stop_c_ANIMATION_FRAMES];
-CRGB af_f_slow_stop_c[afc_f_slow_stop_c_ANIMATION_FRAME_WIDTH * afc_f_slow_stop_c_ANIMATION_FRAMES];
-
-char afc_l_pulsar_a[afc_l_pulsar_a_ANIMATION_FRAME_WIDTH * afc_l_pulsar_a_ANIMATION_FRAMES];
-CRGB af_l_pulsar_a[afc_l_pulsar_a_ANIMATION_FRAME_WIDTH * afc_l_pulsar_a_ANIMATION_FRAMES];
-
 
 // Function prototypes.
 void resetStrip(void);
@@ -165,7 +134,6 @@ void debugNeg(int);
 void debugN(int, int);
 void stripcpy(CRGB *, CRGB *, int, int, int);
 void createColorsets(void);
-void createAnimationFrames(void);
 
 class InfraredSensor {
 private:
@@ -335,7 +303,7 @@ private:
 	// TODO: make eye dimness slightly variable on spawn
 	int SetMaxEyeColor() {
 		// random 3-5
-		return random(3,5 +1);
+		return random(4,5 +1);
 	}
 	
 	int SetBlinkMaxCount() {
@@ -424,209 +392,72 @@ private:
 	}
 	
 public:
-		LurkerSprite(int spawnPixel, int eyew) : Sprite() {
-		// Initial state.
-		this->currentPixel = spawnPixel;
-		this->updateInterval = SetInitialBlinkSpeed();
-		this->lifetimeBlinks = SetLifeSpan(); 
-		this->blinkCount = -1;							// When first opening the eyes, it "counts" as a blink, and setting to -1 means we don't count it against lifespan
-		this->blinkFrequency = SetBlinkFrequency();		// decent test with 4000 ms, trying a random set
-		this->eyeWidth = eyew;							// can we set this on spawn? Make it semi-random within params? 
-		this->blinkDirection = 1;						// want to start with eyes closed and open them
-		this->eyeColor = 0;								// eyes closed = 0
-		this->eyeMaxColor = SetMaxEyeColor();			// up to 5 in the color set
-		this->blinkMaxCount = SetBlinkMaxCount();
-		this->blinkTiming = SetBlinkTiming();
-		this->lastBlinkTime = millis();
-		
-		// this->colorPalette = random(0, NUM_COLORSETS);
-		this->colorPalette = 2;								// yellow to start
-
-
-		this->eyes[0] = colorSets[colorPalette][eyeColor];
-		this->eyes[eyeWidth] = colorSets[colorPalette][eyeColor];
-		this->eyeLength = 2;
-		}
-
-		~LurkerSprite() {
-		}
+	LurkerSprite(int spawnPixel, int eyew) : Sprite() {
+	// Initial state.
+	this->currentPixel = spawnPixel;
+	this->updateInterval = SetInitialBlinkSpeed();
+	this->lifetimeBlinks = SetLifeSpan(); 
+	this->blinkCount = -1;							// When first opening the eyes, it "counts" as a blink, and setting to -1 means we don't count it against lifespan
+	this->blinkFrequency = SetBlinkFrequency();		// decent test with 4000 ms, trying a random set
+	this->eyeWidth = eyew;							// can we set this on spawn? Make it semi-random within params? 
+	this->blinkDirection = 1;						// want to start with eyes closed and open them
+	this->eyeColor = 0;								// eyes closed = 0
+	this->eyeMaxColor = SetMaxEyeColor();			// up to 5 in the color set
+	this->blinkMaxCount = SetBlinkMaxCount();
+	this->blinkTiming = SetBlinkTiming();
+	this->lastBlinkTime = millis();
 	
-		bool allowCreation() {
-		return (currentPixel >= LURKER_MIN_PIXEL_1 && currentPixel <= LURKER_MAX_PIXEL_1) || (currentPixel >= LURKER_MIN_PIXEL_2 && currentPixel <= LURKER_MAX_PIXEL_2) || (currentPixel >= LURKER_MIN_PIXEL_3 && currentPixel <= LURKER_MAX_PIXEL_3);
-		}
-	
-		boolean UpdateNow() {
-			if (millis() - lastUpdateTime >= ACCELERATION_DELAY_OBVIOUSNESS_FACTOR * updateInterval) {
-				lastUpdateTime = millis();
-				return true;
-			} else {
-				return false;
-			}
-		}
+	// this->colorPalette = random(0, NUM_COLORSETS);
+	this->colorPalette = 2;								// yellow to start
 
-		bool Update() {
-			// debug(eyeColor);
-			if (! this->UpdateNow()) {
-					return false;
-			}
-		
-			if (! this->allowCreation()) {
-				this->MarkDone();
-				return false;
-			}
-		
-			// Decide if we're going to blink, and set the value to do it
-			blinkDirection = Blink();
-		
-			// close or open the eyes a step by adding blinkDirection to eye color
-			eyeColor += blinkDirection;
-		
-			this->eyes[0] = colorSets[colorPalette][eyeColor]; // colorSets[2][eyeColor];
-			this->eyes[eyeWidth] = colorSets[colorPalette][eyeColor]; // colorSets[2][eyeColor]; 
-		
-			stripcpy(leds, eyes, currentPixel, eyeLength, eyeLength);
+
+	this->eyes[0] = colorSets[colorPalette][eyeColor];
+	this->eyes[eyeWidth] = colorSets[colorPalette][eyeColor];
+	this->eyeLength = 2;
+	}
+
+	~LurkerSprite() {
+	}
+
+	bool allowCreation() {
+	return (currentPixel >= LURKER_MIN_PIXEL_1 && currentPixel <= LURKER_MAX_PIXEL_1) || (currentPixel >= LURKER_MIN_PIXEL_2 && currentPixel <= LURKER_MAX_PIXEL_2) || (currentPixel >= LURKER_MIN_PIXEL_3 && currentPixel <= LURKER_MAX_PIXEL_3);
+	}
+
+	boolean UpdateNow() {
+		if (millis() - lastUpdateTime >= ACCELERATION_DELAY_OBVIOUSNESS_FACTOR * updateInterval) {
+			lastUpdateTime = millis();
 			return true;
+		} else {
+			return false;
 		}
-};
+	}
 
-
-// Loop test class
-// Travel, pause, play loop 2-5 times, move on
-
-class LoopTestSprite : public Sprite {
-	private:
-		int updateInterval;
-		int currentPixel;
-		bool isScanning;
-		int scanningFrame;
-		int lastInflection;
-		int nextInflection;
-		int scanCount;
-		int scanCountTotal;
-
-		// pattern is one black pixel plus remaining pixels in order of increasing brightness with brightest pixel doubled.
-		CRGB pattern[NUM_COLORS_PER_SET + 1];
-		int patternLength = NUM_COLORS_PER_SET + 1;
-
-		void SetNextInflection() {
-				lastInflection = nextInflection;
-				nextInflection += random(FAERIE_MIN_LONG_TRAVEL, FAERIE_MAX_LONG_TRAVEL + 1);
-		}
-
-		int GetNewScanCountTotal() {
-				return random(FAERIE_MIN_IDLE, FAERIE_MAX_IDLE + 1);
-		}
-
-	public:
-		LoopTestSprite() : Sprite() {
-				// Initial state.
-				this->currentPixel = -8;	// The first pixel of the pattern is black.
-				this->scanningFrame = 0;
-				this->isScanning = false;
-				this->lastInflection = 0;
-				this->nextInflection = 0;
-				SetNextInflection();
-				this->scanCount = 0;
-				this->scanCountTotal = GetNewScanCountTotal();
-				this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
-
-				// Choose a random color palette from the palettes available.
-				int colorPalette = random(0, NUM_COLORSETS);
-
-				// Set the colors in the pattern.
-				this->pattern[0] = colorSets[colorPalette][0];
-				this->pattern[1] = colorSets[colorPalette][1];
-				this->pattern[2] = colorSets[colorPalette][2];
-				this->pattern[3] = colorSets[colorPalette][3];
-				this->pattern[4] = colorSets[colorPalette][4];
-				this->pattern[5] = colorSets[colorPalette][5];
-				this->pattern[6] = colorSets[colorPalette][6];
-				this->pattern[7] = colorSets[colorPalette][7];
-				this->pattern[8] = colorSets[colorPalette][8];
-				this->pattern[9] = colorSets[colorPalette][8];
-
-				this->patternLength = 10;
-
-				for (int i = 0; i < afc_l_pulsar_a_ANIMATION_FRAME_WIDTH * afc_l_pulsar_a_ANIMATION_FRAMES; i++) {
-						af_l_pulsar_a[i] = afc_l_pulsar_a[i] > ' ' ? colorSets[colorPalette][afc_l_pulsar_a[i] - '0'] : CRGB::Black;
-				}
-		}
-
-		~LoopTestSprite() {
-		}
-
-		boolean UpdateNow() {
-			if (millis() - lastUpdateTime >= ACCELERATION_DELAY_OBVIOUSNESS_FACTOR * updateInterval) {
-				lastUpdateTime = millis();
-				return true;
-			} else {
+	bool Update() {
+		// debug(eyeColor);
+		if (! this->UpdateNow()) {
 				return false;
-			}
 		}
-
-		bool Update() {
-				if (! this->UpdateNow()) {
-						return false;
-				}
-		
-		// debug(nextInflection);
-				// Going from scanning to travel mode.
-				if (isScanning && scanCount == scanCountTotal) {
-						isScanning = false;
-						currentPixel += 8;
-						SetNextInflection();
-						this->scanCount = 0;
-						this->scanCountTotal = GetNewScanCountTotal(); // set to 1 for fragments
-						this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
-						leds[currentPixel - 6] = CRGB::Black;
-						leds[currentPixel - 8] = CRGB::Black;
-						leds[currentPixel - 9] = CRGB::Black;	 // I hate this. One-off to get rid of the straggler when coming out of scan mode.
-						leds[currentPixel - 10] = CRGB::Black;
-				}
-
-				if (! isScanning) {
-						// Traveling and continuing to travel.
-						stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
-						++currentPixel;
-
-						if (currentPixel >= nextInflection - (SCANNER_DELAY_INTERVAL_IN_MS - 1)) {
-								updateInterval += 1;
-						} else {
-								updateInterval -= 1;
-						}
-
-						if (updateInterval < 1) {
-								updateInterval = 1;
-						} else if (updateInterval > SPRITE_STARTING_DELAY_INTERVAL_IN_MS) {
-								updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
-						}
-
-						// Transition from travel mode to scanning.
-						if (currentPixel >= nextInflection) {
-								// Safety. Since I don't trust my math, once we enter scanning mode, ALWAYS go back to the constant speed for scanning
-								// regardless of what the math said.
-								updateInterval = SCANNER_DELAY_INTERVAL_IN_MS;
-								isScanning = true;
-								scanningFrame = 0;
-								currentPixel -= 8;
-						}
-
-						if (currentPixel > NUM_LEDS) {
-							 this->MarkDone();
-						}
-				} else {
-						stripcpy(leds, af_l_pulsar_a + afc_l_pulsar_a_ANIMATION_FRAME_WIDTH * scanningFrame, currentPixel, afc_l_pulsar_a_ANIMATION_FRAME_WIDTH, afc_l_pulsar_a_ANIMATION_FRAME_WIDTH);
-						if (++scanningFrame == afc_l_pulsar_a_ANIMATION_FRAMES) {
-								scanningFrame = 0;
-								++scanCount;
-								// SetNextInflection();
-						}
-				}
-
-				return true;
+	
+		if (! this->allowCreation()) {
+			this->MarkDone();
+			return false;
 		}
+	
+		// Decide if we're going to blink, and set the value to do it
+		blinkDirection = Blink();
+	
+		// close or open the eyes a step by adding blinkDirection to eye color
+		eyeColor += blinkDirection;
+	
+		this->eyes[0] = colorSets[colorPalette][eyeColor]; // colorSets[2][eyeColor];
+		this->eyes[eyeWidth] = colorSets[colorPalette][eyeColor]; // colorSets[2][eyeColor]; 
+	
+		stripcpy(leds, eyes, currentPixel, eyeLength, eyeLength);
+		return true;
+	}
 };
 
+// The major sprite for Witch Lights animation 
 class FaerieSprite : public Sprite {
 private:
 	int updateInterval;
@@ -663,15 +494,15 @@ private:
 	int totalTravelDistance;
 	int currentDistance;
 	float brakePercentage;
-	int minNoIdle[7] = { 1, 80, 145, 295, 445, 595, 718 };
-	int maxNoIdle[7] = { 42, 111, 155, 305, 455, 605, 749 };
+	int minNoIdle[3] = {  1, 145, 295 };
+	int maxNoIdle[3] = {  6, 155, 305 };
 
 	CRGB pattern[3];
 	int patternLength = 3;
 
 	// use updateInterval and map() to make tails longer when going faster (reduce the fade factor) and shorter when going slower (increase fade factor)
 	int SetDimFactor(int interval) {
-		return map(interval, 0, SPRITE_STARTING_DELAY_INTERVAL_IN_MS, trailLength, 192);
+		return map(interval, 0, SPRITE_STARTING_DELAY_INTERVAL_IN_MS, trailLength, 192); // 192 is a max dimfactor?
 	}
 
 	int SetTrailLength() {
@@ -679,19 +510,21 @@ private:
 	}
 
 	// TODO define global constants for brake and acceleration factor ranges
+	// higher numbers = sharper braking
 	float SetBrakeFactor(bool waiting) {
 		if (!waiting) {
-			return (random(500,900) + 1) / 100;
+			return (random(500,1200) + 1) / 100; // originally 500, 900, +1
 		} else {
-			return (random(9000,19000) + 1) / 100;
+			return (random(9000,17000) + 1) / 100; // 9000, 19000
 		}
 	}
 	
+	// higher numbers = steeper acceleration curve
 	float SetAccelerationFactor(bool waiting) {
 		if (!waiting) {
-			return (random(100,350) + 1) / 100;
+			return (random(120,290) + 1) / 100; // to slow acceleration, decrease this a little? orig 100,350 +1
 		} else {
-			return (random(400,1000) + 1) / 100;
+			return (random(400,1100) + 1) / 100; // orig 400,1000
 		}
 	}
 
@@ -740,7 +573,7 @@ private:
 
 	int TravelDirectionSwitch() {
 		// returns -1 or 1 randomly
-		if (random(0,2) == 0) {
+		if (random(10) +1 < 6) {
 			return -1;
 		} else {
 			return 1;
@@ -821,7 +654,7 @@ private:
 	float SetBrakePercentage() {
 		// TODO: map distance of move to brake percentage, brakefactor, accelerationfactor
 		if (!isWaiting) {
-			return .06;	//  TODO - set this with a constant // .12 worked for 50-75 pixel moves, too big for 160 pixel moves
+			return .07;	// .12 worked for 50-75 pixel moves, too big for 160 pixel moves; .06 from Witch Lights
 		} else {
 			return .45;
 		}
@@ -881,10 +714,10 @@ private:
 		
 		// Accelerate or brake by returning positive or negative values to subtract from updateInterval
 		if (! isBraking) {
-		int x = abs(currentDistance - totalTravelDistance);
+			int x = abs(currentDistance - totalTravelDistance);
 			return round(sqrt(x) * accelerationFactor);
 		} else if (isBraking) {
-		int x = abs(currentPixel - brakePixel);
+			int x = abs(currentPixel - brakePixel);
 			return -1 * round(sqrt(x) * brakeFactor); 
 		}
 	}
@@ -944,7 +777,7 @@ private:
 		// delay(500);
 		// if (nextInflection < 150) debug(nextInflection);
 		// delay(1000);
-		nextInflection = AvoidNoIdle(nextInflection);
+		// nextInflection = AvoidNoIdle(nextInflection);
 		// debug(2);
 		// delay(500);
 		// if (nextInflection < 150) debug(nextInflection);
@@ -1056,6 +889,11 @@ private:
 	
 		if (EffectiveFrame(idlingFrame) == 0) {
 			++idleCount;
+			/*  // a chance to change colors?
+			if (random(5) == 0) {
+				// random color palette
+				this->colorPalette = random(0, NUM_COLORSETS);
+			} */
 		}
 		
 		return true;
@@ -1175,520 +1013,6 @@ public:
 	}
 };
 
-// Test intro and outro fragments together until I like them, then split into two halves and adjust code to play one, a loop, and then the other. 
-class FragmentTestSprite : public Sprite {
-	private:
-		int updateInterval;
-		int currentPixel;
-		bool isScanning;
-		int scanningFrame;
-		int lastInflection;
-		int nextInflection;
-		int scanCount;
-		int scanCountTotal;
-
-
-		// pattern is one black pixel plus remaining pixels in order of increasing brightness with brightest pixel doubled.
-		CRGB pattern[NUM_COLORS_PER_SET + 1];
-
-		int patternLength = NUM_COLORS_PER_SET + 1;
-
-		void SetNextInflection() {
-				lastInflection = nextInflection;
-				nextInflection += random(FAERIE_MIN_LONG_TRAVEL, FAERIE_MAX_LONG_TRAVEL + 1);
-		}
-
-		int GetNewScanCountTotal() {
-				return random(FAERIE_MIN_IDLE, FAERIE_MAX_IDLE + 1);
-		}
-
-	public:
-		FragmentTestSprite() : Sprite() {
-				// Initial state.
-				this->currentPixel = -8;	// The first pixel of the pattern is black.
-				this->scanningFrame = 0;
-				this->isScanning = false;
-				this->lastInflection = 0;
-				this->nextInflection = 0;
-				SetNextInflection();
-				this->scanCount = 0;
-				this->scanCountTotal = 1;
-				this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
-
-				// Choose a random color palette from the palettes available.
-				int colorPalette = random(0, NUM_COLORSETS);
-
-				// Set the colors in the pattern.
-				this->pattern[0] = colorSets[colorPalette][0];
-				this->pattern[1] = colorSets[colorPalette][1];
-				this->pattern[2] = colorSets[colorPalette][2];
-				this->pattern[3] = colorSets[colorPalette][3];
-				this->pattern[4] = colorSets[colorPalette][4];
-				this->pattern[5] = colorSets[colorPalette][5];
-				this->pattern[6] = colorSets[colorPalette][6];
-				this->pattern[7] = colorSets[colorPalette][7];
-				this->pattern[8] = colorSets[colorPalette][8];
-				this->pattern[9] = colorSets[colorPalette][8];
-
-				this->patternLength = 10;
-		
-
-				// Read all frames of animation at once into the af_f_slow_stop[i] CRGB struct, which is then used to write to the FastLED leds buffer
-				// If we want to automatically create trails, we need to have made the correct changes to the char afc_f_slow_stop's contents to create
-				// the fading trail.
-				for (int i = 0; i < afc_l_pulsar_a_ANIMATION_FRAME_WIDTH * afc_l_pulsar_a_ANIMATION_FRAMES; i++) {
-						af_l_pulsar_a[i] = afc_l_pulsar_a[i] > ' ' ? colorSets[colorPalette][afc_l_pulsar_a[i] - '0'] : CRGB::Black;
-				}
-		}
-
-		~FragmentTestSprite() {
-		}
-
-		boolean UpdateNow() {
-			if (millis() - lastUpdateTime >= ACCELERATION_DELAY_OBVIOUSNESS_FACTOR * updateInterval) {
-				lastUpdateTime = millis();
-				return true;
-			} else {
-				return false;
-			}
-		}
-
-		bool Update() {
-				if (! this->UpdateNow()) {
-						return false;
-				}
-		
-		// debug(2);
-				// Going from scanning to travel mode.
-				if (isScanning && scanCount == scanCountTotal) { // >= ?
-						isScanning = false;
-						currentPixel += afc_l_pulsar_a_ANIMATION_FRAME_WIDTH; // 8
-						currentPixel -= 8;
-						SetNextInflection();
-						this->scanCount = 0;
-						this->scanCountTotal = GetNewScanCountTotal();
-						this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
-						leds[currentPixel - 6] = CRGB::Black;
-						leds[currentPixel - 8] = CRGB::Black;
-						leds[currentPixel - 9] = CRGB::Black;	 // I hate this. One-off to get rid of the straggler when coming out of scan mode.
-						leds[currentPixel - 10] = CRGB::Black;
-			// debug(3);
-				}
-
-				if (! isScanning) {
-						// Traveling and continuing to travel.
-			// debug(4);
-						stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
-						++currentPixel;
-
-						if (currentPixel >= nextInflection - (SCANNER_DELAY_INTERVAL_IN_MS - 1)) {
-								updateInterval += 1;
-						} else {
-								updateInterval -= 1;
-						}
-
-						if (updateInterval < 1) {
-								updateInterval = 1;
-						} else if (updateInterval > SPRITE_STARTING_DELAY_INTERVAL_IN_MS) {
-								updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
-						}
-
-						// Transition from travel mode to scanning.
-						if (currentPixel >= nextInflection) {
-				// debug(5);
-								// Safety. Since I don't trust my math, once we enter scanning mode, ALWAYS go back to the constant speed for scanning
-								// regardless of what the math said.
-								updateInterval = SCANNER_DELAY_INTERVAL_IN_MS;
-								isScanning = true;
-								scanningFrame = 0;
-								currentPixel += 1; // -8 normally
-						}
-
-						if (currentPixel > NUM_LEDS) {
-							 this->MarkDone();
-						}
-				} else {
-			// debug(6);
-						stripcpy(leds, af_l_pulsar_a + afc_l_pulsar_a_ANIMATION_FRAME_WIDTH * scanningFrame, currentPixel, afc_l_pulsar_a_ANIMATION_FRAME_WIDTH, afc_l_pulsar_a_ANIMATION_FRAME_WIDTH);
-						if (++scanningFrame == afc_l_pulsar_a_ANIMATION_FRAMES) {
-								scanningFrame = 0;
-								++scanCount;
-								// SetNextInflection();
-						}
-				}
-
-				return true;
-		}
-};
-
-// Animation sprites from last year
-/*
-class W8V1ScannerDebrisV1Sprite : public Sprite {
-	private:
-		int updateInterval;
-		int currentPixel;
-		bool isScanning;
-		int scanningFrame;
-		int lastInflection;
-		int nextInflection;
-		int scanCount;
-		int scanCountTotal;
-
-		// pattern is one black pixel plus remaining pixels in order of increasing brightness with brightest pixel doubled.
-		CRGB pattern[NUM_COLORS_PER_SET + 1];
-		int patternLength = NUM_COLORS_PER_SET + 1;
-
-		void SetNextInflection() {
-				lastInflection = nextInflection;
-				nextInflection += random(FAERIE_MIN_LONG_TRAVEL, FAERIE_MAX_LONG_TRAVEL + 1);
-		}
-
-		int GetNewScanCountTotal() {
-				return random(FAERIE_MIN_IDLE, FAERIE_MAX_IDLE + 1);
-		}
-
-	public:
-		W8V1ScannerDebrisV1Sprite() : Sprite() {
-				// Initial state.
-				this->currentPixel = -8;	// The first pixel of the pattern is black.
-				this->scanningFrame = 0;
-				this->isScanning = false;
-				this->lastInflection = 0;
-				this->nextInflection = 0;
-				SetNextInflection();
-				this->scanCount = 0;
-				this->scanCountTotal = GetNewScanCountTotal();
-				this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
-
-				// Choose a random color palette from the palettes available.
-				int colorPalette = random(0, NUM_COLORSETS);
-
-				// Set the colors in the pattern.
-				this->pattern[0] = colorSets[colorPalette][0];
-				this->pattern[1] = colorSets[colorPalette][1];
-				this->pattern[2] = colorSets[colorPalette][2];
-				this->pattern[3] = colorSets[colorPalette][3];
-				this->pattern[4] = colorSets[colorPalette][4];
-				this->pattern[5] = colorSets[colorPalette][5];
-				this->pattern[6] = colorSets[colorPalette][6];
-				this->pattern[7] = colorSets[colorPalette][7];
-				this->pattern[8] = colorSets[colorPalette][8];
-				this->pattern[9] = colorSets[colorPalette][8];
-
-				this->patternLength = 10;
-
-				for (int i = 0; i < ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES; i++) {
-						af_w8v1[i] = afc_w8v1[i] > ' ' ? colorSets[colorPalette][afc_w8v1[i] - '0'] : CRGB::Black;
-				}
-		}
-
-		~W8V1ScannerDebrisV1Sprite() {
-		}
-
-		boolean UpdateNow() {
-			if (millis() - lastUpdateTime >= ACCELERATION_DELAY_OBVIOUSNESS_FACTOR * updateInterval) {
-				lastUpdateTime = millis();
-				return true;
-			} else {
-				return false;
-			}
-		}
-
-		bool Update() {
-				if (! this->UpdateNow()) {
-						return false;
-				}
-
-				// Going from scanning to travel mode.
-				if (isScanning && scanCount == scanCountTotal) {
-						isScanning = false;
-						currentPixel += 8;
-						SetNextInflection();
-						this->scanCount = 0;
-						this->scanCountTotal = GetNewScanCountTotal();
-						this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
-						leds[currentPixel - 6] = CRGB::Black;
-						leds[currentPixel - 8] = CRGB::Black;
-						leds[currentPixel - 9] = CRGB::Black;	 // I hate this. One-off to get rid of the straggler when coming out of scan mode.
-						leds[currentPixel - 10] = CRGB::Black;
-				}
-
-				if (! isScanning) {
-						// Traveling and continuing to travel.
-						stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
-						++currentPixel;
-
-						if (currentPixel >= nextInflection - (SCANNER_DELAY_INTERVAL_IN_MS - 1)) {
-								updateInterval += 1;
-						} else {
-								updateInterval -= 1;
-						}
-
-						if (updateInterval < 1) {
-								updateInterval = 1;
-						} else if (updateInterval > SPRITE_STARTING_DELAY_INTERVAL_IN_MS) {
-								updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
-						}
-
-						// Transition from travel mode to scanning.
-						if (currentPixel >= nextInflection) {
-								// Safety. Since I don't trust my math, once we enter scanning mode, ALWAYS go back to the constant speed for scanning
-								// regardless of what the math said.
-								updateInterval = SCANNER_DELAY_INTERVAL_IN_MS;
-								isScanning = true;
-								scanningFrame = 0;
-								currentPixel -= 8;
-						}
-
-						if (currentPixel > NUM_LEDS) {
-							 this->MarkDone();
-						}
-				} else {
-						stripcpy(leds, af_w8v1 + ANIMATION_FRAME_WIDTH * scanningFrame, currentPixel, ANIMATION_FRAME_WIDTH, ANIMATION_FRAME_WIDTH);
-						if (++scanningFrame == ANIMATION_FRAMES) {
-								scanningFrame = 0;
-								++scanCount;
-								// SetNextInflection();
-						}
-				}
-
-				return true;
-		}
-};
-*/
-
-class W8V1ScannerDebrisV1ReverseSprite : public Sprite {
-	private:
-		int updateInterval;
-		int currentPixel;
-		bool isScanning;
-		int scanningFrame;
-		int lastInflection;
-		int nextInflection;
-		int scanCount;
-		int scanCountTotal;
-		int velocity;
-
-		// pattern is one black pixel plus remaining pixels in order of increasing brightness with brightest pixel doubled.
-		CRGB pattern[NUM_COLORS_PER_SET + 1];
-		int patternLength = NUM_COLORS_PER_SET + 1;
-
-		void SetNextInflection() {
-				lastInflection = nextInflection;
-				nextInflection -= random(FAERIE_MIN_LONG_TRAVEL, FAERIE_MAX_LONG_TRAVEL + 1);
-		}
-
-		int GetNewScanCountTotal() {
-				return random(FAERIE_MIN_IDLE, FAERIE_MAX_IDLE + 1);
-		}
-
-	public:
-		W8V1ScannerDebrisV1ReverseSprite() : Sprite() {
-				// Initial state.
-				this->currentPixel = NUM_LEDS + 7;	// The first pixel of the pattern is black.
-				this->scanningFrame = 0;
-				this->isScanning = false;
-				this->lastInflection = NUM_LEDS;
-				this->nextInflection = NUM_LEDS;
-				SetNextInflection();
-				this->velocity = 1;
-				this->scanCount = 0;
-				this->scanCountTotal = GetNewScanCountTotal();
-				this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
-
-				// Choose a random color palette from the palettes available.
-				int colorPalette = random(0, NUM_COLORSETS);
-
-				// Set the colors in the pattern.
-				this->pattern[9] = colorSets[colorPalette][0];
-				this->pattern[8] = colorSets[colorPalette][1];
-				this->pattern[7] = colorSets[colorPalette][2];
-				this->pattern[6] = colorSets[colorPalette][3];
-				this->pattern[5] = colorSets[colorPalette][4];
-				this->pattern[4] = colorSets[colorPalette][5];
-				this->pattern[3] = colorSets[colorPalette][6];
-				this->pattern[2] = colorSets[colorPalette][7];
-				this->pattern[1] = colorSets[colorPalette][8];
-				this->pattern[0] = colorSets[colorPalette][8];
-
-				this->patternLength = 10;
-
-				for (int i = 0; i < ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES; i++) {
-						af_w8v1r[i] = afc_w8v1r[i] > ' ' ? colorSets[colorPalette][afc_w8v1r[i] - '0'] : CRGB::Black;
-				}
-		}
-
-		~W8V1ScannerDebrisV1ReverseSprite() {
-		}
-
-		boolean UpdateNow() {
-			if (millis() - lastUpdateTime >= ACCELERATION_DELAY_OBVIOUSNESS_FACTOR * updateInterval) {
-				lastUpdateTime = millis();
-				return true;
-			} else {
-				return false;
-			}
-		}
-
-		bool Update() {
-				if (! this->UpdateNow()) {
-						return false;
-				}
-
-				// Going from scanning to travel mode.
-				if (isScanning && scanCount == scanCountTotal) {
-						isScanning = false;
-						scanCount = 0;
-						currentPixel += 2;
-						SetNextInflection();
-						this->scanCount = 0;
-						this->scanCountTotal = GetNewScanCountTotal();
-						this->updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
-						leds[currentPixel + 6] = CRGB::Black;
-						leds[currentPixel + 8] = CRGB::Black;
-						leds[currentPixel + 9] = CRGB::Black;	 // I hate this. One-off to get rid of the straggler when coming out of scan mode.
-						leds[currentPixel + 10] = CRGB::Black;
-				}
-
-				if (! isScanning) {
-						// Traveling and continuing to travel.
-						stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
-						currentPixel -= velocity;
-
-						// Are we nearer the last inflection than the next inflection? If so, speed up. Otherwise, slow down.
-						if (currentPixel <= nextInflection - (SCANNER_DELAY_INTERVAL_IN_MS - 1)) {
-								updateInterval += 1;
-						} else {
-								updateInterval -= 1;
-						}
-
-						if (updateInterval < 1) {
-								updateInterval = 1;
-						} else if (updateInterval > SPRITE_STARTING_DELAY_INTERVAL_IN_MS) {
-								updateInterval = SPRITE_STARTING_DELAY_INTERVAL_IN_MS;
-						}
-
-						if (currentPixel <= nextInflection) {
-								// Safety. Since I don't trust my math, once we enter scanning mode, ALWAYS go back to the constant speed for scanning
-								// regardless of what the math said.
-								updateInterval = SCANNER_DELAY_INTERVAL_IN_MS;
-								isScanning = true;
-								scanningFrame = 0;
-								currentPixel -= 3;
-						}
-
-						if (currentPixel <= -10) {
-							 this->MarkDone();
-						}
-				} else {
-						stripcpy(leds, af_w8v1r + ANIMATION_FRAME_WIDTH * scanningFrame, currentPixel, ANIMATION_FRAME_WIDTH, ANIMATION_FRAME_WIDTH);
-						if (++scanningFrame == ANIMATION_FRAMES) {
-								scanningFrame = 0;
-								++scanCount;
-								// SetNextInflection();
-						}
-				}
-
-				return true;
-		}
-};
-
-/*
-class ScannerSprite : public Sprite {
-	private:
-		int currentPixel;
-		bool isScanning;
-		int scanningFrame;
-		int nextInflection;
-		int scanCount;
-		int scanCountTotal;
-		int velocity;
-
-		// pattern is two black pixels plus remaining pixels in order of increasing brightness
-		CRGB pattern[NUM_COLORS_PER_SET + 1];
-		int patternLength = NUM_COLORS_PER_SET + 1;
-
-		void SetNextInflection() {
-				nextInflection += random(FAERIE_MIN_LONG_TRAVEL, FAERIE_MAX_LONG_TRAVEL + 1);
-		}
-
-		int GetNewScanCountTotal() {
-				return random(FAERIE_MIN_IDLE, FAERIE_MAX_IDLE + 1);
-		}
-
-	public:
-		ScannerSprite() : Sprite() {
-				// Initial state.
-				this->currentPixel = -2;	// Both of the first two pixels of the pattern are black.
-				this->scanningFrame = 0;
-				this->isScanning = false;
-				this->nextInflection = 0;
-				SetNextInflection();
-				this->velocity = 2;
-				this->scanCount = 0;
-				this->scanCountTotal = GetNewScanCountTotal();
-
-				// Choose a random color palette from the palettes available.
-				int colorPalette = random(0, NUM_COLORSETS);
-
-				// Set the colors in the pattern.
-				this->pattern[0] = this->pattern[1] = colorSets[colorPalette][0];
-				for (int i = 1; i < NUM_COLORS_PER_SET; i++) {
-						this->pattern[i + 1] = colorSets[colorPalette][i];
-				}
-
-				for (int i = 0; i < ANIMATION_FRAME_WIDTH * ANIMATION_FRAMES; i++) {
-						animationFrames[i] = animationFramesChars[i] > ' ' ? colorSets[colorPalette][animationFramesChars[i] - '0'] : CRGB::Black;
-				}
-		}
-
-		~ScannerSprite() {
-		}
-
-		bool Update() {
-				if (! this->UpdateNow()) {
-						return false;
-				}
-
-				if (isScanning && scanCount == scanCountTotal) {
-						isScanning = false;
-						scanCount = 0;
-						currentPixel += 8;
-						SetNextInflection();
-						scanCount = GetNewScanCountTotal();
-						// leds[currentPixel - 20] = CRGB::White;
-						leds[currentPixel - 6] = CRGB::Black;
-						leds[currentPixel - 8] = CRGB::Black;
-						leds[currentPixel - 9] = CRGB::Black;	 // I hate this. One-off to get rid of the straggler when coming out of scan mode.
-						leds[currentPixel - 10] = CRGB::Black;
-				}
-
-				if (! isScanning) {
-						stripcpy(leds, pattern, currentPixel, patternLength, patternLength);
-						currentPixel += velocity;
-
-						if (currentPixel >= nextInflection) {
-								isScanning = true;
-								scanningFrame = 0;
-								currentPixel -= 8;
-						}
-
-						if (currentPixel > NUM_LEDS) {
-							 this->MarkDone();
-						}
-				} else {
-						stripcpy(leds, animationFrames + ANIMATION_FRAME_WIDTH * scanningFrame, currentPixel, ANIMATION_FRAME_WIDTH, ANIMATION_FRAME_WIDTH);
-						if (++scanningFrame == ANIMATION_FRAMES) {
-								scanningFrame = 0;
-								++scanCount;
-								// SetNextInflection();
-						}
-				}
-
-				return true;
-		}
-};
-*/
 
 class W1V1Sprite : public Sprite {
 	private:
@@ -1741,51 +1065,51 @@ class W1V1Sprite : public Sprite {
 };
 
 class SpriteManager {
-	private:
-		boolean updatedSomething = false;
-		SpriteVector* spriteVector;
+private:
+	boolean updatedSomething = false;
+	SpriteVector* spriteVector;
 
-	public:
-		SpriteManager() {
-				spriteVector = new SpriteVector(MAXSPRITES);
-		}
+public:
+	SpriteManager() {
+		spriteVector = new SpriteVector(MAXSPRITES);
+	}
 
-		~SpriteManager() {
+	~SpriteManager() {
 			 // Don't bother. Should never be called.
+	}
+
+	int SpriteCount() {
+		return spriteVector->Count();
+	}
+
+	void Update() {
+		updatedSomething = false;
+
+		for (int i = 0; i < this->SpriteCount(); i++) {
+			updatedSomething |= spriteVector->Get(i)->Update();
 		}
 
-		int SpriteCount() {
-			return spriteVector->Count();
+		if (updatedSomething) {
+			FastLED.show();
 		}
 
-		void Update() {
-				updatedSomething = false;
+		this->Clean();
+	}
 
-				for (int i = 0; i < this->SpriteCount(); i++) {
-						updatedSomething |= spriteVector->Get(i)->Update();
-				}
-
-				if (updatedSomething) {
-						FastLED.show();
-				}
-
-				this->Clean();
-		}
-
-		bool Add(Sprite *newSprite) {
-			bool x = spriteVector->Add(newSprite);
-			return x;
-		}
+	bool Add(Sprite *newSprite) {
+		bool x = spriteVector->Add(newSprite);
+		return x;
+	}
 
 		// Garbage collection. Remove any sprites that have finished their animation
 		// from the SpriteVector, in order to make room for others.
-		void Clean() {
-				for (int i = this->SpriteCount() - 1; i >= 0; i--) {
-						if (spriteVector->Get(i)->IsDone()) {
-								spriteVector->RemoveAt(i);
-						}
-				}
+	void Clean() {
+		for (int i = this->SpriteCount() - 1; i >= 0; i--) {
+			if (spriteVector->Get(i)->IsDone()) {
+				spriteVector->RemoveAt(i);
+			}
 		}
+	}
 };
 
 InfraredSensor *sensor1;
@@ -1800,29 +1124,90 @@ int starttime = millis();
 
 
 void setup() {
+
+// BEGIN OTA SETUP
+
+  Serial.begin(115200);
+  Serial.println("Booting");
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+  /* Original code: reboots if no wifi
+  while (WiFi.waitForConnectResult() != WL_CONNECTED) {
+    Serial.println("Connection Failed! Rebooting...");
+    delay(5000);
+    ESP.restart();
+  } */
+
+  Serial.println("Trying to connect to WiFi");
+	unsigned long timeout = millis();
+	while (WiFi.status()  != WL_CONNECTED) {
+    Serial.print(".");
+    delay(500);
+    if(millis() - timeout > 5000UL)  {
+      Serial.println("\nNo connection to WiFi network");
+      break;
+    }
+  }
+
+
+
+  // Port defaults to 3232
+  // ArduinoOTA.setPort(3232);
+
+  // Hostname defaults to esp3232-[MAC]
+  // ArduinoOTA.setHostname("myesp32");
+
+  // No authentication by default
+  // ArduinoOTA.setPassword("admin");
+
+  // Password can be set with its md5 value as well
+  // MD5(admin) = 21232f297a57a5a743894a0e4a801fc3
+  // ArduinoOTA.setPasswordHash("21232f297a57a5a743894a0e4a801fc3");
+
+  ArduinoOTA
+    .onStart([]() {
+      String type;
+      if (ArduinoOTA.getCommand() == U_FLASH)
+        type = "sketch";
+      else // U_SPIFFS
+        type = "filesystem";
+
+      // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
+      Serial.println("Start updating " + type);
+    })
+    .onEnd([]() {
+      Serial.println("\nEnd");
+    })
+    .onProgress([](unsigned int progress, unsigned int total) {
+      Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+    })
+    .onError([](ota_error_t error) {
+      Serial.printf("Error[%u]: ", error);
+      if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+      else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+      else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+      else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+      else if (error == OTA_END_ERROR) Serial.println("End Failed");
+    });
+
+  ArduinoOTA.begin();
+
+  Serial.println("Ready");
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
+
+// END OTA SETUP
+
+
+
 		createColorsets();
-		createAnimationFrames();
-
-		// TODO: define pins for these booleans as pullup input pins, for jumper to ground activation
-		/*
-		debugMode = true;					// turns on debug() statements
-		bool spawnLurkers = true;			// IMPORTANT: set to FALSE for all public video before Firefly 2018!
-		bool randomInflection = false;	// Randomly makes faerie sprite dance back and forth, instead of mainly going "forwards". 
-		bool spawnFaeries = true;				// TODO Spawn a new faerie randomly; helpful to keep a constant background of sprite animation for evaluation
-		bool placeLurkers = false;			// TODO Dimly lights up range of pixels where lurkers are "allowed" to spawn, for install time
-		bool placeTrees = false;				// TODO Dimly lights up range of pixels green where trees are defined, also for installs
-		bool placeNoIdle;
-		bool tuneInterval;
-		bool burnNight;									// TODO Sprites go from 4 to 25 slowly over the course of the night, and motion sensor timeout is reduced to 1 second. 
-		*/
-
+		// createAnimationFrames();
 		isBooted = false;
 		testSpritesCreated = false;
 
 		randomSeed(analogRead(0));
 
 		spriteManager = new SpriteManager();
-
 		sensor1 = new InfraredSensor(PIR_SENSOR_1_PIN);
 		sensor2 = new InfraredSensor(PIR_SENSOR_2_PIN);
 
@@ -1832,7 +1217,16 @@ void setup() {
 int counter = 0;
 int sensor1LastPollTime = millis();
 
+static unsigned long reconnectTime;
+
 void loop() {
+
+	// BEGIN OTA LOOP
+
+  ArduinoOTA.handle();
+
+	// END OTA LOOP
+
 		if (! isBooted) {
 				if (! testSpritesCreated) {
 						spriteManager->Add(new W1V1Sprite(10, 0x750787));
@@ -1855,9 +1249,9 @@ void loop() {
 		}
 
 		// Spawn lurkers randomly
-		if (random(0,1000) == 0 && spawnLurkers) {
+		/*if (random(0,1000) == 0 && spawnLurkers) {
 			// debug(3);
-			int lurkerSpawnPixel = random(40,149); // TODO - create array of lurker zones to use instead of the constants?
+			int lurkerSpawnPixel = random(40,225); // TODO - create array of lurker zones to use instead of the constants?
 			Sprite *s1 = new LurkerSprite(lurkerSpawnPixel,1); 
 			// TODO: check to see if another lurker already exists at this pixel, despawn if so
 		
@@ -1866,28 +1260,37 @@ void loop() {
 			} 
 		} else {
 			// debug(1);
-		}
+		} */
 		
-		if (random(0,2200) == 0 && spawnFaeries) {
-			Sprite *s1 = new FaerieSprite(1, -3); 
-		
-			if (! spriteManager->Add(s1)) {
-				delete s1;
+		// 3200000 = perfect for esp32 in production
+		// 1960000 = almost twice as frequent for animation analysis?
+		// SPRITE_AUTOSPAWN_RANDOMNESS_FACTOR
+		if (random(0,SPRITE_AUTOSPAWN_RANDOMNESS_FACTOR) == 0UL && spawnFaeries) {
+
+			for (int i = 0; i <= random(MAXSPRITES) + 1; i++) {
+				Sprite *s1 = new FaerieSprite(1, -3); 
+			
+				if (! spriteManager->Add(s1)) {
+					delete s1;
+				}
 			}
 			
-		} else if (random(0,2200) == 0 && spawnFaeries) {
-			Sprite *s2 = new FaerieSprite(-1, NUM_LEDS + 3); 
-		
-			if (! spriteManager->Add(s2)) {
-				delete s2;
+		} else if (random(0,SPRITE_AUTOSPAWN_RANDOMNESS_FACTOR) == 0UL && spawnFaeries) {
+			for (int i = 0; i <= random(MAXSPRITES) + 1; i++) {
+				Sprite *s2 = new FaerieSprite(-1, NUM_LEDS + 3); 
+			
+				if (! spriteManager->Add(s2)) {
+					delete s2;
+				}
+				// debug(1);
 			}
-			// debug(1);
 		}
 
+		/*
+		PHASE Lights aren't running sensors for FF2023
+
 		if (sensor1->IsActuated()) {
-			// debug(1);
 			Sprite *s1 = new FaerieSprite(1, -3); // production
-			// Sprite *s1 = new FaerieSprite(-1, 153); // For testing
 
 			if (! spriteManager->Add(s1)) {
 					delete s1;
@@ -1901,9 +1304,18 @@ void loop() {
 				delete s2;
 			}
 		}
+		*/
 
 		spriteManager->Update();
 		
+
+		// Try to reconnect once every 5 seconds
+
+	if(WiFi.status()  != WL_CONNECTED && millis() - reconnectTime > 5000) {
+	   reconnectTime = millis();
+
+	   WiFi.begin(ssid, password);
+	}
 }
 
 
@@ -1963,385 +1375,80 @@ void stripcpy(CRGB *leds, CRGB *source, int start, int width, int patternSize) {
 }
 
 void createColorsets() {
-// Blue.
-		colorSets[0][0] = CRGB::Black;
+// Blue 2.0
+		colorSets[0][0] = 0x000000;
 		colorSets[0][1] = 0x000000;
 		colorSets[0][2] = 0x000000;
-		colorSets[0][3] = 0x000001;
-		colorSets[0][4] = 0x000003;
-		colorSets[0][5] = 0x010106;
-		colorSets[0][6] = 0x02020C;
-		colorSets[0][7] = 0x050519;
-		colorSets[0][8] = 0x0A0A33;
+		colorSets[0][3] = 0x000101;
+		colorSets[0][4] = 0x000203;
+		colorSets[0][5] = 0x010507; // 02070A
+		colorSets[0][6] = 0x030A0F;
+		colorSets[0][7] = 0x06151E;
+		colorSets[0][8] = 0x0C2A3C;
 
-// Yellow-green.
+// Blue 2.5
 #if NUM_COLORSETS > 1
 		colorSets[1][0] = 0x000000;
 		colorSets[1][1] = 0x000000;
-		colorSets[1][2] = 0x000100;
-		colorSets[1][3] = 0x010200;
-		colorSets[1][4] = 0x030500;
-		colorSets[1][5] = 0x060A01;
-		colorSets[1][6] = 0x0D1503;
-		colorSets[1][7] = 0x1B2A06;
-		colorSets[1][8] = 0x36540C;
+		colorSets[1][2] = 0x000000;
+		colorSets[1][3] = 0x000001;
+		colorSets[1][4] = 0x000003;
+		colorSets[1][5] = 0x010106; // 02070A
+		colorSets[1][6] = 0x02020C;
+		colorSets[1][7] = 0x050519;
+		colorSets[1][8] = 0x0A0A33;
+
 #endif
 
+// Yellow-green.
 #if NUM_COLORSETS > 2
-// Amber.
 		colorSets[2][0] = 0x000000;
 		colorSets[2][1] = 0x000000;
-		colorSets[2][2] = 0x000000;
-		colorSets[2][3] = 0x010100;
-		colorSets[2][4] = 0x030300;
-		colorSets[2][5] = 0x060601;
-		colorSets[2][6] = 0x0C0C02;
-		colorSets[2][7] = 0x191905;
-		colorSets[2][8] = 0x33330A;
+		colorSets[2][2] = 0x000100;
+		colorSets[2][3] = 0x010200;
+		colorSets[2][4] = 0x030500;
+		colorSets[2][5] = 0x060A01;
+		colorSets[2][6] = 0x0D1503;
+		colorSets[2][7] = 0x1B2A06;
+		colorSets[2][8] = 0x36540C;
 #endif
 
 #if NUM_COLORSETS > 3
-// Reddish-purple.
+// Amber.
 		colorSets[3][0] = 0x000000;
 		colorSets[3][1] = 0x000000;
-		colorSets[3][2] = 0x010001;
-		colorSets[3][3] = 0x030102;
-		colorSets[3][4] = 0x060204;
-		colorSets[3][5] = 0x0C0508;
-		colorSets[3][6] = 0x180A11;
-		colorSets[3][7] = 0x311523;
-		colorSets[3][8] = 0x632A47;
+		colorSets[3][2] = 0x000000;
+		colorSets[3][3] = 0x010100;
+		colorSets[3][4] = 0x030300;
+		colorSets[3][5] = 0x060601;
+		colorSets[3][6] = 0x0C0C02;
+		colorSets[3][7] = 0x191905;
+		colorSets[3][8] = 0x33330A;
 #endif
 
 #if NUM_COLORSETS > 4
-// Original purple.
+// Reddish-purple.
 		colorSets[4][0] = 0x000000;
 		colorSets[4][1] = 0x000000;
 		colorSets[4][2] = 0x010001;
 		colorSets[4][3] = 0x030102;
-		colorSets[4][4] = 0x060305;
-		colorSets[4][5] = 0x0C060A;
-		colorSets[4][6] = 0x180C14;
-		colorSets[4][7] = 0x311828;
-		colorSets[4][8] = 0x633051;
+		colorSets[4][4] = 0x060204;
+		colorSets[4][5] = 0x0C0508;
+		colorSets[4][6] = 0x180A11;
+		colorSets[4][7] = 0x311523;
+		colorSets[4][8] = 0x632A47;
 #endif
-}
 
-
-void createAnimationFrames() {
-	
-/*
-		strcpy(animationFramesChars, "					1234	 ");
-		strcat(animationFramesChars, "					 4323	 ");
-		strcat(animationFramesChars, "				 4321	 2 ");
-		strcat(animationFramesChars, "			 4321			1");
-		strcat(animationFramesChars, "		 4321				 ");
-		strcat(animationFramesChars, "		3234				 ");
-		strcat(animationFramesChars, "	 2	1234			 ");
-		strcat(animationFramesChars, "	1			1234		 ");
-
-		strcpy(animationFramesCharsReverse, "		4321					");
-		strcat(animationFramesCharsReverse, "	 3234						");
-		strcat(animationFramesCharsReverse, " 2	 1234					");
-		strcat(animationFramesCharsReverse, "1		 1234				");
-		strcat(animationFramesCharsReverse, "				 1234			");
-		strcat(animationFramesCharsReverse, "					4323		");
-		strcat(animationFramesCharsReverse, "				4321	2		");
-		strcat(animationFramesCharsReverse, "			4321		 1	");
-
-//										12345678901234567890123
-		strcpy(afc_w8v1, "					123456788		 ");
-		strcat(afc_w8v1, "					 12345688		 ");
-		strcat(afc_w8v1, "						12348876	 ");
-		strcat(afc_w8v1, "						 128876 4	 ");
-		strcat(afc_w8v1, "							88765	 2 ");
-		strcat(afc_w8v1, "						 887654		1");
-		strcat(afc_w8v1, "						8876543		 ");
-		strcat(afc_w8v1, "					 88765432		 ");
-		strcat(afc_w8v1, "					887654321		 ");
-		strcat(afc_w8v1, "				 887654321		 ");
-		strcat(afc_w8v1, "				887654321			 ");
-		strcat(afc_w8v1, "			 887654321			 ");
-		strcat(afc_w8v1, "			887654321				 ");
-		strcat(afc_w8v1, "		 887654321				 ");
-		strcat(afc_w8v1, "		887654321					 ");
-		strcat(afc_w8v1, "		88654321					 ");
-		strcat(afc_w8v1, "	 67884321						 ");
-		strcat(afc_w8v1, "	4 678821						 ");
-		strcat(afc_w8v1, " 2	56788							 ");
-		strcat(afc_w8v1, "1		456788						 ");
-		strcat(afc_w8v1, "		3456788						 ");
-		strcat(afc_w8v1, "		23456788					 ");
-		strcat(afc_w8v1, "		123456788					 ");
-		strcat(afc_w8v1, "		 123456788				 ");
-		strcat(afc_w8v1, "			123456788				 ");
-		strcat(afc_w8v1, "			 123456788			 ");
-		strcat(afc_w8v1, "				123456788			 ");
-		strcat(afc_w8v1, "				 123456788		 ");
-
-
-//										 12345678901234567890123
-		strcpy(afc_w8v1r, "		 887654321					");
-		strcat(afc_w8v1r, "		 88654321						");
-		strcat(afc_w8v1r, "		67884321						");
-		strcat(afc_w8v1r, "	 4 678821							");
-		strcat(afc_w8v1r, " 2	 56788							");
-		strcat(afc_w8v1r, "1	 456788							");
-		strcat(afc_w8v1r, "		 3456788						");
-		strcat(afc_w8v1r, "		 23456788						");
-		strcat(afc_w8v1r, "		 123456788					");
-		strcat(afc_w8v1r, "			123456788					");
-		strcat(afc_w8v1r, "			 123456788				");
-		strcat(afc_w8v1r, "				123456788				");
-		strcat(afc_w8v1r, "				 123456788			");
-		strcat(afc_w8v1r, "					123456788			");
-		strcat(afc_w8v1r, "					 123456788		");
-		strcat(afc_w8v1r, "						12345688		");
-		strcat(afc_w8v1r, "						 12348876		");
-		strcat(afc_w8v1r, "							128876 4	");
-		strcat(afc_w8v1r, "							 88765	2 ");
-		strcat(afc_w8v1r, "							887654	 1");
-		strcat(afc_w8v1r, "						 8876543		");
-		strcat(afc_w8v1r, "						88765432		");
-		strcat(afc_w8v1r, "					 887654321		");
-		strcat(afc_w8v1r, "					887654321			");
-		strcat(afc_w8v1r, "				 887654321			");
-		strcat(afc_w8v1r, "				887654321				");
-		strcat(afc_w8v1r, "			 887654321				");
-		strcat(afc_w8v1r, "			887654321					");
-
-		//											 12345678901234567890123
-		strcpy(afc_2_sparkle_a, "123456788							");
-		strcat(afc_2_sparkle_a, " 123456788							");
-		strcat(afc_2_sparkle_a, "	 123456788						");
-		strcat(afc_2_sparkle_a, "		 12345677						");
-		strcat(afc_2_sparkle_a, "			1234566						");
-		strcat(afc_2_sparkle_a, "				123455					");
-		strcat(afc_2_sparkle_a, "				 12344					");
-		strcat(afc_2_sparkle_a, "					 1233					");
-		strcat(afc_2_sparkle_a, "						122					");
-		strcat(afc_2_sparkle_a, "							11				");
-		strcat(afc_2_sparkle_a, "												");
-		strcat(afc_2_sparkle_a, "								 1			");
-		strcat(afc_2_sparkle_a, "								 1	1		");
-		strcat(afc_2_sparkle_a, "							1	 21 2		");
-		strcat(afc_2_sparkle_a, "							1	 1	3		");
-		strcat(afc_2_sparkle_a, "							21	1 4		");
-		strcat(afc_2_sparkle_a, "							31 11 5		");
-		strcat(afc_2_sparkle_a, "							42122 6		");
-		strcat(afc_2_sparkle_a, "							51213 7		");
-		strcat(afc_2_sparkle_a, "												");
-		strcat(afc_2_sparkle_a, "						1 71414 2	 1");
-		strcat(afc_2_sparkle_a, "						2 51626271 1");
-		strcat(afc_2_sparkle_a, "				 1	1 42837422 1");
-		strcat(afc_2_sparkle_a, "				 2	2131428681	");
-		strcat(afc_2_sparkle_a, "					 13222813472	");
-		strcat(afc_2_sparkle_a, "				 2	2313428623 1");
-		strcat(afc_2_sparkle_a, "				1 1 14 2833472 2");
-		strcat(afc_2_sparkle_a, "				 2	 5 1628681 3");
-		strcat(afc_2_sparkle_a, "						16	41342	 2");
-		strcat(afc_2_sparkle_a, "				 2 127 122367	 1");
-		strcat(afc_2_sparkle_a, "				 1 23811 4846		");
-		strcat(afc_2_sparkle_a, "				1	 1262	 6325	 1");
-		strcat(afc_2_sparkle_a, "				1		183	 62 4	 2");
-		strcat(afc_2_sparkle_a, "				 1	 641 8123	 3");
-		strcat(afc_2_sparkle_a, "				 2	185143242	 4");
-		strcat(afc_2_sparkle_a, "						 64168161	 5");
-		strcat(afc_2_sparkle_a, "						185 8314	 4");
-		strcat(afc_2_sparkle_a, "						274 46 6	 5");
-		strcat(afc_2_sparkle_a, "						36218614	 4");
-		strcat(afc_2_sparkle_a, "						254244262	 2");
-		strcat(afc_2_sparkle_a, "						147382144	 1");
-		strcat(afc_2_sparkle_a, "						235261262		");
-		strcat(afc_2_sparkle_a, "						327141145		");
-		strcat(afc_2_sparkle_a, "						215 2 122		");
-		strcat(afc_2_sparkle_a, "						1 7		216		");
-*/	
-		
-		// The L animations are loops. 
-		//
-		// These always start with pixels 11 and 12 (counting from 0) at 8, and return to the same position. 
-		
-		//											123456789012345678901234
-		strcpy(afc_l_pulsar_a, "					 88						");
-		strcat(afc_l_pulsar_a, "					1881					");
-		strcat(afc_l_pulsar_a, "					2882					");
-		strcat(afc_l_pulsar_a, "				 138831					");
-		strcat(afc_l_pulsar_a, "				 248842					");
-		strcat(afc_l_pulsar_a, "				13588531				");
-		strcat(afc_l_pulsar_a, "			 1246886421				");
-		strcat(afc_l_pulsar_a, "			123578875321			");
-		strcat(afc_l_pulsar_a, "		 12346888864321			");
-		strcat(afc_l_pulsar_a, "		1234578888754321		");
-		strcat(afc_l_pulsar_a, "	 123456888888654321		");
-		strcat(afc_l_pulsar_a, "	12345677888877654321	");
-		strcat(afc_l_pulsar_a, " 1234567868888687654321 ");
-		strcat(afc_l_pulsar_a, "123456787578875787654321");
-		strcat(afc_l_pulsar_a, "234567876468864678765432");
-		strcat(afc_l_pulsar_a, "123456765358853567654321");
-		strcat(afc_l_pulsar_a, " 1234565424884245654321 ");
-		strcat(afc_l_pulsar_a, "	12345431388313454321	");
-		strcat(afc_l_pulsar_a, "	 123432 2882 2343210	");
-		strcat(afc_l_pulsar_a, "		12321 1881 123210		");
-		strcat(afc_l_pulsar_a, "		 121	1881	1210		");
-		strcat(afc_l_pulsar_a, "			1		 88		 1			");
-		
-		
-		// The F animations are fragments.
-		
-		// The plan is to cut them into "intro" and "outro" animations, with loop animations inserted in between
-		// Hopefully we can have enough SRAM for multiple "intro" and "outro" animations, so that the motion doesn't become predictable. 
-		// Also, incorporating auto-trails and controllable acceleration factors in UpdateTravel methods means that we reduce the number
-		// of frames of animation that we have to render into RAM. 
-
-		//											 12345678901234567
-		strcpy(afc_f_slow_stop, "123456788				");
-		strcat(afc_f_slow_stop, " 123456778				");
-		strcat(afc_f_slow_stop, "	 123456678			");
-		strcat(afc_f_slow_stop, "		12345568			");
-		strcat(afc_f_slow_stop, "		 12344578			");
-		strcat(afc_f_slow_stop, "			1233468			");
-		strcat(afc_f_slow_stop, "			 122357			");
-		strcat(afc_f_slow_stop, "				112468		");
-		strcat(afc_f_slow_stop, "					1358		");
-		strcat(afc_f_slow_stop, "					 248		");
-		strcat(afc_f_slow_stop, "					 158		");
-		strcat(afc_f_slow_stop, "						68		");
-		strcat(afc_f_slow_stop, "					 178		");
-		strcat(afc_f_slow_stop, "					 288		");
-		strcat(afc_f_slow_stop, "					 388		");
-		strcat(afc_f_slow_stop, "					 488		");
-		strcat(afc_f_slow_stop, "					 588		");
-		strcat(afc_f_slow_stop, "					 688		");
-		strcat(afc_f_slow_stop, "					 788		");
-		strcat(afc_f_slow_stop, "					 887		");
-		strcat(afc_f_slow_stop, "					 886		");
-		strcat(afc_f_slow_stop, "					 885		");
-		strcat(afc_f_slow_stop, "					 884		");
-		strcat(afc_f_slow_stop, "					 883		");
-		strcat(afc_f_slow_stop, "					2882		");
-		strcat(afc_f_slow_stop, "				 23871		");
-		strcat(afc_f_slow_stop, "				 3486			");
-		strcat(afc_f_slow_stop, "				 4585			");
-		strcat(afc_f_slow_stop, "				 5684			");
-		strcat(afc_f_slow_stop, "				 6783			");
-		strcat(afc_f_slow_stop, "				 7882			");
-		strcat(afc_f_slow_stop, "				48871			");
-		strcat(afc_f_slow_stop, "				5876			");
-		strcat(afc_f_slow_stop, "				6865			");
-		strcat(afc_f_slow_stop, "				7854			");
-		strcat(afc_f_slow_stop, "			 48843			");
-		strcat(afc_f_slow_stop, "			 58832			");
-		strcat(afc_f_slow_stop, "			 68821			");
-		strcat(afc_f_slow_stop, "			 7881				");
-		strcat(afc_f_slow_stop, "			5888				");
-		strcat(afc_f_slow_stop, "			6887				");
-		strcat(afc_f_slow_stop, "			7876				");
-		strcat(afc_f_slow_stop, "			8865				");
-		strcat(afc_f_slow_stop, "			8854				");
-		strcat(afc_f_slow_stop, "			7883				");
-		strcat(afc_f_slow_stop, "			6882				");
-		strcat(afc_f_slow_stop, "			5788				");
-		strcat(afc_f_slow_stop, "			4688				");
-		strcat(afc_f_slow_stop, "			3588				");
-		strcat(afc_f_slow_stop, "			24788				");
-		strcat(afc_f_slow_stop, "			13688				");
-		strcat(afc_f_slow_stop, "			 2578				");
-		strcat(afc_f_slow_stop, "			 14688			");
-		strcat(afc_f_slow_stop, "				3588			");
-		strcat(afc_f_slow_stop, "				2488			");
-		strcat(afc_f_slow_stop, "				13788			");
-		strcat(afc_f_slow_stop, "				 2688			");
-		strcat(afc_f_slow_stop, "				 1588			");
-		strcat(afc_f_slow_stop, "				 14788		");
-		strcat(afc_f_slow_stop, "				 13688		");
-		strcat(afc_f_slow_stop, "				 125788		");
-		strcat(afc_f_slow_stop, "				 1246788	");
-		strcat(afc_f_slow_stop, "				 12356788 ");
-		strcat(afc_f_slow_stop, "				 123456788");
-		strcat(afc_f_slow_stop, "									");
-		
-		//												 1234567890123456789012345
-		strcpy(afc_f_slow_stop_c, "123456788								");
-		strcat(afc_f_slow_stop_c, " 1234567882							");
-		strcat(afc_f_slow_stop_c, "	 1234567782							");
-		strcat(afc_f_slow_stop_c, "		1234566782						");
-		strcat(afc_f_slow_stop_c, "		 123455684						");
-		strcat(afc_f_slow_stop_c, "			123445782						");
-		strcat(afc_f_slow_stop_c, "			 12334684						");
-		strcat(afc_f_slow_stop_c, "				1223586						");
-		strcat(afc_f_slow_stop_c, "				 1124782					");
-		strcat(afc_f_slow_stop_c, "					 13684					");
-		strcat(afc_f_slow_stop_c, "						2586					");
-		strcat(afc_f_slow_stop_c, "						1487					");
-		strcat(afc_f_slow_stop_c, "						 378					");
-		strcat(afc_f_slow_stop_c, "						 268					");
-		strcat(afc_f_slow_stop_c, "						 158					");
-		strcat(afc_f_slow_stop_c, "							48					");
-		strcat(afc_f_slow_stop_c, "							38					");
-		strcat(afc_f_slow_stop_c, "							28					");
-		strcat(afc_f_slow_stop_c, "							18					");
-		strcat(afc_f_slow_stop_c, "							18					");
-		strcat(afc_f_slow_stop_c, "							38					");
-		strcat(afc_f_slow_stop_c, "							58					");
-		strcat(afc_f_slow_stop_c, "							78					");
-		strcat(afc_f_slow_stop_c, "							88					");
-		strcat(afc_f_slow_stop_c, "							88					");
-		strcat(afc_f_slow_stop_c, "						 288					");
-		strcat(afc_f_slow_stop_c, "						 488					");
-		strcat(afc_f_slow_stop_c, "						 688					");
-		strcat(afc_f_slow_stop_c, "						 788					");
-		strcat(afc_f_slow_stop_c, "						 887					");
-		strcat(afc_f_slow_stop_c, "						 886					");
-		strcat(afc_f_slow_stop_c, "						2885					");
-		strcat(afc_f_slow_stop_c, "						4884					");
-		strcat(afc_f_slow_stop_c, "						6884					");
-		strcat(afc_f_slow_stop_c, "						7883					");
-		strcat(afc_f_slow_stop_c, "						8873					");
-		strcat(afc_f_slow_stop_c, "						8862					");
-		strcat(afc_f_slow_stop_c, "						8852					");
-		strcat(afc_f_slow_stop_c, "					 28841					");
-		strcat(afc_f_slow_stop_c, "					 48841					");
-		strcat(afc_f_slow_stop_c, "					 6883						");
-		strcat(afc_f_slow_stop_c, "					 7873						");
-		strcat(afc_f_slow_stop_c, "					 8862						");
-		strcat(afc_f_slow_stop_c, "					28852						");
-		strcat(afc_f_slow_stop_c, "					48841						");
-		strcat(afc_f_slow_stop_c, "					68841						");
-		strcat(afc_f_slow_stop_c, "					7883						");
-		strcat(afc_f_slow_stop_c, "				 28873						");
-		strcat(afc_f_slow_stop_c, "				 48862						");
-		strcat(afc_f_slow_stop_c, "				 68852						");
-		strcat(afc_f_slow_stop_c, "				 78841						");
-		strcat(afc_f_slow_stop_c, "				388741						");
-		strcat(afc_f_slow_stop_c, "				58863							");
-		strcat(afc_f_slow_stop_c, "				78853							");
-		strcat(afc_f_slow_stop_c, "				88742							");
-		strcat(afc_f_slow_stop_c, "				88642							");
-		strcat(afc_f_slow_stop_c, "				87531							");
-		strcat(afc_f_slow_stop_c, "				86431							");
-		strcat(afc_f_slow_stop_c, "				8542							");
-		strcat(afc_f_slow_stop_c, "				8432							");
-		strcat(afc_f_slow_stop_c, "				8321							");
-		strcat(afc_f_slow_stop_c, "				821								");
-		strcat(afc_f_slow_stop_c, "				81								");
-		strcat(afc_f_slow_stop_c, "				8									");
-		strcat(afc_f_slow_stop_c, "				82								");
-		strcat(afc_f_slow_stop_c, "				84								");
-		strcat(afc_f_slow_stop_c, "				86								");
-		strcat(afc_f_slow_stop_c, "				88								");
-		strcat(afc_f_slow_stop_c, "				788								");
-		strcat(afc_f_slow_stop_c, "				688								");
-		strcat(afc_f_slow_stop_c, "				5788							");
-		strcat(afc_f_slow_stop_c, "				46788							");
-		strcat(afc_f_slow_stop_c, "				356788						");
-		strcat(afc_f_slow_stop_c, "				24567788					");
-		strcat(afc_f_slow_stop_c, "				1345667788				");
-		strcat(afc_f_slow_stop_c, "				123455667788			");
-		strcat(afc_f_slow_stop_c, "				 123445566788			");
-		strcat(afc_f_slow_stop_c, "					1233445567788		");
-		strcat(afc_f_slow_stop_c, "					 1223344566788	");
-		strcat(afc_f_slow_stop_c, "							12334456788 ");
-		strcat(afc_f_slow_stop_c, "								 123456788");
-		strcat(afc_f_slow_stop_c, "													");
+#if NUM_COLORSETS > 5
+// Original purple.
+		colorSets[5][0] = 0x000000;
+		colorSets[5][1] = 0x000000;
+		colorSets[5][2] = 0x010001;
+		colorSets[5][3] = 0x030102;
+		colorSets[5][4] = 0x060305;
+		colorSets[5][5] = 0x0C060A;
+		colorSets[5][6] = 0x180C14;
+		colorSets[5][7] = 0x311828;
+		colorSets[5][8] = 0x633051;
+#endif
 }
